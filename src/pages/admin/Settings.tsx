@@ -101,26 +101,26 @@ const AdminSettings = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B38B46]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0071DC]"></div>
       </div>
     );
   }
 
-  const InputStyle = "border-[#D4B6A2]/30 focus:border-[#B38B46] focus:ring-[#B38B46]/20 bg-[#F9F9F7] text-[#4A1C1F]";
-  const LabelStyle = "text-[#7E5A34] text-xs uppercase tracking-widest font-medium";
-  const CardStyle = "border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300";
+  const InputStyle = "h-[40px] px-3 bg-[#FFFFFF] border-[1.5px] border-[#E0E3E7] rounded-[8px] text-[14px] text-[#1A1A1A] focus:border-[#0071DC] focus:outline-none transition-colors w-full";
+  const LabelStyle = "text-[#5F6368] text-[12px] font-[500] mb-1.5 block tracking-wide";
+  const CardStyle = "bg-[#FFFFFF] border-[0.5px] border-[#E0E3E7] rounded-[12px] shadow-sm hover:border-[#0071DC] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)] transition-all duration-220";
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center border-b border-[#D4B6A2]/20 pb-6">
+      <div className="flex justify-between items-center border-b border-[#E0E3E7] pb-6">
         <div>
-          <h1 className="text-3xl font-serif text-[#4A1C1F] tracking-tight mb-1">Configuration</h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">Manage system settings and preferences</p>
+          <h1 className="text-[28px] font-[500] text-[#1A1A1A] tracking-[-0.02em] mb-1">Configuration</h1>
+          <p className="text-[#5F6368] tracking-wide text-sm">Manage system settings and preferences</p>
         </div>
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white uppercase tracking-widest text-xs h-10 px-6 rounded-none transition-all duration-300 shadow-md"
+          className="h-[40px] px-6 bg-[#0071DC] hover:bg-[#0055A6] text-white rounded-[8px] font-[500] text-[14px] transition-all duration-200 hover:-translate-y-[1px]"
         >
           <Save className="w-4 h-4 mr-2" />
           {saving ? 'Saving...' : 'Save Changes'}
@@ -128,21 +128,21 @@ const AdminSettings = () => {
       </div>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-7 bg-[#F5EFE7] p-1 border border-[#D4B6A2]/20 rounded-none mb-6">
-          <TabsTrigger value="general" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all">General</TabsTrigger>
-          <TabsTrigger value="business" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all">Business</TabsTrigger>
-          <TabsTrigger value="operations" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all">Operations</TabsTrigger>
-          <TabsTrigger value="payments" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all">Payments</TabsTrigger>
-          <TabsTrigger value="notifications" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all">Notifications</TabsTrigger>
-          <TabsTrigger value="display" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all">Display</TabsTrigger>
-          <TabsTrigger value="security" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all">Security</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-7 bg-[#F6F7F8] p-1 border border-[#E0E3E7] rounded-[8px] mb-6">
+          <TabsTrigger value="general" className="data-[state=active]:bg-[#0071DC] data-[state=active]:text-white font-[500] text-[14px] rounded-[6px] transition-all">General</TabsTrigger>
+          <TabsTrigger value="business" className="data-[state=active]:bg-[#0071DC] data-[state=active]:text-white font-[500] text-[14px] rounded-[6px] transition-all">Business</TabsTrigger>
+          <TabsTrigger value="operations" className="data-[state=active]:bg-[#0071DC] data-[state=active]:text-white font-[500] text-[14px] rounded-[6px] transition-all">Operations</TabsTrigger>
+          <TabsTrigger value="payments" className="data-[state=active]:bg-[#0071DC] data-[state=active]:text-white font-[500] text-[14px] rounded-[6px] transition-all">Payments</TabsTrigger>
+          <TabsTrigger value="notifications" className="data-[state=active]:bg-[#0071DC] data-[state=active]:text-white font-[500] text-[14px] rounded-[6px] transition-all">Notifications</TabsTrigger>
+          <TabsTrigger value="display" className="data-[state=active]:bg-[#0071DC] data-[state=active]:text-white font-[500] text-[14px] rounded-[6px] transition-all">Display</TabsTrigger>
+          <TabsTrigger value="security" className="data-[state=active]:bg-[#0071DC] data-[state=active]:text-white font-[500] text-[14px] rounded-[6px] transition-all">Security</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <Globe className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <Globe className="w-5 h-5 text-[#0071DC]" />
                 <span>Store Information</span>
               </CardTitle>
             </CardHeader>
@@ -216,7 +216,7 @@ const AdminSettings = () => {
 
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="text-[#4A1C1F] font-serif text-lg">SEO Settings</CardTitle>
+              <CardTitle className="text-[#1A1A1A] text-[17px] font-[500]">SEO Settings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -257,8 +257,8 @@ const AdminSettings = () => {
         <TabsContent value="operations" className="space-y-6">
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <Clock className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <Clock className="w-5 h-5 text-[#0071DC]" />
                 <span>Business Hours & Operations</span>
               </CardTitle>
             </CardHeader>
@@ -322,13 +322,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Auto Approve Orders</Label>
-                  <p className="text-xs text-[#5C4638]">Automatically approve new orders</p>
+                  <Label className="text-[#1A1A1A]">Auto Approve Orders</Label>
+                  <p className="text-xs text-[#5F6368]">Automatically approve new orders</p>
                 </div>
                 <Switch
                   checked={settings.auto_approve_orders || false}
                   onCheckedChange={(checked) => updateSetting('auto_approve_orders', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
             </CardContent>
@@ -338,21 +338,21 @@ const AdminSettings = () => {
         <TabsContent value="payments" className="space-y-6">
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <CreditCard className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <CreditCard className="w-5 h-5 text-[#0071DC]" />
                 <span>Payment Methods</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Razorpay Payments</Label>
-                  <p className="text-xs text-[#5C4638]">Enable online payments via Razorpay</p>
+                  <Label className="text-[#1A1A1A]">Razorpay Payments</Label>
+                  <p className="text-xs text-[#5F6368]">Enable online payments via Razorpay</p>
                 </div>
                 <Switch
                   checked={settings.razorpay_enabled || false}
                   onCheckedChange={(checked) => updateSetting('razorpay_enabled', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -360,13 +360,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Cash on Delivery</Label>
-                  <p className="text-xs text-[#5C4638]">Enable COD payments</p>
+                  <Label className="text-[#1A1A1A]">Cash on Delivery</Label>
+                  <p className="text-xs text-[#5F6368]">Enable COD payments</p>
                 </div>
                 <Switch
                   checked={settings.cod_enabled || false}
                   onCheckedChange={(checked) => updateSetting('cod_enabled', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -374,13 +374,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">UPI Payments</Label>
-                  <p className="text-xs text-[#5C4638]">Enable UPI payments</p>
+                  <Label className="text-[#1A1A1A]">UPI Payments</Label>
+                  <p className="text-xs text-[#5F6368]">Enable UPI payments</p>
                 </div>
                 <Switch
                   checked={settings.upi_enabled || false}
                   onCheckedChange={(checked) => updateSetting('upi_enabled', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -388,13 +388,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Card Payments</Label>
-                  <p className="text-xs text-[#5C4638]">Enable credit/debit card payments</p>
+                  <Label className="text-[#1A1A1A]">Card Payments</Label>
+                  <p className="text-xs text-[#5F6368]">Enable credit/debit card payments</p>
                 </div>
                 <Switch
                   checked={settings.card_enabled || false}
                   onCheckedChange={(checked) => updateSetting('card_enabled', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -402,13 +402,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Net Banking</Label>
-                  <p className="text-xs text-[#5C4638]">Enable net banking payments</p>
+                  <Label className="text-[#1A1A1A]">Net Banking</Label>
+                  <p className="text-xs text-[#5F6368]">Enable net banking payments</p>
                 </div>
                 <Switch
                   checked={settings.netbanking_enabled || false}
                   onCheckedChange={(checked) => updateSetting('netbanking_enabled', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
             </CardContent>
@@ -418,21 +418,21 @@ const AdminSettings = () => {
         <TabsContent value="notifications" className="space-y-6">
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <Bell className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <Bell className="w-5 h-5 text-[#0071DC]" />
                 <span>Admin Notification Preferences</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Email Notifications</Label>
-                  <p className="text-xs text-[#5C4638]">Receive admin notifications via email</p>
+                  <Label className="text-[#1A1A1A]">Email Notifications</Label>
+                  <p className="text-xs text-[#5F6368]">Receive admin notifications via email</p>
                 </div>
                 <Switch
                   checked={settings.email_notifications || false}
                   onCheckedChange={(checked) => updateSetting('email_notifications', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -440,13 +440,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">SMS Notifications</Label>
-                  <p className="text-xs text-[#5C4638]">Receive admin notifications via SMS</p>
+                  <Label className="text-[#1A1A1A]">SMS Notifications</Label>
+                  <p className="text-xs text-[#5F6368]">Receive admin notifications via SMS</p>
                 </div>
                 <Switch
                   checked={settings.sms_notifications || false}
                   onCheckedChange={(checked) => updateSetting('sms_notifications', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -454,13 +454,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Order Notifications</Label>
-                  <p className="text-xs text-[#5C4638]">Get notified about new orders</p>
+                  <Label className="text-[#1A1A1A]">Order Notifications</Label>
+                  <p className="text-xs text-[#5F6368]">Get notified about new orders</p>
                 </div>
                 <Switch
                   checked={settings.order_notifications || false}
                   onCheckedChange={(checked) => updateSetting('order_notifications', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -468,13 +468,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Low Stock Alerts</Label>
-                  <p className="text-xs text-[#5C4638]">Alert when products are running low</p>
+                  <Label className="text-[#1A1A1A]">Low Stock Alerts</Label>
+                  <p className="text-xs text-[#5F6368]">Alert when products are running low</p>
                 </div>
                 <Switch
                   checked={settings.low_stock_alerts || false}
                   onCheckedChange={(checked) => updateSetting('low_stock_alerts', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -482,13 +482,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Payment Notifications</Label>
-                  <p className="text-xs text-[#5C4638]">Get notified about payment updates</p>
+                  <Label className="text-[#1A1A1A]">Payment Notifications</Label>
+                  <p className="text-xs text-[#5F6368]">Get notified about payment updates</p>
                 </div>
                 <Switch
                   checked={settings.payment_notifications || false}
                   onCheckedChange={(checked) => updateSetting('payment_notifications', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -496,13 +496,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Customer Notifications</Label>
-                  <p className="text-xs text-[#5C4638]">Enable notifications to customers</p>
+                  <Label className="text-[#1A1A1A]">Customer Notifications</Label>
+                  <p className="text-xs text-[#5F6368]">Enable notifications to customers</p>
                 </div>
                 <Switch
                   checked={settings.customer_notifications || false}
                   onCheckedChange={(checked) => updateSetting('customer_notifications', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
             </CardContent>
@@ -512,8 +512,8 @@ const AdminSettings = () => {
         <TabsContent value="business" className="space-y-6">
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <DollarSign className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <DollarSign className="w-5 h-5 text-[#0071DC]" />
                 <span>Currency & Tax Settings</span>
               </CardTitle>
             </CardHeader>
@@ -557,8 +557,8 @@ const AdminSettings = () => {
 
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <Truck className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <Truck className="w-5 h-5 text-[#0071DC]" />
                 <span>Delivery Settings</span>
               </CardTitle>
             </CardHeader>
@@ -624,7 +624,7 @@ const AdminSettings = () => {
 
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="text-[#4A1C1F] font-serif text-lg">Order Limits & Discounts</CardTitle>
+              <CardTitle className="text-[#1A1A1A] text-[17px] font-[500]">Order Limits & Discounts</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -679,21 +679,21 @@ const AdminSettings = () => {
         <TabsContent value="security" className="space-y-6">
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <Shield className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <Shield className="w-5 h-5 text-[#0071DC]" />
                 <span>Security Settings</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Two-Factor Authentication</Label>
-                  <p className="text-xs text-[#5C4638]">Add an extra layer of security</p>
+                  <Label className="text-[#1A1A1A]">Two-Factor Authentication</Label>
+                  <p className="text-xs text-[#5F6368]">Add an extra layer of security</p>
                 </div>
                 <Switch
                   checked={settings.enable_two_factor || false}
                   onCheckedChange={(checked) => updateSetting('enable_two_factor', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -723,13 +723,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Require Email Verification</Label>
-                  <p className="text-xs text-[#5C4638]">Require email verification for new accounts</p>
+                  <Label className="text-[#1A1A1A]">Require Email Verification</Label>
+                  <p className="text-xs text-[#5F6368]">Require email verification for new accounts</p>
                 </div>
                 <Switch
                   checked={settings.require_email_verification || false}
                   onCheckedChange={(checked) => updateSetting('require_email_verification', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
             </CardContent>
@@ -739,8 +739,8 @@ const AdminSettings = () => {
         <TabsContent value="display" className="space-y-6">
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <Palette className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <Palette className="w-5 h-5 text-[#0071DC]" />
                 <span>Display Settings</span>
               </CardTitle>
             </CardHeader>
@@ -782,13 +782,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Enable Reviews</Label>
-                  <p className="text-xs text-[#5C4638]">Allow customers to review products</p>
+                  <Label className="text-[#1A1A1A]">Enable Reviews</Label>
+                  <p className="text-xs text-[#5F6368]">Allow customers to review products</p>
                 </div>
                 <Switch
                   checked={settings.enable_reviews || false}
                   onCheckedChange={(checked) => updateSetting('enable_reviews', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -796,13 +796,13 @@ const AdminSettings = () => {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label className="text-[#4A1C1F]">Enable Ratings</Label>
-                  <p className="text-xs text-[#5C4638]">Allow customers to rate products</p>
+                  <Label className="text-[#1A1A1A]">Enable Ratings</Label>
+                  <p className="text-xs text-[#5F6368]">Allow customers to rate products</p>
                 </div>
                 <Switch
                   checked={settings.enable_ratings || false}
                   onCheckedChange={(checked) => updateSetting('enable_ratings', checked)}
-                  className="data-[state=checked]:bg-[#B38B46]"
+                  className="data-[state=checked]:bg-[#0071DC]"
                 />
               </div>
 
@@ -828,15 +828,15 @@ const AdminSettings = () => {
         <TabsContent value="integrations" className="space-y-6">
           <Card className={CardStyle}>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-[#4A1C1F] font-serif text-lg">
-                <Package className="w-5 h-5 text-[#B38B46]" />
+              <CardTitle className="flex items-center space-x-2 text-[#1A1A1A] text-[17px] font-[500]">
+                <Package className="w-5 h-5 text-[#0071DC]" />
                 <span>Third-party Integrations</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 border border-[#D4B6A2]/20 rounded-lg bg-[#F9F9F7]">
                 <h3 className="font-medium mb-1 text-[#4A1C1F]">Google Maps API - Removed</h3>
-                <p className="text-xs text-[#5C4638]">Location features have been removed. Users now manually enter addresses.</p>
+                <p className="text-xs text-[#5F6368]">Location features have been removed. Users now manually enter addresses.</p>
               </div>
 
               <div className="p-4 border border-[#D4B6A2]/20 rounded-lg bg-white">

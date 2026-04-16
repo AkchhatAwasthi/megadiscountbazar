@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 import { useNavigate } from 'react-router-dom';
 import { useSettings } from '../hooks/useSettings';
 import { toNumber, formatCurrency, calculatePercentage } from '../utils/settingsHelpers';
+import { X, ShoppingBag, Trash2, Plus, Minus, Truck, ShieldCheck, ArrowRight } from 'lucide-react';
 
 interface CartSidebarProps {
   isAdminRoute?: boolean;
@@ -37,12 +38,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isAdminRoute = false }) => {
     };
   }, [isCartOpen, toggleCart]);
 
-  // Don't render cart sidebar content for admin routes
-  if (isAdminRoute) {
-    return null;
-  }
-
-  if (settingsLoading) {
+  if (isAdminRoute || settingsLoading) {
     return null;
   }
 
@@ -76,10 +72,10 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isAdminRoute = false }) => {
   return (
     <AnimatePresence>
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
+        <div className="fixed inset-0 z-[100] flex justify-end">
           {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -89,106 +85,126 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isAdminRoute = false }) => {
           {/* Sidebar */}
           <motion.div
             ref={sidebarRef}
-            className="relative flex h-full w-full max-w-[480px] flex-col bg-[#F8FAFC] dark:bg-[#0B0B0F] border-l-4 border-primary shadow-2xl overflow-hidden grain-texture"
+            className="relative flex h-full w-full max-w-[420px] flex-col bg-white shadow-[-32px_0_64px_rgba(0,0,0,0.1)] overflow-hidden"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
           >
             {/* Header */}
-            <header className="flex items-center justify-between px-8 pt-10 pb-6">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-[#0B0B0F] dark:text-white text-3xl font-display font-bold tracking-tighter uppercase leading-none">YOUR ARCHIVE</h2>
-                <span className="text-primary text-xs font-bold tracking-[0.2em] uppercase">OBITO / SHINOBI GEAR</span>
-              </div>
-              <button
+            <header className="flex items-center justify-between px-6 pt-8 pb-4 shrink-0">
+               <div className="flex items-center gap-3">
+                  <div className="size-[40px] bg-[var(--blue-light)] rounded-full flex items-center justify-center text-[var(--blue-primary)] relative">
+                     <ShoppingBag size={20} />
+                     {cartItems.length > 0 && (
+                        <span className="absolute -top-1 -right-1 size-5 bg-[#E01E26] text-white text-[10px] font-[700] rounded-full flex items-center justify-center border-2 border-white">
+                           {cartItems.length}
+                        </span>
+                     )}
+                  </div>
+                  <h2 className="text-[20px] font-[600] text-[#1A1A1A] leading-none">Your Cart</h2>
+               </div>
+               <button
                 onClick={toggleCart}
-                className="size-10 flex items-center justify-center rounded-full bg-[#E7E5E4] hover:bg-[#D6D3D1] transition-colors"
+                className="size-10 flex items-center justify-center rounded-full bg-[#F6F7F8] hover:bg-[#E0E3E7] transition-colors text-[#5F6368]"
               >
-                <span className="material-symbols-outlined text-[#0B0B0F]">close</span>
+                <X size={20} />
               </button>
             </header>
 
-            {/* Progress Bar Section (Chakra Levels) */}
-            {freeDeliveryThreshold > 0 && (
-              <div className="px-8 py-4">
-                <div className="flex flex-col gap-3 p-5 rounded-2xl bg-white/50 border border-stone-100 chakra-glow">
-                  <div className="flex gap-6 justify-between items-end">
-                    <p className="text-[#0B0B0F] dark:text-white text-sm font-bold uppercase tracking-wide">Chakra Levels</p>
-                    <p className="text-primary text-lg font-bold leading-none">{Math.round(progress)}%</p>
-                  </div>
-                  <div className="relative h-2 rounded-full bg-stone-200 overflow-hidden">
-                    <div className="absolute inset-y-0 left-0 rounded-full bg-primary" style={{ width: `${progress}%` }}>
-                      {/* Subtle chakra pulse simulation */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-1/2 -translate-x-full animate-[pulse_2s_infinite]"></div>
-                    </div>
-                  </div>
-                  {progress < 100 ? (
-                    <p className="text-stone-500 text-xs font-medium">
-                      Add <span className="text-[#0B0B0F] dark:text-white font-bold">{formatCurrency(amountToFreeShipping, settings.currency_symbol)}</span> more for <span className="text-green-600 font-bold uppercase">Free Instant Transmission</span>
+            {/* Free Shipping Progress */}
+            {freeDeliveryThreshold > 0 && cartItems.length > 0 && (
+              <div className="px-6 py-4 bg-[#F6F7F8]/50 mt-2">
+                 <div className="flex justify-between items-center mb-2">
+                    <p className="text-[12px] font-[600] text-[#1A1A1A] uppercase tracking-wider flex items-center gap-2">
+                       <Truck size={14} className="text-[var(--blue-primary)]" />
+                       Shipping
                     </p>
-                  ) : (
-                    <p className="text-green-600 text-xs font-bold uppercase">Mission Requirement Met: Free Delivery</p>
-                  )}
-                </div>
+                    <span className="text-[12px] font-[700] text-[var(--blue-primary)]">
+                       {progress < 100 ? `${Math.round(progress)}%` : 'Unlocked!'}
+                    </span>
+                 </div>
+                 <div className="h-1.5 w-full bg-[#E0E3E7] rounded-full overflow-hidden mb-2">
+                    <div 
+                      className={`h-full transition-all duration-700 ease-out ${progress >= 100 ? 'bg-[#008A00]' : 'bg-[var(--blue-primary)]'}`} 
+                      style={{ width: `${progress}%` }}
+                    />
+                 </div>
+                 {progress < 100 ? (
+                    <p className="text-[11px] text-[#5F6368] font-[500]">
+                       Add <span className="text-[#1A1A1A] font-[700]">{formatCurrency(amountToFreeShipping, settings.currency_symbol)}</span> more for <span className="text-[#1A1A1A] font-[700]">Free Shipping</span>
+                    </p>
+                 ) : (
+                    <p className="text-[11px] text-[#008A00] font-[700] uppercase">Free Shipping Unlocked</p>
+                 )}
               </div>
             )}
 
-            {/* Cart Items Scroll Area */}
-            <div className="flex-1 overflow-y-auto px-8 py-4 space-y-6">
+            {/* Cart Items List */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar space-y-6">
               {cartItems.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
-                  <span className="material-symbols-outlined text-6xl mb-4 text-[#0B0B0F]/20 dark:text-white/20">shopping_bag</span>
-                  <p className="text-lg font-bold font-display text-[#0B0B0F] dark:text-white">Your archive is empty.</p>
-                  <p className="text-sm font-medium text-stone-500 uppercase tracking-widest mt-2">Acquire new equipment</p>
+                <div className="h-full flex flex-col items-center justify-center text-center p-12">
+                   <div className="size-[80px] bg-[#F6F7F8] rounded-full flex items-center justify-center mb-6 text-[#BDC1C6]">
+                      <ShoppingBag size={32} />
+                   </div>
+                   <p className="text-[18px] font-[600] text-[#1A1A1A]">Your cart is empty</p>
+                   <p className="text-[14px] text-[#5F6368] mt-2 mb-8">Start adding items to your cart to see them here.</p>
+                   <button 
+                     onClick={toggleCart}
+                     className="px-8 flex items-center justify-center h-[40px] bg-[#0071DC] hover:bg-[#0055A6] hover:-translate-y-[1px] text-white rounded-[8px] text-[14px] font-[500] transition-all active:scale-[0.98]"
+                   >
+                      Browse Products
+                   </button>
                 </div>
               ) : (
                 cartItems.map((item) => (
-                  <div key={`${item.id}-${item.selectedSize}`} className="flex items-center gap-5 group">
-                    <div className="relative shrink-0">
-                      <div
-                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-xl size-24 border border-stone-100 chakra-glow bg-gray-100 dark:bg-gray-800"
-                        style={{ backgroundImage: item.image ? `url("${item.image}")` : 'none' }}
-                      >
-                        {!item.image && <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-400">NO IMG</div>}
-                      </div>
-                      <div className="absolute -top-1 -right-1 size-6 bg-white rounded-full flex items-center justify-center border border-primary/20 shadow-sm">
-                        <span className="material-symbols-outlined text-[14px] text-primary fill-1">adjust</span>
-                      </div>
+                  <div key={`${item.id}-${item.selectedSize}`} className="flex gap-4 group">
+                    {/* Item Image */}
+                    <div className="size-[96px] bg-[#F6F7F8] rounded-[12px] border border-[#E0E3E7] shrink-0 overflow-hidden flex items-center justify-center relative">
+                      <img 
+                        src={item.image} 
+                        alt={item.name}
+                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+                      />
                     </div>
 
-                    <div className="flex flex-col flex-1 justify-center gap-1">
-                      <div className="flex justify-between items-start">
-                        <p className="text-[#0B0B0F] dark:text-white text-lg font-bold leading-tight font-display line-clamp-1">{item.name}</p>
-                        <span className="text-[#0B0B0F] dark:text-white font-bold">{formatCurrency(item.price * item.quantity, settings.currency_symbol)}</span>
-                      </div>
-                      <p className="text-stone-500 text-xs font-medium uppercase tracking-wider">
-                        Size: {item.selectedSize || 'Std'} | Unit: {formatCurrency(item.price, settings.currency_symbol)}
-                      </p>
-
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
-                            disabled={item.quantity <= 1}
-                            className="size-7 flex items-center justify-center rounded-full bg-[#0B0B0F] text-white hover:bg-primary transition-colors disabled:opacity-50"
+                    {/* Item Details */}
+                    <div className="flex-1 flex flex-col justify-between py-1">
+                      <div>
+                        <div className="flex justify-between items-start gap-2">
+                          <h3 className="text-[15px] font-[600] text-[#1A1A1A] leading-tight line-clamp-2">{item.name}</h3>
+                          <button 
+                             onClick={() => removeFromCart(item.id, item.selectedSize)}
+                             className="text-[#BDC1C6] hover:text-[#E01E26] transition-colors shrink-0"
                           >
-                            <span className="material-symbols-outlined text-sm">remove</span>
-                          </button>
-                          <span className="text-[#0B0B0F] dark:text-white font-bold text-sm w-4 text-center">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
-                            className="size-7 flex items-center justify-center rounded-full bg-[#0B0B0F] text-white hover:bg-primary transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-sm">add</span>
+                             <Trash2 size={16} />
                           </button>
                         </div>
-                        <button
-                          onClick={() => removeFromCart(item.id, item.selectedSize)}
-                          className="text-stone-400 hover:text-red-500 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-xl">delete</span>
-                        </button>
+                        <p className="text-[12px] text-[#5F6368] mt-1 uppercase font-[600] tracking-wider">
+                           Size: {item.selectedSize || 'Std'}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center border-[1.5px] border-[#E0E3E7] rounded-[8px] h-[32px] bg-white overflow-hidden">
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
+                            disabled={item.quantity <= 1}
+                            className="size-[32px] flex items-center justify-center hover:bg-[#F6F7F8] text-[#1A1A1A] transition-colors disabled:opacity-30"
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="w-[32px] text-center text-[13px] font-[700]">{item.quantity}</span>
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
+                            className="size-[32px] flex items-center justify-center hover:bg-[#F6F7F8] text-[#1A1A1A] transition-colors"
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
+                        <span className="text-[15px] font-[700] text-[#1A1A1A]">
+                           {formatCurrency(item.price * item.quantity, settings.currency_symbol)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -198,46 +214,44 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isAdminRoute = false }) => {
 
             {/* Sidebar Footer */}
             {cartItems.length > 0 && (
-              <footer className="bg-white dark:bg-[#0B0B0F] p-8 border-t border-stone-100 dark:border-white/10">
-                <div className="space-y-3 mb-8">
-                  <div className="flex justify-between text-stone-500 text-sm font-medium uppercase tracking-widest">
-                    <span>Subtotal</span>
-                    <span className="text-[#0B0B0F] dark:text-white font-bold">{formatCurrency(subtotal, settings.currency_symbol)}</span>
-                  </div>
-                  <div className="flex justify-between text-stone-500 text-sm font-medium uppercase tracking-widest">
-                    <span>Shipping</span>
-                    <span className={`font-bold ${deliveryFee === 0 ? 'text-green-600' : 'text-[#0B0B0F] dark:text-white'}`}>
-                      {deliveryFee === 0 ? 'Free Instant Transmission' : formatCurrency(deliveryFee, settings.currency_symbol)}
+              <footer className="bg-white p-6 border-t border-[#E0E3E7] shadow-[0_-16px_32px_rgba(0,0,0,0.05)]">
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[14px] text-[#5F6368]">Subtotal</span>
+                    <span className="text-[15px] font-[600] text-[#1A1A1A] font-inter">
+                       {formatCurrency(subtotal, settings.currency_symbol)}
                     </span>
                   </div>
-                  <div className="pt-4 flex justify-between items-center border-t border-stone-100 dark:border-white/10">
-                    <span className="text-[#0B0B0F] dark:text-white text-xl font-bold uppercase font-display">Total ARCHIVE</span>
-                    <span className="text-primary text-2xl font-bold tracking-tighter">{formatCurrency(total, settings.currency_symbol)}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[14px] text-[#5F6368]">Shipping</span>
+                    <span className={`text-[14px] font-[600] ${deliveryFee === 0 ? 'text-[#008A00]' : 'text-[#1A1A1A]'}`}>
+                      {deliveryFee === 0 ? 'FREE' : formatCurrency(deliveryFee, settings.currency_symbol)}
+                    </span>
+                  </div>
+                  <div className="pt-4 flex justify-between items-baseline border-t border-[#F6F7F8]">
+                    <span className="text-[18px] font-[700] text-[#1A1A1A]">Total</span>
+                    <span className="text-[24px] font-[700] text-[var(--blue-primary)] leading-none">
+                       {formatCurrency(total, settings.currency_symbol)}
+                    </span>
                   </div>
                 </div>
 
-                <button
-                  onClick={handleCheckout}
-                  className="w-full bg-primary hover:bg-primary/90 text-white rounded-full py-6 px-8 flex items-center justify-between group transition-all transform active:scale-[0.98] btn-summon relative overflow-hidden"
-                >
-                  <div className="summon-particles"></div>
-                  {/* Summoning Circle SVG */}
-                  <svg className="circle-svg absolute inset-0 w-full h-full text-white/20" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="5,5" />
-                    <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                    <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="currentColor" strokeWidth="0.5" transform="rotate(180 50 50)" />
-                    <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                  </svg>
-
-                  <span className="text-xl font-bold uppercase tracking-tighter font-display relative z-10">Proceed to Checkout</span>
-                  <div className="flex items-center gap-2 relative z-10">
-                    <span className="h-[1px] w-8 bg-white/40 group-hover:w-12 transition-all"></span>
-                    <span className="material-symbols-outlined">arrow_forward</span>
-                  </div>
-                </button>
-                <p className="text-center text-[10px] text-stone-400 mt-6 uppercase tracking-[0.3em]">
-                  SECURE NINJA ENCRYPTION ENABLED
-                </p>
+                <div className="flex flex-col gap-3">
+                   <button
+                     onClick={handleCheckout}
+                     className="w-full bg-[#FFC220] hover:bg-[#E6AA00] hover:shadow-[0_4px_12px_rgba(255,194,32,0.4)] hover:-translate-y-[1px] text-[#1A1A1A] h-[56px] rounded-[8px] font-[500] text-[16px] flex items-center justify-center gap-2 group transition-all active:scale-[0.98]"
+                   >
+                     Checkout
+                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                   </button>
+                   
+                   <div className="flex items-center justify-center gap-4 py-2 border-t border-[#F6F7F8] mt-2">
+                      <div className="flex items-center gap-1.5 text-[11px] font-[600] text-[#BDC1C6] uppercase tracking-[0.05em]">
+                         <ShieldCheck size={12} />
+                         Secure Checkout
+                      </div>
+                   </div>
+                </div>
               </footer>
             )}
           </motion.div>

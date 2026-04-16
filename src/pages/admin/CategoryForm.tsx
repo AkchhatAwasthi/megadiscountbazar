@@ -215,105 +215,130 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
     }
   };
 
-  const CardStyle = "border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300";
-  const LabelStyle = "text-[#7E5A34] text-xs uppercase tracking-widest font-medium";
-  const InputStyle = "border-[#D4B6A2]/30 focus:border-[#B38B46] bg-[#F9F9F7] text-[#4A1C1F] rounded-none focus:ring-[#B38B46]/20";
-
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between border-b border-[#D4B6A2]/20 pb-6">
-        <div>
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/admin/categories')}
-            className="text-[#5C4638] hover:text-[#4A1C1F] hover:bg-[#F9F9F7] p-0 mb-2 h-auto"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            <span className="uppercase tracking-widest text-xs">Back to Categories</span>
-          </Button>
-          <h1 className="text-3xl font-serif text-[#4A1C1F] tracking-tight">
-            {isEdit ? 'Edit Category' : 'Add New Category'}
-          </h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">
-            {isEdit ? 'Update category details and managing products' : 'Create a new product category'}
-          </p>
-        </div>
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+
+      {/* Page Header */}
+      <div style={{ marginBottom: 24 }}>
+        <button
+          type="button"
+          onClick={() => navigate('/admin/categories')}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            fontSize: 13, color: '#5F6368', padding: 0, marginBottom: 8,
+            transition: 'color 0.15s ease',
+          }}
+          onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#1A1A1A'}
+          onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#5F6368'}
+        >
+          <ArrowLeft style={{ width: 16, height: 16 }} />
+          Back to Categories
+        </button>
+        <h1 style={{ fontSize: 22, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>
+          {isEdit ? 'Edit Category' : 'Add New Category'}
+        </h1>
+        <p style={{ fontSize: 13, color: '#9AA0A6', margin: '4px 0 0' }}>
+          {isEdit ? 'Update category details and manage products' : 'Create a new product category'}
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card className={CardStyle}>
-            <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-              <CardTitle className="font-serif text-lg text-[#4A1C1F]">Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="name" className={LabelStyle}>Category Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter category name"
-                  required
-                  className={InputStyle}
-                />
-              </div>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20 }}
+          className="max-lg:grid-cols-1">
 
-              <div className="space-y-2">
-                <Label htmlFor="description" className={LabelStyle}>Description *</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Enter category description"
-                  rows={4}
-                  required
-                  className={InputStyle}
-                />
-              </div>
+          {/* Left Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="status" className={LabelStyle}>Status</Label>
+            {/* Basic Information */}
+            <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0E3E7' }}>
+                <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Basic Information</span>
+              </div>
+              <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label htmlFor="name" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>
+                    Category Name <span style={{ color: '#E74040' }}>*</span>
+                  </label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Enter category name"
+                    required
+                    style={{
+                      height: 40, padding: '0 12px',
+                      border: '1.5px solid #E0E3E7', borderRadius: 8,
+                      fontSize: 14, color: '#1A1A1A', background: '#FFFFFF', outline: 'none',
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label htmlFor="description" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>
+                    Description <span style={{ color: '#E74040' }}>*</span>
+                  </label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    placeholder="Enter category description"
+                    rows={4}
+                    required
+                    style={{
+                      padding: '10px 12px',
+                      border: '1.5px solid #E0E3E7', borderRadius: 8,
+                      fontSize: 14, color: '#1A1A1A', background: '#FFFFFF', outline: 'none',
+                      resize: 'vertical', minHeight: 100,
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label htmlFor="status" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Status</label>
                   <Select
                     value={formData.is_active ? 'active' : 'inactive'}
                     onValueChange={(value) => handleInputChange('is_active', value === 'active')}
                   >
-                    <SelectTrigger className="border-[#D4B6A2]/30 bg-[#F9F9F7] text-[#4A1C1F] rounded-none">
+                    <SelectTrigger style={{
+                      height: 40, padding: '0 12px',
+                      border: '1.5px solid #E0E3E7', borderRadius: 8,
+                      fontSize: 14, color: '#1A1A1A', background: '#FFFFFF',
+                    }}>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-[#D4B6A2]/20">
+                    <SelectContent className="bg-white border-[#E0E3E7] rounded-lg">
                       <SelectItem value="active" className="text-green-700">Active</SelectItem>
                       <SelectItem value="inactive" className="text-gray-500">Inactive</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Product Management - Only show in edit mode */}
-          {isEdit && id && (
-            <div className="border border-[#D4B6A2]/20 rounded-none overflow-hidden">
-              <CategoryProductManager
-                categoryId={id}
-                categoryName={formData.name || 'Category'}
-                onProductRemoved={handleProductRemoved}
-              />
             </div>
 
-          )}
+            {/* Product Management — Only in edit mode */}
+            {isEdit && id && (
+              <div style={{ border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+                <CategoryProductManager
+                  categoryId={id}
+                  categoryName={formData.name || 'Category'}
+                  onProductRemoved={handleProductRemoved}
+                />
+              </div>
+            )}
+          </div>
 
-        </div>
+          {/* Right Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-        <div className="space-y-6">
-          <Card className={CardStyle}>
-            <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-              <CardTitle className="font-serif text-lg text-[#4A1C1F]">Category Image</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="image" className={LabelStyle}>Upload Image</Label>
+            {/* Category Image */}
+            <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0E3E7' }}>
+                <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Category Image</span>
+              </div>
+              <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Upload Image</label>
                 <input
                   id="imageFile"
                   type="file"
@@ -321,99 +346,137 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                   onChange={handleImageUpload}
                   className="hidden"
                 />
-                <Button
+                <button
                   type="button"
-                  variant="outline"
                   onClick={() => document.getElementById('imageFile')?.click()}
-                  className="w-full border-[#D4B6A2]/50 text-[#5C4638] hover:bg-[#F9F9F7] uppercase tracking-widest text-xs rounded-none h-12"
                   disabled={uploadingImage}
+                  style={{
+                    width: '100%', height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    border: '1.5px solid #0071DC', borderRadius: 8, background: 'transparent',
+                    color: '#0071DC', fontSize: 13, fontWeight: 500, cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.15s ease', opacity: uploadingImage ? 0.6 : 1,
+                  }}
+                  onMouseEnter={e => { if (!uploadingImage) (e.currentTarget as HTMLElement).style.background = '#E6F1FB'; }}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                 >
-                  <Upload className="h-4 w-4 mr-2" />
+                  <Upload style={{ width: 16, height: 16 }} />
                   {uploadingImage ? 'Uploading...' : 'Choose Image'}
-                </Button>
-              </div>
+                </button>
 
-              {!formData.image_url && (
-                <div className="border border-dashed border-[#D4B6A2]/40 rounded-none p-8 text-center bg-[#F9F9F7]">
-                  <Upload className="h-8 w-8 mx-auto text-[#D4B6A2] mb-2" />
-                  <p className="text-sm text-[#5C4638]">
-                    Upload category image
-                  </p>
-                  <p className="text-xs text-[#7E5A34]/70 mt-1">
-                    PNG, JPG up to 10MB
-                  </p>
-                </div>
-              )}
+                {!formData.image_url && (
+                  <div style={{
+                    border: '2px dashed #E0E3E7', borderRadius: 10,
+                    padding: 32, textAlign: 'center', background: '#FAFBFC',
+                  }}>
+                    <Upload style={{ width: 32, height: 32, color: '#CBD5E1', margin: '0 auto 8px' }} />
+                    <p style={{ fontSize: 13, color: '#9AA0A6', margin: 0 }}>Upload category image</p>
+                    <p style={{ fontSize: 11, color: '#9AA0A6', margin: '4px 0 0' }}>PNG, JPG up to 10MB</p>
+                  </div>
+                )}
 
-              {formData.image_url && (
-                <div className="relative group">
-                  <img
-                    src={formData.image_url}
-                    alt="Category preview"
-                    className="w-full h-48 object-cover border border-[#D4B6A2]/20 rounded-none"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="rounded-none"
-                      onClick={removeImage}
-                      disabled={uploadingImage}
+                {formData.image_url && (
+                  <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden' }}>
+                    <img
+                      src={formData.image_url}
+                      alt="Category preview"
+                      style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 8 }}
+                    />
+                    <div style={{
+                      position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      transition: 'background 0.2s ease',
+                    }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.4)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0)'}
                     >
-                      <X className="h-4 w-4 mr-2" /> Remove
-                    </Button>
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        disabled={uploadingImage}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                          background: '#E74040', color: '#FFFFFF', border: 'none',
+                          borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                          opacity: uploadingImage ? 0.6 : 1,
+                        }}
+                      >
+                        <X style={{ width: 14, height: 14 }} /> Remove
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </div>
+            </div>
 
-          {/* Category Stats - Only show in edit mode */}
-          {isEdit && (
-            <Card className={CardStyle}>
-              <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-                <CardTitle className="font-serif text-lg text-[#4A1C1F]">Category Stats</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-[#D4B6A2]/10 pb-2">
-                    <span className="text-xs uppercase tracking-widest text-[#7E5A34]">Total Products</span>
-                    <span className="font-serif text-lg text-[#4A1C1F]">{productCount}</span>
+            {/* Category Stats — edit mode only */}
+            {isEdit && (
+              <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+                <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0E3E7' }}>
+                  <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Category Stats</span>
+                </div>
+                <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 12, borderBottom: '1px solid #F0F4F8' }}>
+                    <span style={{ fontSize: 12, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Products</span>
+                    <span style={{ fontSize: 20, fontWeight: 600, color: '#1A1A1A' }}>{productCount}</span>
                   </div>
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-xs uppercase tracking-widest text-[#7E5A34]">Status</span>
-                    <span className={`text-xs uppercase tracking-widest font-bold ${formData.is_active ? 'text-green-700' : 'text-gray-500'}`}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 12, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</span>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center',
+                      padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 500,
+                      background: formData.is_active ? '#EAF3DE' : '#F1EFE8',
+                      color: formData.is_active ? '#27500A' : '#444441',
+                    }}>
                       {formData.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card className={`${CardStyle} border-[#B38B46]/20 bg-[#F5EFE7]/30`}>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <Button
-                  type="submit"
-                  className="w-full bg-[#4A1C1F] hover:bg-[#5C4638] text-white uppercase tracking-widest text-xs h-12 rounded-none transition-all duration-300 shadow-md hover:shadow-lg"
-                  disabled={loading || uploadingImage}
-                >
-                  {loading ? 'Saving...' : isEdit ? 'Update Category' : 'Create Category'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full border-[#D4B6A2] text-[#5C4638] hover:bg-[#4A1C1F] hover:text-white hover:border-[#4A1C1F] uppercase tracking-widest text-xs h-10 rounded-none transition-all"
-                  onClick={() => navigate('/admin/categories')}
-                  disabled={loading}
-                >
-                  Cancel
-                </Button>
               </div>
-            </CardContent>
-          </Card>
+            )}
+
+            {/* Actions */}
+            <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button
+                type="submit"
+                disabled={loading || uploadingImage}
+                style={{
+                  width: '100%', height: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  background: loading || uploadingImage ? '#5A8FFF' : '#0071DC',
+                  color: '#FFFFFF', border: 'none', borderRadius: 8,
+                  fontSize: 14, fontWeight: 500, cursor: loading || uploadingImage ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.15s ease',
+                  opacity: loading || uploadingImage ? 0.7 : 1,
+                }}
+                onMouseEnter={e => { if (!loading && !uploadingImage) (e.currentTarget as HTMLElement).style.background = '#0055A6'; }}
+                onMouseLeave={e => { if (!loading && !uploadingImage) (e.currentTarget as HTMLElement).style.background = '#0071DC'; }}
+              >
+                {loading ? 'Saving...' : isEdit ? 'Update Category' : 'Create Category'}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/admin/categories')}
+                disabled={loading}
+                style={{
+                  width: '100%', height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'transparent', color: '#5F6368',
+                  border: '1.5px solid #E0E3E7', borderRadius: 8,
+                  fontSize: 13, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.background = '#F6F7F8';
+                  (e.currentTarget as HTMLElement).style.color = '#1A1A1A';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.background = 'transparent';
+                  (e.currentTarget as HTMLElement).style.color = '#5F6368';
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+
+          </div>
         </div>
       </form>
     </div>

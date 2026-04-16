@@ -130,12 +130,12 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         .company-name {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #4A1C1F;
+            color: #1a1a1a;
             margin: 0;
         }
         
         .invoice-badge {
-            background: #1a1a1a;
+            background: #0071DC;
             color: white;
             padding: 3px 10px;
             border-radius: 0;
@@ -164,7 +164,7 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         }
         
         .info-section h3 {
-            color: #4A1C1F;
+            color: #1a1a1a;
             margin-bottom: 10px;
             font-size: 1rem;
             font-weight: 600;
@@ -185,13 +185,13 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         
         .info-section p {
             margin-bottom: 5px;
-            color: #5C4638;
+            color: #5F6368;
             font-size: 0.9rem;
         }
         
         .info-section strong {
-            color: #4A1C1F;
-            font-weight: 500;
+            color: #1a1a1a;
+            font-weight: 600;
         }
         
         .items-table {
@@ -216,7 +216,7 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         
         .items-table td {
             padding: 6px 6px;
-            border-bottom: 1px solid #D4B6A2;
+            border-bottom: 1px solid #E0E3E7;
         }
         
         .items-table tr:last-child td {

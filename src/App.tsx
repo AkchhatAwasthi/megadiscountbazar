@@ -179,9 +179,10 @@ const AppContent = () => {
 
             <Route path="*" element={<NotFound />} />
           </Routes>
-          {!isAuthPage && !isProfilePage && !isOrderDetailPage && <Footer isAdminRoute={isAdminRoute} />}
-          {!isAuthPage && !isProfilePage && !isOrderDetailPage && <CartSidebar isAdminRoute={isAdminRoute} />}
-          {!isAuthPage && !isProfilePage && !isOrderDetailPage && <FloatingWhatsApp />}
+          {/* Global components */}
+          {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <Footer />}
+          {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <CartSidebar />}
+          {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <FloatingWhatsApp />}
           <ShinobiToast />
           <FloatingProductCard />
           <Toaster />

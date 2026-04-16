@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Filter, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, Eye, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -125,189 +125,267 @@ const AdminProducts = () => {
     return 'active';
   };
 
+  const getStatusStyle = (product: any) => {
+    const status = getStatus(product);
+    if (status === 'out-of-stock') return { background: '#FCEBEB', color: '#A32D2D' };
+    if (status === 'inactive') return { background: '#F1EFE8', color: '#444441' };
+    return { background: '#EAF3DE', color: '#27500A' };
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[#D4B6A2]/20 pb-6">
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+
+      {/* Page Header */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 24 }}>
         <div>
-          <h1 className="text-3xl md:text-4xl font-serif text-[#4A1C1F] mb-2 tracking-tight">Products</h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">Manage your product inventory</p>
+          <h1 style={{ fontSize: 22, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>Products</h1>
+          <p style={{ fontSize: 13, color: '#9AA0A6', margin: '4px 0 0' }}>Manage your product inventory</p>
         </div>
-        <Button
+        <button
           onClick={() => navigate('/admin/products/add')}
-          className="bg-[#4A1C1F] text-white hover:bg-[#5C4638] uppercase tracking-widest text-xs h-10 px-6 rounded-none transition-all duration-300 shadow-md hover:shadow-lg"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: '#0071DC', color: '#FFFFFF',
+            border: 'none', borderRadius: 8, padding: '8px 18px',
+            fontSize: 13, fontWeight: 500, cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = '#0055A6';
+            (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = '#0071DC';
+            (e.currentTarget as HTMLElement).style.transform = 'none';
+          }}
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus style={{ width: 16, height: 16 }} />
           Add Product
-        </Button>
+        </button>
       </div>
 
-      {/* Filters */}
-      <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white rounded-none">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-[#7E5A34]" />
-              <Input
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 border-[#D4B6A2]/30 focus:border-[#B38B46] focus:ring-[#B38B46]/20 rounded-none bg-[#F9F9F7] text-[#4A1C1F]"
-              />
-            </div>
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-4 py-2 border border-[#D4B6A2]/30 rounded-none text-sm bg-white focus:outline-none focus:border-[#B38B46] text-[#4A1C1F] cursor-pointer min-w-[200px]"
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category === 'all' ? 'All Categories' : category}
-                </option>
-              ))}
-            </select>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Filters Bar */}
+      <div style={{
+        background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12,
+        padding: '16px 20px', marginBottom: 20,
+        display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center',
+      }}>
+        <div style={{ position: 'relative', flex: 1, minWidth: 240 }}>
+          <Search style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#9AA0A6', pointerEvents: 'none' }} />
+          <Input
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              height: 36, paddingLeft: 34,
+              border: '1.5px solid #E0E3E7', borderRadius: 8,
+              fontSize: 14, color: '#1A1A1A', background: '#FFFFFF', outline: 'none',
+            }}
+          />
+        </div>
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          style={{
+            height: 36, padding: '0 36px 0 12px',
+            border: '1.5px solid #E0E3E7', borderRadius: 8,
+            fontSize: 14, color: '#1A1A1A', background: '#FFFFFF',
+            cursor: 'pointer', outline: 'none', minWidth: 200,
+            appearance: 'none',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235F6368' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
+          }}
+        >
+          {categories.map(category => (
+            <option key={category} value={category}>
+              {category === 'all' ? 'All Categories' : category}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {/* Products Table */}
-      <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white rounded-none">
-        <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-          <div className="flex justify-between items-center">
-            <CardTitle className="font-serif text-xl text-[#4A1C1F]">Product List</CardTitle>
-            <span className="text-xs text-[#7E5A34] uppercase tracking-widest">{filteredProducts.length} items</span>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent border-[#D4B6A2]/20">
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Product</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Category</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Price</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Stock</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Status</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Rating</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Sales</TableHead>
-                <TableHead className="text-right text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                Array.from({ length: 5 }).map((_, index) => (
-                  <TableRow key={index} className="border-[#D4B6A2]/10">
-                    <TableCell><div className="h-12 w-12 bg-[#F9F9F7] rounded-none animate-pulse"></div></TableCell>
-                    <TableCell><div className="h-4 w-24 bg-[#F9F9F7] rounded-none animate-pulse"></div></TableCell>
-                    <TableCell><div className="h-4 w-16 bg-[#F9F9F7] rounded-none animate-pulse"></div></TableCell>
-                    <TableCell><div className="h-4 w-12 bg-[#F9F9F7] rounded-none animate-pulse"></div></TableCell>
-                    <TableCell><div className="h-6 w-20 bg-[#F9F9F7] rounded-none animate-pulse"></div></TableCell>
-                    <TableCell><div className="h-4 w-12 bg-[#F9F9F7] rounded-none animate-pulse"></div></TableCell>
-                    <TableCell><div className="h-4 w-12 bg-[#F9F9F7] rounded-none animate-pulse"></div></TableCell>
-                    <TableCell><div className="h-8 w-8 bg-[#F9F9F7] rounded-none animate-pulse ml-auto"></div></TableCell>
-                  </TableRow>
-                ))
-              ) : paginatedProducts.length > 0 ? (
-                paginatedProducts.map((product: any) => (
-                  <TableRow key={product.id} className="hover:bg-[#F9F9F7] border-[#D4B6A2]/10 transition-colors group">
-                    <TableCell className="py-4">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-16 w-16 bg-[#F9F9F7] overflow-hidden relative border border-[#D4B6A2]/20">
-                          <img
-                            src={product.images?.[0] || '/placeholder.svg'}
-                            alt={product.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                        </div>
-                        <div>
-                          <p className="font-medium font-serif text-[#4A1C1F] text-lg">{product.name}</p>
-                          <p className="text-xs text-[#7E5A34] uppercase tracking-wider mt-1">SKU: {product.sku}</p>
-                        </div>
+      <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #E0E3E7', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Product List</span>
+          <span style={{ fontSize: 12, color: '#9AA0A6' }}>{filteredProducts.length} items</span>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow style={{ background: '#F0F4F8' }} className="hover:bg-[#F0F4F8]">
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Product</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Category</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Price</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Stock</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Rating</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sales</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'right' }}>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index} style={{ borderBottom: '1px solid #F0F4F8' }}>
+                  <TableCell><div style={{ height: 48, width: 48, background: '#F0F4F8', borderRadius: 8, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 96, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 64, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 48, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 24, width: 80, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 48, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 48, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 32, width: 32, background: '#F0F4F8', borderRadius: 8, animation: 'pulse 1.5s ease infinite', marginLeft: 'auto' }}></div></TableCell>
+                </TableRow>
+              ))
+            ) : paginatedProducts.length > 0 ? (
+              paginatedProducts.map((product: any) => (
+                <TableRow key={product.id}
+                  style={{ borderBottom: '1px solid #F0F4F8', transition: 'background 0.12s ease' }}
+                  className="hover:bg-[#F8FBFF]"
+                >
+                  <TableCell style={{ padding: '12px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{
+                        width: 52, height: 52, borderRadius: 8,
+                        overflow: 'hidden', border: '1px solid #E0E3E7',
+                        flexShrink: 0, background: '#F0F4F8',
+                      }}>
+                        <img
+                          src={product.images?.[0] || '/placeholder.svg'}
+                          alt={product.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
+                        />
                       </div>
-                    </TableCell>
-                    <TableCell className="font-light text-[#5C4638]">{product.categories?.name || 'Unknown'}</TableCell>
-                    <TableCell className="font-medium text-[#4A1C1F]">₹{product.price}</TableCell>
-                    <TableCell className="text-[#5C4638]">{product.stock_quantity}</TableCell>
-                    <TableCell>
-                      <Badge className={`rounded-none px-3 py-1 text-[10px] uppercase tracking-widest font-normal hover:bg-opacity-80 border-0 ${product.stock_quantity <= 0 ? 'bg-red-50 text-red-600' :
-                        !product.is_active ? 'bg-gray-100 text-gray-500' :
-                          'bg-green-50 text-green-700'
-                        }`}>
-                        {getStatus(product)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-[#5C4638] space-x-1">
-                      <span className="text-[#B38B46]">★</span>
-                      <span>{product.rating || 'N/A'}</span>
-                    </TableCell>
-                    <TableCell className="text-[#5C4638]">{product.sales || 0}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-[#F9F9F7] rounded-none data-[state=open]:bg-[#F9F9F7] text-[#5C4638]">
-                            <span className="sr-only">Open menu</span>
-                            <span className="text-xl leading-none mb-2">...</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-none border-[#D4B6A2]/30 shadow-lg bg-white p-1 min-w-[120px]">
-                          <DropdownMenuItem
-                            onClick={() => navigate(`/product/${product.sku || product.id}`)}
-                            className="rounded-none hover:bg-[#F9F9F7] cursor-pointer text-xs uppercase tracking-wider py-2 text-[#4A1C1F]"
-                          >
-                            <Eye className="mr-2 h-3.5 w-3.5 text-[#B38B46]" />
-                            View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => navigate(`/admin/products/edit/${product.id}`)}
-                            className="rounded-none hover:bg-[#F9F9F7] cursor-pointer text-xs uppercase tracking-wider py-2 text-[#4A1C1F]"
-                          >
-                            <Edit className="mr-2 h-3.5 w-3.5 text-[#B38B46]" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="rounded-none hover:bg-red-50 text-red-600 cursor-pointer text-xs uppercase tracking-wider py-2 focus:bg-red-50 focus:text-red-700"
-                            onClick={() => handleDelete(product.id)}
-                          >
-                            <Trash2 className="mr-2 h-3.5 w-3.5" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center text-[#5C4638]">
-                    No products found.
+                      <div>
+                        <p style={{ fontSize: 14, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>{product.name}</p>
+                        <p style={{ fontSize: 11, color: '#9AA0A6', margin: '3px 0 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>SKU: {product.sku}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: '#5F6368' }}>{product.categories?.name || 'Unknown'}</TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500, color: '#1A1A1A' }}>₹{product.price}</TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: '#5F6368' }}>{product.stock_quantity}</TableCell>
+                  <TableCell style={{ padding: '12px 16px' }}>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center',
+                      padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 500,
+                      ...getStatusStyle(product),
+                    }}>
+                      {getStatus(product)}
+                    </span>
+                  </TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: '#5F6368' }}>
+                    <span style={{ color: '#FFC220' }}>★</span> {product.rating || 'N/A'}
+                  </TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: '#5F6368' }}>{product.sales || 0}</TableCell>
+                  <TableCell style={{ padding: '12px 16px', textAlign: 'right' }}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-[#F0F4F8] rounded-lg data-[state=open]:bg-[#F0F4F8] text-[#5F6368]">
+                          <span className="sr-only">Open menu</span>
+                          <span style={{ fontSize: 20, lineHeight: 1 }}>⋯</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-lg border-[#E0E3E7] shadow-lg bg-white p-1 min-w-[120px]">
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/product/${product.sku || product.id}`)}
+                          className="rounded-md hover:bg-[#F8FBFF] cursor-pointer text-sm py-2 text-[#1A1A1A]"
+                        >
+                          <Eye className="mr-2 h-4 w-4 text-[#0071DC]" />
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+                          className="rounded-md hover:bg-[#F8FBFF] cursor-pointer text-sm py-2 text-[#1A1A1A]"
+                        >
+                          <Edit className="mr-2 h-4 w-4 text-[#0071DC]" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="rounded-md hover:bg-red-50 text-red-600 cursor-pointer text-sm py-2 focus:bg-red-50 focus:text-red-700"
+                          onClick={() => handleDelete(product.id)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} style={{ padding: '48px 16px', textAlign: 'center' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                    <Package style={{ width: 36, height: 36, color: '#CBD5E1' }} />
+                    <p style={{ fontSize: 14, color: '#9AA0A6', margin: 0 }}>No products found.</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* Pagination Controls */}
       {!loading && totalPages > 1 && (
-        <div className="flex justify-between items-center bg-white p-4 border border-[#D4B6A2]/20 shadow-sm">
-          <Button
-            variant="outline"
-            disabled={currentPage === 1}
-            onClick={() => handlePageChange(currentPage - 1)}
-            className="rounded-none border-[#D4B6A2]/30 text-[#5C4638] hover:text-[#4A1C1F] hover:bg-[#F9F9F7] uppercase tracking-widest text-xs"
-          >
-            Previous
-          </Button>
-          <span className="text-xs text-[#7E5A34] uppercase tracking-widest">
-            Page {currentPage} of {totalPages}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12,
+          padding: '14px 20px', marginTop: 16,
+        }}>
+          <span style={{ fontSize: 13, color: '#5F6368' }}>
+            Page {currentPage} of {totalPages} · {filteredProducts.length} items
           </span>
-          <Button
-            variant="outline"
-            disabled={currentPage === totalPages}
-            onClick={() => handlePageChange(currentPage + 1)}
-            className="rounded-none border-[#D4B6A2]/30 text-[#5C4638] hover:text-[#4A1C1F] hover:bg-[#F9F9F7] uppercase tracking-widest text-xs"
-          >
-            Next
-          </Button>
+          <div style={{ display: 'flex', gap: 4 }}>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+              style={{
+                minWidth: 32, height: 32, padding: '0 8px',
+                border: '1px solid #E0E3E7', borderRadius: 6,
+                background: '#FFFFFF', fontSize: 13, color: currentPage === 1 ? '#CBD5E1' : '#1A1A1A',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              ‹ Prev
+            </button>
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                style={{
+                  minWidth: 32, height: 32, padding: '0 8px',
+                  border: '1px solid', borderColor: page === currentPage ? '#0071DC' : '#E0E3E7',
+                  borderRadius: 6,
+                  background: page === currentPage ? '#0071DC' : '#FFFFFF',
+                  fontSize: 13,
+                  color: page === currentPage ? '#FFFFFF' : '#1A1A1A',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+              style={{
+                minWidth: 32, height: 32, padding: '0 8px',
+                border: '1px solid #E0E3E7', borderRadius: 6,
+                background: '#FFFFFF', fontSize: 13, color: currentPage === totalPages ? '#CBD5E1' : '#1A1A1A',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Next ›
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -50,7 +50,7 @@ const defaultSettings: AppSettings = {
   upi_enabled: false,
   card_enabled: false,
   netbanking_enabled: false,
-  store_name: '',
+  store_name: 'Megadiscountstore',
   store_phone: '',
   store_email: '',
   store_address: '',

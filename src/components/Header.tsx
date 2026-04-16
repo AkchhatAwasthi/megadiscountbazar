@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, X, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
+import { User, X, ChevronDown, ChevronRight, LogOut, Search, Heart, ShoppingBag, Menu } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,13 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  DropdownMenu as MobileDropdown,
-  DropdownMenuContent as MobileDropdownContent,
-  DropdownMenuItem as MobileDropdownItem,
-  DropdownMenuTrigger as MobileDropdownTrigger,
-} from '@/components/ui/dropdown-menu';
 import SearchSidebar from './SearchSidebar';
+import { useSettings } from '../hooks/useSettings';
 import { supabase } from '@/integrations/supabase/client';
 
 interface HeaderProps {
@@ -27,6 +22,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
   const navigate = useNavigate();
   const { cartItems, toggleCart } = useStore();
   const { user, signOut, isAdmin } = useAuth();
+  const { settings } = useSettings();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -35,14 +31,11 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
-      // Show header if scrolling up or at the very top, hide if scrolling down past 50px
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
-
       setLastScrollY(currentScrollY);
     };
 
@@ -50,9 +43,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  // Dynamic Data States
   const [categories, setCategories] = useState<any[]>([]);
-  const [collections, setCollections] = useState<any[]>([]);
 
   useEffect(() => {
     fetchNavigationData();
@@ -60,31 +51,12 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
 
   const fetchNavigationData = async () => {
     try {
-      // 1. Fetch Categories
       const { data: catData } = await supabase
         .from('categories')
         .select('*')
         .eq('is_active', true)
         .order('name');
       if (catData) setCategories(catData);
-
-      // 2. Mock Collections (Updated with logic from reference if needed, but keeping existing structure)
-      const mockCollections = [
-        { id: 'c1', name: "New Arrivals", slug: 'new-arrivals' },
-        { id: 'c2', name: "Bestsellers", slug: 'bestsellers' },
-        {
-          id: 'c4',
-          name: "Bridal",
-          slug: 'bridal',
-          subcategories: [
-            { name: "Lehengas", slug: "bridal-lehengas" },
-            { name: "Gowns", slug: "bridal-gowns" },
-            { name: "Sarees", slug: "bridal-sarees" },
-            { name: "Jewelry", slug: "bridal-jewelry" }
-          ]
-        }
-      ];
-      setCollections(mockCollections);
     } catch (error) {
       console.error("Error fetching nav data:", error);
     }
@@ -92,233 +64,161 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
 
   const cartItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  const MobileMenuItem = ({ label, path, onClick, subItems }: { label: string; path?: string; onClick?: () => void, subItems?: any[] }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    return (
-      <div className="border-b border-zinc-200 last:border-0 bg-white">
-        <button
-          onClick={() => {
-            if (subItems && subItems.length > 0) setIsExpanded(!isExpanded);
-            else {
-              if (path) navigate(path);
-              if (onClick) onClick();
-              setIsMobileMenuOpen(false);
-            }
-          }}
-          className="flex items-center justify-between w-full py-4 px-5 text-left group"
-        >
-          <span className={`text-sm font-sans tracking-widest uppercase transition-colors ${isExpanded ? 'text-primary font-bold' : 'text-zinc-600'}`}>
-            {label}
-          </span>
-          {subItems && subItems.length > 0 ? (
-            <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-zinc-500 opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-          )}
-        </button>
-        <AnimatePresence>
-          {isExpanded && subItems && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden bg-zinc-50"
-            >
-              {subItems.map((sub, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    navigate(`/products?category=${sub.slug || sub.name.toLowerCase()}`);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left py-3 px-8 text-xs font-sans tracking-widest uppercase text-zinc-600 hover:text-primary transition-colors border-b border-zinc-100 last:border-0"
-                >
-                  {sub.name}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  };
-
   if (isAdminRoute) return null;
+
+  const NavLink = ({ to, children, className = "" }: { to: string; children: React.ReactNode; className?: string }) => (
+    <Link
+      to={to}
+      className={`text-[14px] font-[400] text-[var(--text-primary)] hover:text-[var(--blue-primary)] transition-colors relative group py-2 ${className}`}
+    >
+      {children}
+      <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--blue-primary)] transition-all duration-200 group-hover:w-full"></span>
+    </Link>
+  );
 
   return (
     <>
-      <div className="bg-primary text-black py-2 overflow-hidden whitespace-nowrap border-b-2 border-black relative z-50">
-        <div className="inline-block animate-marquee uppercase font-black text-xs tracking-[0.2em] px-4">
-          NEW DROP: SHIPPUDEN CAPSULE OUT NOW • FREE HIDDEN LEAF BANDANA ON ORDERS OVER ₹2500 •
-          NEW DROP: SHIPPUDEN CAPSULE OUT NOW • FREE HIDDEN LEAF BANDANA ON ORDERS OVER ₹2500 •
-          NEW DROP: SHIPPUDEN CAPSULE OUT NOW • FREE HIDDEN LEAF BANDANA ON ORDERS OVER ₹2500
+      {/* Top Banner - Dynamic Marquee */}
+      <div className="bg-[var(--blue-deep)] text-white text-[12px] py-1.5 overflow-hidden relative font-[500] tracking-[0.02em]">
+        <div className="whitespace-nowrap animate-marquee inline-block">
+          <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountstore'} • Fast delivery in under 60 minutes!</span>
+          <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountstore'} • Fast delivery in under 60 minutes!</span>
         </div>
       </div>
+
       <header
-        className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-zinc-200 transition-transform duration-300 ease-in-out ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
-          }`}
+        className={`sticky top-0 z-40 bg-[var(--surface-white)] border-b border-[var(--border-default)] transition-transform duration-300 ease-in-out ${
+          isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
+        }`}
+        style={{ height: '64px' }}
       >
-        <div className="max-w-screen-2xl mx-auto px-4 lg:px-6 h-20 lg:h-28 flex items-center justify-between relative">
+        <div className="max-w-[1280px] mx-auto px-4 h-full flex items-center gap-6 lg:gap-10">
+          
+          {/* Mobile Menu Toggle */}
+          <button
+            className="lg:hidden p-2 -ml-2 text-[var(--text-primary)] hover:bg-[var(--surface-light)] rounded-lg transition-colors"
+            onClick={() => setIsMobileMenuOpen(true)}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
 
-          {/* Left Section: Mobile Menu & Desktop Nav */}
-          <div className="flex items-center gap-4">
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden p-2 -ml-2 text-black hover:bg-zinc-100 rounded-full transition-colors focus:outline-none"
-              onClick={() => setIsMobileMenuOpen(true)}
-            >
-              <span className="material-symbols-outlined text-2xl">menu</span>
-            </button>
+          {/* Logo */}
+          <Link to="/" className="flex-shrink-0">
+            <h1 className="text-[24px] font-[600] text-[var(--blue-primary)] tracking-tight">
+              Megadiscount<span className="text-[var(--text-primary)]">store</span>
+            </h1>
+          </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-10">
-              <div className="flex items-center group cursor-pointer" onClick={() => navigate('/products?collection=new-arrivals')}>
-                <span className="text-xs font-manga text-primary mr-2 opacity-100 transition-opacity">壱</span>
-                <span className="relative nav-link text-sm font-black tracking-wider text-black uppercase after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-[width] after:duration-300 hover:after:w-full">New Drops</span>
-              </div>
-              <div className="flex items-center group cursor-pointer" onClick={() => navigate('/products?collection=bestsellers')}>
-                <span className="text-xs font-manga text-primary mr-2 opacity-100 transition-opacity">弐</span>
-                <span className="relative nav-link text-sm font-black tracking-wider text-black uppercase after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-[width] after:duration-300 hover:after:w-full">Bestsellers</span>
-              </div>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6 flex-shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-[14px] font-[500] text-[var(--text-primary)] hover:text-[var(--blue-primary)] transition-colors focus:outline-none py-2">
+                Departments <ChevronDown className="w-4 h-4 opacity-70" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-[var(--surface-white)] border border-[var(--border-default)] shadow-lg rounded-[8px] p-2 mt-1">
+                {categories.map((cat) => (
+                  <DropdownMenuItem
+                    key={cat.id}
+                    onClick={() => navigate(`/products?category=${cat.slug || cat.name.toLowerCase()}`)}
+                    className="px-3 py-2 text-[14px] text-[var(--text-primary)] hover:bg-[var(--blue-light)] hover:text-[var(--blue-primary)] rounded-[6px] cursor-pointer transition-colors"
+                  >
+                    {cat.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <NavLink to="/products?collection=new-arrivals">New Drops</NavLink>
+            <NavLink to="/products?collection=bestsellers">Bestsellers</NavLink>
+          </nav>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center group cursor-pointer focus:outline-none">
-                  <span className="text-xs font-manga text-primary mr-2 opacity-100 transition-opacity">参</span>
-                  <span className="relative nav-link text-sm font-black tracking-wider text-black uppercase flex items-center after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-[width] after:duration-300 hover:after:w-full">
-                    Shop by Arc
-                    <span className="material-symbols-outlined text-[18px] ml-1">expand_more</span>
-                  </span>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48 bg-white border border-zinc-200 shadow-lg rounded-sm p-1 z-[60]">
-                  {categories.map((item, idx) => (
-                    <DropdownMenuItem
-                      key={idx}
-                      onClick={() => navigate(`/products?category=${item.slug || item.name.toLowerCase()}`)}
-                      className="text-left px-4 py-2.5 text-xs font-sans tracking-widest text-zinc-900 hover:bg-zinc-100 transition-colors uppercase cursor-pointer"
-                    >
-                      {item.name}
-                    </DropdownMenuItem>
-                  ))}
-                  {/* Keep standard collections just in case */}
-                  <div className="h-[1px] bg-zinc-200 my-1"></div>
-                  {collections.find(c => c.name === "Bridal")?.subcategories.map((sub: any, idx: number) => (
-                    <DropdownMenuItem
-                      key={`sub-${idx}`}
-                      onClick={() => navigate(`/products?tag=${sub.slug}`)}
-                      className="text-left px-4 py-2.5 text-xs font-sans tracking-widest text-zinc-600 hover:text-primary hover:bg-zinc-100 transition-colors uppercase cursor-pointer"
-                    >
-                      {sub.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </nav>
-          </div>
-
-          {/* Center Section: Logo */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:static lg:transform-none lg:flex lg:items-center lg:justify-center">
-            <div className="relative flex items-center justify-center">
-              <div className="hidden xl:block absolute -left-32 animate-[float_6s_ease-in-out_infinite] opacity-80 hover:opacity-100 transition-opacity">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary blur-sm opacity-20 rounded-lg"></div>
-                  <img alt="Gen-Z Anime Avatar Left" className="w-14 h-14 rounded-lg border border-zinc-700 bg-zinc-900 object-cover grayscale hover:grayscale-0 transition-all duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKvF2KrgmombzdIPUQu8fo1VTXoSm15-vgTZi7UhKO3Y6K8SCFfFeUYc-9TH1eLsJwzPKyFTEWD6X0EQaHKdWM9bvWaNeai-hU3k4GAlrK7qhhRE7Nad6WVyDxMsyIiqW9t6Tt6lA-mUXfRcrbm5AsnkPHjrxNxOjcvH82ev2HKlh6KxuvuT_jl5tUicA2l3pzZ6MUddC82wf93LgHhin7bnzdC9ZqDwKdh3IvpR8EbqOsPrMWw3VyXHZuELmEJVIxxmsEqa39cIaC" />
-                  <div className="absolute -bottom-2 -right-2 bg-black text-white text-[8px] px-1 font-mono border border-zinc-800">LVL.99</div>
-                </div>
-              </div>
-
-              <Link to="/" className="flex flex-col items-center z-10 group">
-                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tighter md:tracking-tight text-black leading-none relative shadow-none select-none transition-transform duration-300 group-hover:scale-105">
-                  OBITO
-                  <div className="absolute -top-2 -right-4 md:-top-3 md:-right-6 rotate-12">
-                    <span className="text-[8px] md:text-[10px] font-manga bg-accent text-white px-2 py-0.5 leading-none shadow-[2px_2px_0px_#000]">オビト</span>
-                  </div>
-                </h1>
-                <p className="hidden md:block text-[10px] md:text-[11px] font-medium text-zinc-500 tracking-[0.35em] mt-1 lowercase font-sans border-t border-zinc-200 pt-1 w-full text-center group-hover:text-primary transition-colors">
-                  born kind. broken once.
-                </p>
-              </Link>
-
-              <div className="hidden xl:block absolute -right-32 animate-[float_6s_ease-in-out_infinite] opacity-80 hover:opacity-100 transition-opacity" style={{ animationDelay: '2s' }}>
-                <div className="relative">
-                  <div className="absolute inset-0 bg-accent blur-sm opacity-20 rounded-lg"></div>
-                  <img alt="Gen-Z Anime Avatar Right" className="w-14 h-14 rounded-lg border border-zinc-700 bg-zinc-900 object-cover grayscale hover:grayscale-0 transition-all duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDysrH1gCwWELvZdUcfPr5NfFHN3VEEwNRhZcqzUnKc7wwG-rY7RvHUz6w_-weyeoTgx5DiwaboPDRCm2zKGuXwlSpLL6un1EEqcz_eqml4akcyLqFPNGS_psMVsrsWEiF998Y9AkyxJ0SRUxN8eM4PgBTKhzhemBeMKTYt879tDJrFbY_9tOPrqMwhfF-VbPlOOEp6d6rGjp-bmzv_k3i5_14a7e4KFwaQY9wVrfTd4ijoVJvKMkOy0eLdUjHtDljx7A-uDCjAGF9B" />
-                  <div className="absolute -top-2 -left-2 bg-primary text-black text-[8px] px-1 font-mono font-bold">NPC</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Section: Icons */}
-          <div className="flex items-center space-x-2 md:space-x-4">
-            <div
-              className="hidden md:flex items-center border-b-2 border-zinc-200 focus-within:border-primary transition-colors duration-300 px-2 py-1 cursor-text"
+          {/* Search Bar */}
+          <div className="flex-grow hidden md:flex items-center max-w-[600px] relative group">
+            <div 
+              className="w-full flex items-center bg-[var(--surface-light)] border-[1.5px] border-[var(--border-default)] rounded-[var(--radius-input)] px-4 py-2 transition-all duration-200 group-focus-within:border-[var(--blue-primary)] group-focus-within:bg-white group-focus-within:shadow-sm cursor-text"
               onClick={() => setIsSearchOpen(true)}
             >
-              <span className="material-symbols-outlined text-zinc-400 text-lg">search</span>
+              <Search className="w-4 h-4 text-[var(--text-muted)] mr-3" />
               <input
-                className="bg-transparent border-none focus:ring-0 text-xs font-sans font-bold tracking-widest w-24 xl:w-32 text-black placeholder-zinc-400 focus:placeholder-zinc-600 cursor-pointer outline-none"
-                placeholder="SEARCH JUTSU"
                 type="text"
+                placeholder="Search everything at Megadiscountstore"
+                className="bg-transparent border-none outline-none w-full text-[14px] text-[var(--text-primary)] placeholder-[var(--text-muted)] cursor-pointer"
                 readOnly
               />
             </div>
+          </div>
 
-            <button
-              className="md:hidden p-2 text-zinc-600 focus:outline-none hover:bg-zinc-100 rounded-full"
+          {/* Right Icons */}
+          <div className="flex items-center gap-1 lg:gap-3 ml-auto">
+             <button
+              className="md:hidden p-2 text-[var(--text-primary)] hover:bg-[var(--surface-light)] rounded-lg"
               onClick={() => setIsSearchOpen(true)}
             >
-              <span className="material-symbols-outlined text-xl">search</span>
+              <Search className="w-5 h-5" />
             </button>
 
             <button
-              className="relative group p-2 text-zinc-600 focus:outline-none hover:bg-zinc-100 rounded-full hidden md:block"
+              className="p-2 text-[var(--text-primary)] hover:bg-[var(--surface-light)] rounded-lg transition-colors hidden sm:flex"
               onClick={() => navigate('/products?tag=favorites')}
+              title="Favorites"
             >
-              <span className="material-symbols-outlined group-hover:text-accent transition-colors text-xl">favorite</span>
+              <Heart className="w-5 h-5" />
             </button>
 
-            {user ? (
-              <MobileDropdown>
-                <MobileDropdownTrigger className="group p-2 focus:outline-none hover:bg-zinc-100 rounded-full">
-                  <span className="material-symbols-outlined text-zinc-600 group-hover:text-black transition-colors text-xl">person</span>
-                </MobileDropdownTrigger>
-                <MobileDropdownContent align="end" className="hidden md:block w-56 bg-white border border-zinc-200 shadow-xl rounded-sm p-1">
-                  {isAdmin && (
-                    <MobileDropdownItem className="focus:bg-zinc-100 cursor-pointer font-sans tracking-wide text-xs uppercase py-2 text-zinc-600" onClick={() => navigate('/admin')}>
-                      Admin Dashboard
-                    </MobileDropdownItem>
-                  )}
-                  <MobileDropdownItem className="focus:bg-zinc-100 cursor-pointer font-sans tracking-wide text-xs uppercase py-2 text-zinc-600" onClick={() => navigate('/profile')}>
-                    Profile
-                  </MobileDropdownItem>
-                  <MobileDropdownItem className="focus:bg-zinc-100 cursor-pointer font-sans tracking-wide text-xs uppercase py-2 text-zinc-600" onClick={signOut}>
-                    Sign Out
-                  </MobileDropdownItem>
-                </MobileDropdownContent>
-              </MobileDropdown>
-            ) : (
-              <button className="group p-2 focus:outline-none hover:bg-zinc-100 rounded-full" onClick={() => navigate('/auth')}>
-                <span className="material-symbols-outlined text-zinc-600 group-hover:text-black transition-colors text-xl">person</span>
-              </button>
-            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 p-2 text-[var(--text-primary)] hover:bg-[var(--surface-light)] rounded-lg transition-colors focus:outline-none">
+                <User className="w-5 h-5" />
+                <span className="hidden xl:inline text-[14px] font-[500] ml-1">
+                  {user ? 'Account' : 'Sign In'}
+                </span>
+                <ChevronDown className="hidden xl:inline w-3 h-3 opacity-60" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-[var(--surface-white)] border border-[var(--border-default)] shadow-lg rounded-[8px] p-2 mt-1">
+                {user ? (
+                  <>
+                    <div className="px-3 py-2 border-b border-[var(--border-default)] mb-1">
+                      <p className="text-[12px] text-[var(--text-secondary)]">Signed in as</p>
+                      <p className="text-[14px] font-[600] truncate">{user.email}</p>
+                    </div>
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate('/admin')} className="px-3 py-2 text-[14px] text-[var(--text-primary)] hover:bg-[var(--blue-light)] hover:text-[var(--blue-primary)] rounded-[6px] cursor-pointer">
+                        Admin Dashboard
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={() => navigate('/profile')} className="px-3 py-2 text-[14px] text-[var(--text-primary)] hover:bg-[var(--blue-light)] hover:text-[var(--blue-primary)] rounded-[6px] cursor-pointer">
+                      Profile Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={signOut} className="px-3 py-2 text-[14px] text-[var(--red-sale)] hover:bg-red-50 rounded-[6px] cursor-pointer">
+                      Sign Out
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem onClick={() => navigate('/auth')} className="bg-[var(--blue-primary)] text-white hover:bg-[var(--blue-deep)] px-3 py-2.5 text-[14px] font-[500] rounded-[6px] cursor-pointer text-center justify-center">
+                    Sign In or Create Account
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <button
-              className="relative group bg-black text-white p-2 md:p-2.5 rounded-lg hover:bg-primary hover:text-black transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none active:scale-95"
+              className="relative p-2 bg-[var(--blue-primary)] text-white hover:bg-[var(--blue-deep)] rounded-lg transition-all duration-200 active:scale-95 flex items-center gap-2 px-3 sm:px-4"
               onClick={toggleCart}
             >
-              <span className="material-symbols-outlined text-lg md:text-xl">shopping_bag</span>
+              <ShoppingBag className="w-5 h-5" />
+              <div className="hidden sm:flex flex-col items-start leading-none">
+                <span className="text-[10px] opacity-90 font-[400]">Cart</span>
+                <span className="text-[13px] font-[600]">₹0.00</span>
+              </div>
               {cartItemsCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-[2px] border-white shadow-sm ring-1 ring-black/5 animate-in zoom-in duration-300">
+                <span className="absolute -top-1.5 -right-1.5 bg-[var(--yellow-accent)] text-[var(--text-primary)] text-[11px] font-[600] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-[var(--surface-white)] shadow-sm">
                   {cartItemsCount}
                 </span>
               )}
             </button>
           </div>
         </div>
-        <div className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px)", backgroundSize: "40px 40px" }}></div>
       </header>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -327,74 +227,74 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-50 lg:hidden"
+              className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 lg:hidden"
             />
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ type: "tween", duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-              className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] bg-white z-50 shadow-2xl overflow-y-auto border-r border-zinc-200"
+              transition={{ type: "tween", duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              className="fixed top-0 left-0 bottom-0 w-full max-w-[320px] bg-[var(--surface-white)] z-50 shadow-2xl flex flex-col"
             >
-              <div className="p-6 flex items-center justify-between border-b border-zinc-200">
-                <div className="flex flex-col items-center">
-                  <h2 className="text-xl font-display font-bold tracking-widest uppercase text-black">OBITO</h2>
-                </div>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-zinc-400 hover:bg-zinc-100 rounded-full">
+              <div className="p-4 flex items-center justify-between border-b border-[var(--border-default)]">
+                <h2 className="text-[18px] font-[600] text-[var(--blue-primary)]">Megadiscountstore</h2>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-[var(--text-secondary)] hover:bg-[var(--surface-light)] rounded-full">
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <div className="py-2">
-                <MobileMenuItem
-                  label="New Drops"
-                  path="/products?collection=new-arrivals"
-                />
-                <MobileMenuItem
-                  label="Bestsellers"
-                  path="/products?collection=bestsellers"
-                />
+              <div className="flex-grow overflow-y-auto py-2">
+                <div className="px-4 py-3 bg-[var(--blue-light)] mb-4 mx-4 rounded-lg">
+                  <p className="text-[14px] font-[500] text-[var(--blue-deep)]">Welcome!</p>
+                  <p className="text-[12px] text-[var(--text-secondary)]">Shop our latest deals and drops.</p>
+                </div>
+                
+                <p className="px-6 py-2 text-[11px] font-[600] text-[var(--text-muted)] uppercase tracking-wider">Navigation</p>
+                <button onClick={() => { navigate('/products'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--surface-light)] transition-colors">
+                  <span className="text-[15px] font-[400]">All Products</span>
+                  <ChevronRight className="w-4 h-4 opacity-40" />
+                </button>
+                <button onClick={() => { navigate('/products?collection=new-arrivals'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--surface-light)] transition-colors">
+                  <span className="text-[15px] font-[400]">New Arrivals</span>
+                  <ChevronRight className="w-4 h-4 opacity-40" />
+                </button>
+                <button onClick={() => { navigate('/products?collection=bestsellers'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--surface-light)] transition-colors">
+                  <span className="text-[15px] font-[400]">Bestsellers</span>
+                  <ChevronRight className="w-4 h-4 opacity-40" />
+                </button>
 
-                {collections.map(col => {
-                  if (col.name === "New Arrivals" || col.name === "Bestsellers" || col.name === "Bridal") return null;
-                  return (
-                    <MobileMenuItem
-                      key={col.id}
-                      label={col.name}
-                      path={`/products?collection=${col.slug}`}
-                      subItems={col.subcategories}
-                    />
-                  );
-                })}
+                <div className="border-t border-[var(--border-default)] my-4"></div>
+                
+                <p className="px-6 py-2 text-[11px] font-[600] text-[var(--text-muted)] uppercase tracking-wider">Categories</p>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => { navigate(`/products?category=${cat.slug || cat.name.toLowerCase()}`); setIsMobileMenuOpen(false); }}
+                    className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--surface-light)] transition-colors text-left"
+                  >
+                    <span className="text-[15px] font-[400] capitalize">{cat.name}</span>
+                    <ChevronRight className="w-4 h-4 opacity-40" />
+                  </button>
+                ))}
+              </div>
 
-                <MobileMenuItem
-                  label="Shop by Arc"
-                  subItems={categories.map(c => ({ name: c.name, slug: c.name.toLowerCase() }))}
-                />
-
+              <div className="p-4 border-t border-[var(--border-default)] bg-[var(--surface-light)]">
                 {user ? (
-                  <div className="mt-8 px-6 pt-6 border-t border-zinc-200">
-                    <button onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} className="flex items-center space-x-3 w-full py-3 text-zinc-600 font-sans tracking-widest text-xs uppercase">
-                      <User className="w-4 h-4" /> <span>Profile</span>
+                  <div className="space-y-2">
+                    <button onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-[var(--text-primary)] hover:bg-[var(--surface-white)] rounded-lg transition-colors">
+                      <User className="w-4 h-4" /> Account Settings
                     </button>
-                    {isAdmin && (
-                      <button onClick={() => { navigate('/admin'); setIsMobileMenuOpen(false); }} className="flex items-center space-x-3 w-full py-3 text-zinc-600 font-sans tracking-widest text-xs uppercase">
-                        <User className="w-4 h-4" /> <span>Admin</span>
-                      </button>
-                    )}
-                    <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="flex items-center space-x-3 w-full py-3 text-zinc-600 font-sans tracking-widest text-xs uppercase">
-                      <LogOut className="w-4 h-4" /> <span>Log Out</span>
+                    <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-[var(--red-sale)] hover:bg-[var(--surface-white)] rounded-lg transition-colors">
+                      <LogOut className="w-4 h-4" /> Sign Out
                     </button>
                   </div>
                 ) : (
-                  <div className="p-6 mt-4">
-                    <button
-                      onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}
-                      className="w-full bg-primary text-black py-4 rounded-sm uppercase tracking-[0.2em] font-sans text-xs font-bold hover:bg-black hover:text-white transition-colors shadow-lg"
-                    >
-                      Login / Sign Up
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}
+                    className="w-full bg-[var(--blue-primary)] text-white py-3 rounded-[8px] font-[500] text-[14px] hover:bg-[var(--blue-deep)] transition-colors shadow-sm"
+                  >
+                    Sign In
+                  </button>
                 )}
               </div>
             </motion.div>

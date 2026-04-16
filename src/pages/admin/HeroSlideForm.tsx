@@ -151,8 +151,9 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         );
     }
 
-    const InputStyle = "border-[#D4B6A2]/30 focus:border-[#B38B46] bg-[#F9F9F7] text-[#4A1C1F] rounded-none focus:ring-[#B38B46]/20";
-    const LabelStyle = "text-[#7E5A34] text-xs uppercase tracking-widest font-medium";
+    const CardStyle = "bg-[#FFFFFF] border-[0.5px] border-[#E0E3E7] rounded-[12px] shadow-sm hover:border-[#0071DC] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)] transition-all duration-220";
+    const InputStyle = "h-[40px] px-3 bg-[#FFFFFF] border-[1.5px] border-[#E0E3E7] rounded-[8px] text-[14px] text-[#1A1A1A] focus:border-[#0071DC] focus:outline-none transition-colors w-full";
+    const LabelStyle = "text-[#5F6368] text-[12px] font-[500] mb-1.5 block tracking-wide";
 
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
@@ -166,16 +167,16 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         <span className="uppercase tracking-widest text-xs">Back to List</span>
                     </Button>
-                    <h1 className="text-3xl font-serif text-[#4A1C1F] tracking-tight">
+                    <h1 className="text-[28px] font-[500] text-[#1A1A1A] tracking-[-0.02em]">
                         {isEdit ? 'Edit Slide' : 'Add New Slide'}
                     </h1>
                 </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white rounded-none">
-                    <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-                        <CardTitle className="font-serif text-lg text-[#4A1C1F]">Slide Details</CardTitle>
+                <Card className={CardStyle}>
+                    <CardHeader className="border-b border-[#E0E3E7] pb-4 px-5">
+                        <CardTitle className="text-[17px] font-[500] text-[#1A1A1A]">Slide Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6 pt-6">
 
@@ -271,18 +272,18 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                                             </Button>
                                         </div>
                                     ) : (
-                                        <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-[#D4B6A2]/30 bg-[#F9F9F7] cursor-pointer hover:bg-[#F9F9F7]/80 transition-colors">
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                {uploading ? (
-                                                    <Loader2 className="h-8 w-8 animate-spin text-[#B38B46]" />
-                                                ) : (
-                                                    <>
-                                                        <Upload className="w-8 h-8 mb-3 text-[#B38B46]" />
-                                                        <p className="text-sm text-[#5C4638] font-medium uppercase tracking-wider">Click to upload image</p>
-                                                        <p className="text-xs text-[#7E5A34] mt-1">SVG, PNG, JPG or WEBP</p>
-                                                    </>
-                                                )}
-                                            </div>
+                                            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-[#E0E3E7] hover:border-[#0071DC] bg-[#F6F7F8] rounded-[8px] cursor-pointer hover:bg-[#E6F1FB] transition-colors">
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    {uploading ? (
+                                                        <Loader2 className="h-8 w-8 animate-spin text-[#0071DC]" />
+                                                    ) : (
+                                                        <>
+                                                            <Upload className="w-8 h-8 mb-3 text-[#0071DC]" />
+                                                            <p className="text-sm text-[#1A1A1A] font-medium tracking-wide">Click to upload image</p>
+                                                            <p className="text-xs text-[#5F6368] mt-1">SVG, PNG, JPG or WEBP</p>
+                                                        </>
+                                                    )}
+                                                </div>
                                             <input
                                                 type="file"
                                                 className="hidden"
@@ -316,7 +317,7 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                                 id="is_active"
                                 checked={formData.is_active}
                                 onCheckedChange={handleCheckboxChange}
-                                className="data-[state=checked]:bg-[#B38B46] border-[#D4B6A2]"
+                                className="data-[state=checked]:bg-[#0071DC] border-[#E0E3E7] rounded-[4px]"
                             />
                             <Label htmlFor="is_active" className={LabelStyle}>Active</Label>
                         </div>
@@ -324,21 +325,21 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                     </CardContent>
                 </Card>
 
-                <div className="flex justify-end gap-4">
+                <div className="flex justify-end gap-4 mt-6">
                     <Button
                         type="button"
                         variant="outline"
                         onClick={() => navigate('/admin/hero')}
-                        className="rounded-none border-[#D4B6A2]/30 text-[#5C4638] uppercase tracking-widest text-xs"
+                        className="h-[40px] px-6 bg-transparent border-[1.5px] border-[#0071DC] text-[#0071DC] hover:bg-[#E6F1FB] rounded-[8px] font-[500] text-[14px] transition-all"
                     >
                         Cancel
                     </Button>
                     <Button
                         type="submit"
                         disabled={loading || uploading}
-                        className="bg-[#4A1C1F] text-white hover:bg-[#5C4638] uppercase tracking-widest text-xs rounded-none min-w-[120px]"
+                        className="h-[40px] px-8 bg-[#0071DC] hover:bg-[#0055A6] text-white rounded-[8px] font-[500] text-[14px] transition-all duration-200 hover:-translate-y-[1px] min-w-[120px]"
                     >
-                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isEdit ? 'Update Slide' : 'Create Slide')}
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : (isEdit ? 'Update Slide' : 'Create Slide')}
                     </Button>
                 </div>
             </form>

@@ -148,9 +148,9 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
     }
   };
 
-  const CardStyle = "border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300";
-  const LabelStyle = "text-[#7E5A34] text-xs uppercase tracking-widest font-medium";
-  const InputStyle = "border-[#D4B6A2]/30 focus:border-[#B38B46] bg-[#F9F9F7] text-[#4A1C1F] rounded-none focus:ring-[#B38B46]/20";
+  const CardStyle = "bg-[#FFFFFF] border-[0.5px] border-[#E0E3E7] rounded-[12px] shadow-sm hover:border-[#0071DC] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)] transition-all duration-220";
+  const LabelStyle = "text-[#5F6368] text-[12px] font-[500] mb-1.5 block tracking-wide";
+  const InputStyle = "h-[40px] px-3 bg-[#FFFFFF] border-[1.5px] border-[#E0E3E7] rounded-[8px] text-[14px] text-[#1A1A1A] focus:border-[#0071DC] focus:outline-none transition-colors w-full";
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -164,7 +164,7 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
             <ArrowLeft className="h-4 w-4 mr-2" />
             <span className="uppercase tracking-widest text-xs">Back to Coupons</span>
           </Button>
-          <h1 className="text-3xl font-serif text-[#4A1C1F] tracking-tight">
+          <h1 className="text-[28px] font-[500] text-[#1A1A1A] tracking-[-0.02em]">
             {isEdit ? 'Edit Coupon' : 'Add New Coupon'}
           </h1>
           <p className="text-[#5C4638] font-light text-sm tracking-wide">
@@ -176,8 +176,8 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card className={CardStyle}>
-            <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-              <CardTitle className="font-serif text-lg text-[#4A1C1F]">Basic Information</CardTitle>
+            <CardHeader className="border-b border-[#E0E3E7] pb-4 px-5">
+              <CardTitle className="text-[17px] font-[500] text-[#1A1A1A]">Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -196,7 +196,7 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
                       type="button"
                       variant="outline"
                       onClick={() => handleInputChange('code', generateCouponCode())}
-                      className="border-[#D4B6A2] text-[#B38B46] hover:bg-[#F9F9F7] uppercase tracking-widest text-xs rounded-none"
+                      className="h-[40px] border-[1.5px] border-[#0071DC] text-[#0071DC] hover:bg-[#E6F1FB] font-[500] rounded-[8px] transition-all"
                     >
                       Generate
                     </Button>
@@ -285,7 +285,7 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal border-[#D4B6A2]/30 bg-[#F9F9F7] text-[#4A1C1F] rounded-none hover:bg-[#F9F9F7] hover:text-[#4A1C1F]",
+                          "w-full justify-start text-left font-normal border-[#E0E3E7] h-[40px] px-3 bg-[#FFFFFF] text-[#1A1A1A] rounded-[8px] hover:bg-[#F6F7F8] hover:text-[#1A1A1A]",
                           !formData.valid_from && "text-muted-foreground"
                         )}
                       >
@@ -312,7 +312,7 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal border-[#D4B6A2]/30 bg-[#F9F9F7] text-[#4A1C1F] rounded-none hover:bg-[#F9F9F7] hover:text-[#4A1C1F]",
+                          "w-full justify-start text-left font-normal border-[#E0E3E7] h-[40px] px-3 bg-[#FFFFFF] text-[#1A1A1A] rounded-[8px] hover:bg-[#F6F7F8] hover:text-[#1A1A1A]",
                           !formData.valid_until && "text-muted-foreground"
                         )}
                       >
@@ -337,12 +337,12 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
         </div>
 
         <div className="space-y-6">
-          <Card className={`${CardStyle} border-[#B38B46]/20 bg-[#F5EFE7]/30`}>
+          <Card className={`${CardStyle} mt-6`}>
             <CardContent className="pt-6">
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Button
                   type="submit"
-                  className="w-full bg-[#4A1C1F] hover:bg-[#5C4638] text-white uppercase tracking-widest text-xs h-12 rounded-none transition-all duration-300 shadow-md hover:shadow-lg"
+                  className="w-full h-[40px] bg-[#0071DC] hover:bg-[#0055A6] text-white rounded-[8px] font-[500] text-[14px] transition-all duration-200 hover:-translate-y-[1px]"
                   disabled={loading}
                 >
                   {loading ? 'Saving...' : isEdit ? 'Update Coupon' : 'Create Coupon'}
@@ -350,7 +350,7 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-[#D4B6A2] text-[#5C4638] hover:bg-[#4A1C1F] hover:text-white hover:border-[#4A1C1F] uppercase tracking-widest text-xs h-10 rounded-none transition-all"
+                  className="w-full h-[40px] bg-transparent border-[1.5px] border-[#0071DC] text-[#0071DC] hover:bg-[#E6F1FB] rounded-[8px] font-[500] text-[14px] transition-all"
                   onClick={() => navigate('/admin/coupons')}
                   disabled={loading}
                 >

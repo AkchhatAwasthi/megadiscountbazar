@@ -4,10 +4,10 @@ import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
-  Dumbbell,
-  Heart,
+  Package,
+  ShoppingCart,
   Zap,
-  Apple,
+  Clock,
   Users,
   Award,
   Calendar,
@@ -16,10 +16,8 @@ import {
   Star,
   ArrowRight,
   TrendingUp,
-  Cookie,
-  Cake,
-  IceCream,
-  Candy
+  Shield,
+  Truck
 } from "lucide-react"
 import { motion, useScroll, useTransform, useInView, useSpring } from "framer-motion"
 import about from '../../assets/Gifting.webp'
@@ -69,61 +67,62 @@ export default function AboutUsSection() {
 
   const services = [
     {
-      icon: <Cookie className="w-6 h-6" />,
-      secondaryIcon: <Sparkles className="w-4 h-4 absolute -top-1 -right-1 text-orange-300" />,
-      title: "Traditional Sweets",
+      icon: <ShoppingCart className="w-6 h-6" />,
+      secondaryIcon: <Sparkles className="w-4 h-4 absolute -top-1 -right-1 text-blue-300" />,
+      title: "Wide Selection",
       description:
-        "Authentic recipes passed down through generations, crafted with traditional methods to preserve the genuine taste of our heritage sweets.",
+        "From fresh groceries to the latest electronics, we offer a massive range of quality products for your daily lifestyle.",
       position: "left",
     },
     {
-      icon: <Heart className="w-6 h-6" />,
-      secondaryIcon: <CheckCircle className="w-4 h-4 absolute -top-1 -right-1 text-orange-300" />,
-      title: "Quality Ingredients",
+      icon: <Truck className="w-6 h-6" />,
+      secondaryIcon: <CheckCircle className="w-4 h-4 absolute -top-1 -right-1 text-blue-300" />,
+      title: "Fast Delivery",
       description:
-        "We use only the finest ingredients, sourced locally whenever possible, to ensure the highest quality and freshness in every sweet we make.",
+        "Experience the best-in-class delivery speed. Get your essentials delivered to your doorstep in under 60 minutes.",
+      position: "left",
+    },
+    {
+      icon: <Shield className="w-6 h-6" />,
+      secondaryIcon: <Star className="w-4 h-4 absolute -top-1 -right-1 text-blue-300" />,
+      title: "Premium Quality",
+      description:
+        "We source only high-grade products from trusted brands to ensure you receive the best quality every single time.",
       position: "left",
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      secondaryIcon: <Star className="w-4 h-4 absolute -top-1 -right-1 text-orange-300" />,
-      title: "Fresh Daily",
+      secondaryIcon: <Sparkles className="w-4 h-4 absolute -top-1 -right-1 text-blue-300" />,
+      title: "Best Prices",
       description:
-        "All our sweets are prepared fresh daily to ensure you receive the best possible taste and quality with every order.",
-      position: "left",
-    },
-    {
-      icon: <Cake className="w-6 h-6" />,
-      secondaryIcon: <Sparkles className="w-4 h-4 absolute -top-1 -right-1 text-orange-300" />,
-      title: "Custom Creations",
-      description:
-        "Special occasions deserve special treats. We create custom sweets and desserts for birthdays, weddings, and corporate events.",
+        "Enjoy massive discounts and unbeatable offers across all categories. Premium shopping that fits your budget.",
       position: "right",
     },
     {
       icon: <Users className="w-6 h-6" />,
-      secondaryIcon: <CheckCircle className="w-4 h-4 absolute -top-1 -right-1 text-orange-300" />,
-      title: "Community Focused",
+      secondaryIcon: <CheckCircle className="w-4 h-4 absolute -top-1 -right-1 text-blue-300" />,
+      title: "Customer First",
       description:
-        "We're more than just a sweet shop - we're a community of sweet lovers dedicated to sharing the joy of delicious desserts.",
+        "Our dedicated support team is always here to ensure your shopping experience is seamless and satisfying.",
       position: "right",
     },
     {
       icon: <Award className="w-6 h-6" />,
-      secondaryIcon: <Star className="w-4 h-4 absolute -top-1 -right-1 text-orange-300" />,
-      title: "Award Winning",
+      secondaryIcon: <Star className="w-4 h-4 absolute -top-1 -right-1 text-blue-300" />,
+      title: "Trusted Service",
       description:
-        "Recognized for our excellence in confectionery, our sweets have won multiple awards for taste, presentation, and innovation.",
+        "With years of excellence in retail, Megadiscountstore is the most trusted name for quality hypermarket service.",
       position: "right",
     },
   ]
 
   const stats = [
-    { icon: <Award />, value: 100, label: "Sweet Varieties", suffix: "+" },
-    { icon: <Users />, value: 200000, label: "Happy Customers", suffix: "+" },
-    { icon: <Calendar />, value: 50, label: "Years Experience", suffix: "+" },
-    { icon: <TrendingUp />, value: 100, label: "Quality Guarantee", suffix: "%" },
+    { icon: <Package />, value: 5000, label: "Premium Products", suffix: "+" },
+    { icon: <Users />, value: 200000, label: "Active Shoppers", suffix: "+" },
+    { icon: <Clock />, value: 60, label: "Min Delivery", suffix: "m" },
+    { icon: <TrendingUp />, value: 100, label: "Quality Check", suffix: "%" },
   ]
+
 
   const handleShopNow = () => {
     navigate('/products')
@@ -179,12 +178,12 @@ export default function AboutUsSection() {
       >
         <motion.div className="flex flex-col items-center mb-6" variants={itemVariants}>
           <motion.span
-            className="text-orange-500 font-medium mb-2 flex items-center gap-2"
+            className="text-blue-600 font-medium mb-2 flex items-center gap-2"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Cookie className="w-4 h-4" />
+            <Package className="w-4 h-4" />
             DISCOVER OUR STORY
           </motion.span>
           {/* Improved responsive font sizing */}
@@ -199,8 +198,8 @@ export default function AboutUsSection() {
 
         {/* Improved responsive font sizing */}
         <motion.p className="text-center max-w-2xl mx-auto mb-16 text-base sm:text-lg text-gray-700" variants={itemVariants}>
-          We are a passionate team of confectioners and sweet enthusiasts dedicated to bringing you the finest sweets and desserts. 
-          With attention to detail and commitment to excellence, we craft each treat with love and the highest quality ingredients.
+          We are a dedicated team of retail experts and service professionals committed to bringing you the ultimate premium hypermarket experience. 
+          With a focus on speed, quality, and affordability, we ensure every order meets our high standards of excellence.
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
@@ -234,7 +233,7 @@ export default function AboutUsSection() {
               >
                 <img
                   src={about}
-                  alt="Premium Sweets"
+                  alt="Premium Products"
                   className="w-full h-full object-cover"
                 />
                 <motion.div
@@ -249,7 +248,7 @@ export default function AboutUsSection() {
                     whileTap={{ scale: 0.95 }}
                     onClick={handleShopNow}
                   >
-                    Our Sweets <ArrowRight className="w-4 h-4" />
+                    Shop Now <ArrowRight className="w-4 h-4" />
                   </motion.button>
                 </motion.div>
               </motion.div>
@@ -353,9 +352,9 @@ export default function AboutUsSection() {
         >
           <div className="flex-1">
             {/* Improved responsive font sizing */}
-            <h3 className="text-xl sm:text-2xl font-medium mb-2">Ready to satisfy your sweet cravings?</h3>
+            <h3 className="text-xl sm:text-2xl font-medium mb-2">Ready to upgrade your lifestyle?</h3>
             {/* Improved responsive font sizing */}
-            <p className="text-white/90 text-base sm:text-lg">Let's indulge in our premium collection of sweets and desserts.</p>
+            <p className="text-white/90 text-base sm:text-lg">Explore our massive range of premium hypermarket products and essentials.</p>
           </div>
           <motion.button
             className="bg-white text-destructive hover:bg-gray-100 px-6 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors"

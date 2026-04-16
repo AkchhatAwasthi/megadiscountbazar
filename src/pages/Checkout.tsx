@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Tag } from 'lucide-react';
+import { ChevronLeft, Lock, ShieldCheck, CreditCard, MapPin, BadgeCheck, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { useStore } from '@/store/useStore';
 import { formatPrice } from '@/utils/currency';
 import { initiateRazorpayPayment, OrderData } from '@/utils/razorpay';
@@ -69,10 +68,10 @@ const Checkout = () => {
   });
 
   const steps = [
-    { id: 'info', title: 'Contact Info', description: 'Your details' },
-    { id: 'address', title: 'Address Details', description: 'Complete address' },
-    { id: 'payment', title: 'Payment', description: 'Choose payment method' },
-    { id: 'summary', title: 'Order Summary', description: 'Review & confirm' }
+    { id: 'info', title: 'Contact', description: 'Your info' },
+    { id: 'address', title: 'Shipping', description: 'Address' },
+    { id: 'payment', title: 'Payment', description: 'Method' },
+    { id: 'summary', title: 'Review', description: 'Verify' }
   ];
 
   useEffect(() => {
@@ -139,7 +138,7 @@ const Checkout = () => {
       if (savedAddresses.length >= 3) {
         toast({
           title: "Address Limit Reached",
-          description: "You can only save up to 3 addresses. Please delete an existing address first.",
+          description: "You can only save up to 3 addresses.",
           variant: "destructive",
         });
         return;
@@ -168,17 +167,12 @@ const Checkout = () => {
 
       toast({
         title: "Address Saved",
-        description: "Your address has been saved to your profile for future use.",
+        description: "Your address has been saved to your profile.",
       });
 
       fetchSavedAddresses();
     } catch (error) {
       console.error('Error saving address:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save address to profile.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -265,16 +259,7 @@ const Checkout = () => {
       if (data.min_order_amount && subtotal < data.min_order_amount) {
         toast({
           title: "Minimum order not met",
-          description: `Minimum order of ${settings.currency_symbol}${data.min_order_amount} required for this coupon.`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (data.usage_limit && data.used_count >= data.usage_limit) {
-        toast({
-          title: "Coupon expired",
-          description: "This coupon has reached its usage limit.",
+          description: `Minimum order of ${settings.currency_symbol}${data.min_order_amount} required.`,
           variant: "destructive",
         });
         return;
@@ -298,11 +283,6 @@ const Checkout = () => {
       });
     } catch (error) {
       console.error('Error applying coupon:', error);
-      toast({
-        title: "Error",
-        description: "Failed to apply coupon.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -312,7 +292,7 @@ const Checkout = () => {
     setCouponCode('');
     toast({
       title: "Coupon removed",
-      description: "Coupon has been removed from your order.",
+      description: "Coupon has been removed.",
     });
   };
 
@@ -320,7 +300,7 @@ const Checkout = () => {
     if (subtotal < toNumber(settings.min_order_amount)) {
       toast({
         title: "Minimum Order Not Met",
-        description: `Minimum order amount is ${formatCurrency(settings.min_order_amount, settings.currency_symbol)}. Please add more items to your cart.`,
+        description: `Minimum order is ${formatCurrency(settings.min_order_amount, settings.currency_symbol)}.`,
         variant: "destructive",
       });
       return;
@@ -330,45 +310,12 @@ const Checkout = () => {
       const validation = validateContactInfo(customerInfo);
       if (!validation.isValid) {
         setContactErrors(validation.errors);
-        toast({
-          title: "Invalid Information",
-          description: validation.errors[0],
-          variant: "destructive",
-        });
         return;
       }
       setContactErrors([]);
     } else if (currentStep === 2) {
       if (!addressDetails.city || !addressDetails.state || !addressDetails.pincode) {
-        toast({
-          title: "Missing Location Information",
-          description: "Please fill in city, state, and pincode.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!useExistingAddress) {
-        const validation = validateAddressDetails(addressDetails);
-        if (!validation.isValid) {
-          setAddressErrors(validation.errors);
-          toast({
-            title: "Invalid Address",
-            description: validation.errors[0],
-            variant: "destructive",
-          });
-          return;
-        }
-      }
-      setAddressErrors([]);
-    } else if (currentStep === 3) {
-      const paymentValidation = validatePaymentMethod(paymentMethod, total, settings);
-      if (!paymentValidation.isValid) {
-        toast({
-          title: "Payment Method Error",
-          description: paymentValidation.errors[0],
-          variant: "destructive",
-        });
+        toast({ title: "Incomplete Address", description: "Please fill in all location details." });
         return;
       }
     }
@@ -385,75 +332,13 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required customer information.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!addressDetails.city || !addressDetails.state) {
-      toast({
-        title: "Missing Location",
-        description: "Please provide your city and state.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!useExistingAddress && (!addressDetails.plotNumber || !addressDetails.street)) {
-      toast({
-        title: "Missing Address",
-        description: "Please provide your complete address details.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!addressDetails.pincode) {
-      toast({
-        title: "Missing Pincode",
-        description: "Please enter your area pincode.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (subtotal < Number(settings.min_order_amount)) {
-      toast({
-        title: "Minimum Order Not Met",
-        description: `Minimum order amount is ${settings.currency_symbol}${Number(settings.min_order_amount).toFixed(2)}. Please add more items.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (paymentMethod === 'cod') {
-      if (!settings.cod_enabled) {
-        toast({
-          title: "COD Not Available",
-          description: "Cash on Delivery is currently not available.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (total > Number(settings.cod_threshold)) {
-        toast({
-          title: "COD Limit Exceeded",
-          description: `Cash on Delivery is not available for orders above ${settings.currency_symbol}${Number(settings.cod_threshold).toFixed(2)}. Please choose online payment.`,
-          variant: "destructive",
-        });
-        return;
-      }
-    }
+    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) return;
+    if (!addressDetails.city || !addressDetails.pincode) return;
 
     setIsProcessingPayment(true);
 
     try {
-      const orderNumber = `SS${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      const orderNumber = `PH${Date.now()}${Math.floor(Math.random() * 1000)}`;
       const completeAddress = `${addressDetails.plotNumber}, ${addressDetails.buildingName ? addressDetails.buildingName + ', ' : ''}${addressDetails.street}, ${addressDetails.landmark ? 'Near ' + addressDetails.landmark + ', ' : ''}${addressDetails.city}, ${addressDetails.state} - ${addressDetails.pincode}`;
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -475,7 +360,7 @@ const Checkout = () => {
           quantity: item.quantity,
           weight: item.weight,
           image: item.image,
-          category: item.category || 'bulk',
+          category: item.category || 'Product',
           selected_size: item.selectedSize || 'Standard'
         })) as any,
         subtotal: subtotal,
@@ -490,82 +375,22 @@ const Checkout = () => {
       };
 
       if (paymentMethod === 'cod') {
-        const codOrderData = {
-          ...orderData,
-          payment_status: 'pending',
-          order_status: 'placed'
-        };
-
-        const { error: dbError } = await supabase
-          .from('orders')
-          .insert([codOrderData])
-          .select()
-          .single();
-
-        if (dbError) throw new Error(`Database error: ${dbError.message}`);
-
-        if (!useExistingAddress && currentUser) {
-          await saveAddressToProfile();
-        }
-
+        const { error: dbError } = await supabase.from('orders').insert([{ ...orderData, payment_status: 'pending', order_status: 'placed' }]);
+        if (dbError) throw dbError;
+        
+        if (!useExistingAddress && currentUser) await saveAddressToProfile();
+        
         if (appliedCoupon) {
-          await supabase
-            .from('coupons')
-            .update({ used_count: appliedCoupon.used_count + 1 })
-            .eq('id', appliedCoupon.id);
+          await supabase.from('coupons').update({ used_count: appliedCoupon.used_count + 1 }).eq('id', appliedCoupon.id);
         }
 
         if (!currentUser) {
-          const guestOrder = {
-            orderNumber: orderNumber,
-            customerInfo: customerInfo,
-            items: cartItems.map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              weight: item.weight,
-              image: item.image,
-              category: item.category || 'bulk'
-            })),
-            subtotal: subtotal,
-            tax: tax,
-            deliveryFee: deliveryFee,
-            estimatedDeliveryTime: estimatedDeliveryTime,
-            codFee: codFee,
-            discount: discount,
-            total: total,
-            paymentMethod: paymentMethod,
-            paymentStatus: 'pending',
-            deliveryAddress: {
-              plotNumber: addressDetails.plotNumber,
-              buildingName: addressDetails.buildingName,
-              street: addressDetails.street,
-              city: addressDetails.city,
-              state: addressDetails.state,
-              pincode: addressDetails.pincode,
-              landmark: addressDetails.landmark
-            },
-            orderDate: new Date().toISOString(),
-            couponCode: appliedCoupon?.code
-          };
-
-          setGuestOrderData(guestOrder);
+          setGuestOrderData({ ...orderData, orderNumber, deliveryDetails: addressDetails });
           setShowGuestOrderPopup(true);
-
-          toast({
-            title: "Order Placed Successfully!",
-            description: `Your COD order #${orderNumber} has been placed. Please save the order details as you won't be able to view them again.`,
-          });
         } else {
-          toast({
-            title: "Order Placed Successfully!",
-            description: `Your COD order #${orderNumber} has been placed. You'll pay ${settings.currency_symbol}${total.toFixed(2)} on delivery.`,
-          });
-
+          toast({ title: "Order Placed!", description: "Your order has been placed successfully." });
           navigate('/profile?tab=orders');
         }
-
         clearCart();
       } else {
         const razorpayOrderData: OrderData = {
@@ -574,114 +399,23 @@ const Checkout = () => {
           currency: 'INR',
           items: cartItems,
           customerInfo,
-          deliveryAddress: {
-            address: completeAddress,
-            lat: 0,
-            lng: 0
-          }
+          deliveryAddress: { address: completeAddress, lat: 0, lng: 0 }
         };
 
         await initiateRazorpayPayment(
           razorpayOrderData,
           async (response) => {
-            try {
-              const onlineOrderData = {
-                ...orderData,
-                payment_status: 'paid',
-                order_status: 'confirmed',
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id
-              };
-
-              const { data: savedOrder, error: dbError } = await supabase
-                .from('orders')
-                .insert([onlineOrderData])
-                .select()
-                .single();
-
-              if (dbError) throw new Error(`Database error: ${dbError.message}`);
-
-              if (!useExistingAddress && currentUser) {
-                await saveAddressToProfile();
-              }
-
-              if (appliedCoupon) {
-                await supabase
-                  .from('coupons')
-                  .update({ used_count: appliedCoupon.used_count + 1 })
-                  .eq('id', appliedCoupon.id);
-              }
-
-              if (!currentUser) {
-                const guestOrder = {
-                  orderNumber: orderNumber,
-                  customerInfo: customerInfo,
-                  items: cartItems.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    weight: item.weight,
-                    image: item.image,
-                    category: item.category || 'bulk',
-                    selected_size: item.selectedSize || 'Standard'
-                  })),
-                  subtotal: subtotal,
-                  tax: tax,
-                  deliveryFee: deliveryFee,
-                  estimatedDeliveryTime: estimatedDeliveryTime,
-                  codFee: codFee,
-                  discount: discount,
-                  total: total,
-                  paymentMethod: paymentMethod,
-                  paymentStatus: 'paid',
-                  deliveryAddress: {
-                    plotNumber: addressDetails.plotNumber,
-                    buildingName: addressDetails.buildingName,
-                    street: addressDetails.street,
-                    city: addressDetails.city,
-                    state: addressDetails.state,
-                    pincode: addressDetails.pincode,
-                    landmark: addressDetails.landmark
-                  },
-                  orderDate: new Date().toISOString(),
-                  couponCode: appliedCoupon?.code
-                };
-
-                setGuestOrderData(guestOrder);
-                setShowGuestOrderPopup(true);
-
-                toast({
-                  title: "Payment Successful!",
-                  description: `Order #${orderNumber} confirmed and paid. Please save the order details as you won't be able to view them again.`,
-                });
-              } else {
-                toast({
-                  title: "Payment Successful!",
-                  description: `Order #${orderNumber} confirmed and paid. Your bulk order is being processed.`,
-                });
-
-                navigate('/profile?tab=orders');
-              }
-
-              clearCart();
-            } catch (error) {
-              console.error('Post-payment processing error:', error);
-              toast({
-                title: "Order Processing Error",
-                description: "Payment successful but order processing failed. Please contact support.",
-                variant: "destructive",
-              });
+            await supabase.from('orders').insert([{ ...orderData, payment_status: 'paid', order_status: 'confirmed', razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id }]);
+            if (!useExistingAddress && currentUser) await saveAddressToProfile();
+            clearCart();
+            if (!currentUser) {
+               setGuestOrderData({ ...orderData, orderNumber, paymentStatus: 'paid' });
+               setShowGuestOrderPopup(true);
+            } else {
+               navigate('/profile?tab=orders');
             }
           },
-          (error) => {
-            console.error('Payment error:', error);
-            toast({
-              title: "Payment Failed",
-              description: error.message || "Payment was cancelled or failed. Please try again.",
-              variant: "destructive",
-            });
-          }
+          (error) => toast({ title: "Payment Failed", description: error.message, variant: "destructive" })
         );
       }
     } catch (error) {
@@ -693,60 +427,71 @@ const Checkout = () => {
 
   if (cartItems.length === 0 && !showGuestOrderPopup) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center bg-[#F9F9F7] min-h-screen flex flex-col justify-center items-center">
-        <h2 className="text-4xl font-serif text-[#1a1a1a] mb-6">Your bag is empty</h2>
-        <p className="text-gray-500 mb-10 font-light text-lg">Add some luxurious items to your collection.</p>
-        <Button onClick={() => navigate('/products')} className="bg-[#1a1a1a] text-white rounded-none uppercase tracking-widest px-12 py-6 text-sm hover:bg-black transition-all">
-          Start Shopping
-        </Button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F6F7F8] p-6 text-center">
+         <div className="size-[120px] bg-white rounded-full flex items-center justify-center mb-8 shadow-sm">
+            <ShoppingBag className="size-[48px] text-[#BDC1C6]" />
+         </div>
+         <h2 className="text-[28px] font-[600] text-[#1A1A1A] mb-4">Your bag is empty</h2>
+         <p className="text-[#5F6368] mb-10 max-w-sm">Add some items to your bag before moving to checkout.</p>
+         <Button onClick={() => navigate('/products')} className="bg-[var(--blue-primary)] text-white rounded-[8px] px-10 h-12 font-[500] text-[14px] hover:bg-[var(--blue-deep)] transition-all">
+           Start Shopping
+         </Button>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen bg-[#F8FAFC] dark:bg-[#0B0B0F] overflow-hidden transition-colors duration-500 font-display selection:bg-[#F97316] selection:text-white pb-20">
-
-      {/* Background Elements */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-soft-light"></div>
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#F97316]/5 rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] animation-delay-2000 animate-pulse"></div>
-      </div>
-
-      <div className="container relative z-10 mx-auto px-4 lg:px-8 max-w-[1400px] py-8 lg:py-12">
-
-        {/* Header */}
-        <div className="flex items-center justify-between mb-12 relative">
-          {/* Decorative Line */}
-          <div className="absolute bottom-[-20px] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#F97316]/30 to-transparent"></div>
-
-          <Button variant="ghost" className="p-0 hover:bg-transparent group" onClick={() => navigate('/cart')}>
-            <div className="flex items-center gap-3 text-gray-500 group-hover:text-[#F97316] transition-colors">
-              <div className="p-2 border border-gray-200 dark:border-white/10 rounded-full group-hover:border-[#F97316] group-hover:bg-[#F97316]/10 transition-all">
-                <ArrowLeft className="w-4 h-4" />
-              </div>
-              <span className="font-bebas text-lg tracking-wider text-[#0B0B0F] dark:text-white group-hover:text-[#F97316] mt-1">RETURN TO BASE</span>
+    <div className="min-h-screen bg-[#F6F7F8] font-inter pb-20">
+      
+      {/* Checkout Navbar */}
+      <nav className="bg-white border-b border-[#E0E3E7] sticky top-0 z-[50]">
+         <div className="max-w-[1280px] mx-auto px-6 h-[72px] flex items-center justify-between">
+            <button 
+              onClick={() => navigate('/cart')}
+              className="flex items-center gap-2 text-[#5F6368] hover:text-[#1A1A1A] transition-colors"
+            >
+              <ChevronLeft size={20} />
+              <span className="text-[14px] font-[600]">Back to Cart</span>
+            </button>
+            <div className="flex items-center gap-2">
+               <ShieldCheck className="text-[#008A00] size-5" />
+               <span className="text-[12px] font-[700] text-[#1A1A1A] uppercase tracking-wider">Secure Checkout</span>
             </div>
-          </Button>
+         </div>
+      </nav>
 
-          <div className="text-center group cursor-default">
-            <h1 className="text-4xl md:text-6xl font-bebas italic text-[#0B0B0F] dark:text-white tracking-tighter leading-none group-hover:skew-x-[-2deg] transition-transform duration-300">
-              MISSION <span className="text-[#F97316]">CHECKOUT</span>
-            </h1>
-            <p className="text-[10px] md:text-xs font-mono font-bold tracking-[0.3em] text-gray-400 uppercase mt-1">
-              SECURE TRANSMISSION // LEVEL 4 ENCRYPTION
-            </p>
-          </div>
-
-          <div className="hidden md:block w-32"></div> {/* Geometric Spacer */}
+      <div className="max-w-[1280px] mx-auto px-6 py-10 md:py-16">
+        
+        {/* Page Header */}
+        <div className="mb-12">
+           <h1 className="text-[32px] md:text-[40px] font-[600] text-[#1A1A1A] leading-tight">
+             Checkout
+           </h1>
+           <div className="flex items-center gap-4 mt-3 text-[#5F6368]">
+              <span className="flex items-center gap-1.5 text-[14px]">
+                 <BadgeCheck size={16} className="text-[var(--blue-primary)]" />
+                 Satisfaction Guaranteed
+              </span>
+              <span className="size-1 bg-[#BDC1C6] rounded-full"></span>
+              <span className="flex items-center gap-1.5 text-[14px]">
+                 <Lock size={16} className="text-[var(--blue-primary)]" />
+                 AES-256 Encryption
+              </span>
+           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
           {/* Main Checkout Section */}
-          <div className="lg:col-span-8 space-y-12">
-            <Stepper steps={steps} currentStep={currentStep} className="mb-12" />
+          <div className="lg:col-span-8">
+            
+            {/* Stepper */}
+            <div className="mb-12 bg-white p-6 md:p-8 rounded-[12px] border border-[#E0E3E7] shadow-sm">
+               <Stepper steps={steps} currentStep={currentStep} />
+            </div>
 
-            <div className="bg-transparent animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Step Content */}
+            <div className="bg-white rounded-[12px] border border-[#E0E3E7] shadow-sm p-6 md:p-10">
               {currentStep === 1 && (
                 <CheckoutContactInfo
                   customerInfo={customerInfo}
@@ -820,83 +565,97 @@ const Checkout = () => {
                   onPrev={handlePrevStep}
                   onApplyCoupon={applyCoupon}
                   onRemoveCoupon={removeCoupon}
-                  isPincodeServiceable={true}
+                  isPincodeServiceable={isPincodeServiceable}
                 />
               )}
             </div>
+
           </div>
 
-          {/* Quick Order Summary Sidebar (Visible on large screens) */}
-          <div className="hidden lg:block lg:col-span-4">
-            <div className="bg-white border border-gray-200 p-10 sticky top-32 shadow-sm transition-all hover:shadow-md">
-              <h3 className="font-serif text-2xl text-[#1a1a1a] mb-8 pb-4 border-b border-gray-100">Order Summary</h3>
-              <div className="space-y-6">
-                <div className="max-h-[400px] overflow-y-auto pr-2 space-y-6 scrollbar-thin scrollbar-thumb-gray-200">
+          {/* Right Col: Minimal Sidebar Summary */}
+          <aside className="lg:col-span-4 space-y-6">
+            <div className="bg-white p-8 rounded-[12px] border border-[#E0E3E7] shadow-sm">
+               <h2 className="text-[20px] font-[600] text-[#1A1A1A] mb-8">Order Summary</h2>
+               
+               <div className="space-y-4 mb-8 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="flex gap-6 group">
-                      <div className="w-20 h-24 bg-[#F9F9F7] shrink-0 overflow-hidden relative">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0 py-1">
-                        <p className="font-serif text-[#1a1a1a] truncate text-lg">{item.name}</p>
-                        <p className="text-xs text-gray-400 mt-2 uppercase tracking-wide">{item.quantity} x {formatPrice(item.price)}</p>
-                      </div>
-                      <div className="text-right py-1">
-                        <p className="font-medium text-[#1a1a1a]">{formatPrice(item.price * item.quantity)}</p>
-                      </div>
-                    </div>
+                     <div key={`${item.id}-${item.selectedSize}`} className="flex gap-4">
+                        <div className="size-[64px] rounded-[10px] bg-[#F6F7F8] border border-[#E0E3E7] shrink-0 flex items-center justify-center p-1">
+                           <img src={item.image} alt="" className="w-full h-full object-contain" />
+                        </div>
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
+                           <h4 className="text-[14px] font-[600] text-[#1A1A1A] leading-tight truncate">{item.name}</h4>
+                           <p className="text-[12px] text-[#5F6368] mt-1">Qty: {item.quantity} • {item.selectedSize || 'Std'}</p>
+                        </div>
+                        <div className="shrink-0 flex flex-col justify-center items-end">
+                           <p className="text-[14px] font-[700] text-[#1A1A1A]">
+                              {formatCurrency(item.price * item.quantity, settings.currency_symbol)}
+                           </p>
+                        </div>
+                     </div>
                   ))}
-                </div>
+               </div>
 
-                <Separator className="my-6 bg-gray-100" />
+               <div className="h-px bg-[#E0E3E7] w-full mb-6"></div>
 
-                <div className="space-y-3 text-sm font-light text-gray-600">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span className="text-[#1a1a1a] font-medium">{formatPrice(subtotal)}</span>
+               <div className="space-y-4 mb-4">
+                  <div className="flex justify-between items-center text-[14px]">
+                    <span className="text-[#5F6368]">Subtotal</span>
+                    <span className="text-[#1A1A1A] font-[600]">{formatCurrency(subtotal, settings.currency_symbol)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span className="text-[#1a1a1a] font-medium">{deliveryFee === 0 ? 'Complimentary' : formatPrice(deliveryFee)}</span>
+                  <div className="flex justify-between items-center text-[14px]">
+                    <span className="text-[#5F6368]">Shipping</span>
+                    <span className={`font-[600] ${deliveryFee === 0 ? 'text-[#008A00]' : 'text-[#1A1A1A]'}`}>
+                      {deliveryFee === 0 ? 'FREE' : formatCurrency(deliveryFee, settings.currency_symbol)}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Taxes</span>
-                    <span className="text-[#1a1a1a] font-medium">{formatPrice(tax)}</span>
-                  </div>
-                  {discount > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>Discount</span>
-                      <span>-{formatPrice(discount)}</span>
+                  {tax > 0 && (
+                    <div className="flex justify-between items-center text-[14px]">
+                      <span className="text-[#5F6368]">Tax ({settings.tax_rate}%)</span>
+                      <span className="text-[#1A1A1A] font-[600]">{formatCurrency(tax, settings.currency_symbol)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-end pt-6 border-t border-black mt-6">
-                    <span className="text-[#1a1a1a] font-serif text-lg">Total</span>
-                    <span className="text-[#1a1a1a] font-serif text-2xl">{formatPrice(total)}</span>
-                  </div>
-                  <div className="text-right text-xs text-gray-400 mt-1 uppercase tracking-wider">Inclusive of all taxes</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                  {discount > 0 && (
+                     <div className="flex justify-between items-center text-[14px] text-[#008A00] font-[600]">
+                        <span>Discount</span>
+                        <span>-{formatCurrency(discount, settings.currency_symbol)}</span>
+                     </div>
+                  )}
+               </div>
 
-        <GuestOrderPopup
-          isOpen={showGuestOrderPopup}
-          onClose={() => {
-            setShowGuestOrderPopup(false);
-            if (currentUser) {
-              navigate('/profile?tab=orders');
-            } else {
-              navigate('/');
-            }
-          }}
-          orderData={guestOrderData}
-        />
+               <div className="pt-6 border-t border-[#F6F7F8]">
+                  <div className="flex justify-between items-center">
+                     <span className="text-[18px] font-[700] text-[#1A1A1A]">Total</span>
+                     <span className="text-[24px] font-[700] text-[var(--blue-primary)]">
+                        {formatCurrency(total, settings.currency_symbol)}
+                     </span>
+                  </div>
+               </div>
+            </div>
+
+            {/* Help Content */}
+            <div className="bg-[var(--blue-light)]/30 border border-[var(--blue-light)] p-6 rounded-[12px]">
+               <h3 className="text-[15px] font-[600] text-[#1A1A1A] flex items-center gap-2 mb-2">
+                  <ShieldCheck size={18} className="text-[var(--blue-primary)]" />
+                  Your privacy is our priority
+               </h3>
+               <p className="text-[13px] text-[#5F6368] leading-relaxed">
+                  We use secure industry-standard encryption to protect your personal information during checkout.
+               </p>
+            </div>
+          </aside>
+
+        </div>
       </div>
+
+      <GuestOrderPopup
+        isOpen={showGuestOrderPopup}
+        onClose={() => {
+          setShowGuestOrderPopup(false);
+          navigate('/');
+        }}
+        orderData={guestOrderData}
+      />
     </div>
   );
 };

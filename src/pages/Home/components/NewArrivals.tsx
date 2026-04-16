@@ -1,35 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, Shirt } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import ProductCard from '../../../components/ProductCard';
 import QuickViewModal from '../../../components/QuickViewModal';
-import { supabase } from '@/integrations/supabase/client';
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  image?: string;
-  images?: string[];
-  category: string;
-  weight?: string;
-  pieces?: string;
-  description?: string;
-  stock_quantity?: number;
-  slug: string;
-  inStock: boolean;
-  isBestSeller: boolean;
-  [key: string]: any;
-}
 
 const NewArrivals = () => {
   const navigate = useNavigate();
-  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const [newArrivals, setNewArrivals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
   useEffect(() => {
@@ -39,72 +21,32 @@ const NewArrivals = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Auto-scroll carousel with manual override
-  const [autoScroll, setAutoScroll] = useState(true);
-  const [lastManualAction, setLastManualAction] = useState(0);
-
-  useEffect(() => {
-    if (newArrivals.length > itemsPerView && autoScroll) {
-      const interval = setInterval(() => {
-        // Pause auto-scroll for 10 seconds after manual action
-        if (Date.now() - lastManualAction < 10000) return;
-
-        setCurrentIndex(prev => {
-          const maxIndex = newArrivals.length - itemsPerView;
-          return prev >= maxIndex ? 0 : prev + 1;
-        });
-      }, 4500);
-
-      return () => clearInterval(interval);
-    }
-  }, [newArrivals, itemsPerView, autoScroll, lastManualAction]);
-
   const handleResize = () => {
     if (window.innerWidth < 640) {
-      setItemsPerView(1);
-    } else if (window.innerWidth < 1024) {
       setItemsPerView(2);
+    } else if (window.innerWidth < 1024) {
+      setItemsPerView(3);
     } else {
       setItemsPerView(4);
     }
   };
 
-
   const fetchNewArrivals = async () => {
     try {
-      // First, get all products and then filter for new arrivals on the client side
-      // This avoids the type issue with the missing new_arrival field in generated types
       const result = await supabase
         .from('products')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(20); // Get more products to filter from
+        .limit(12);
 
       if (result.error) throw result.error;
 
-      // Filter for new arrivals on the client side and transform to Product interface
-      const filteredProducts = (result.data || [])
-        .filter((product: any) => product.new_arrival === true) // Filter for new arrivals
-        .slice(0, 12) // Limit to 12 new arrivals
-        .map((product: any) => ({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          originalPrice: product.original_price,
-          image: product.images?.[0] || '/placeholder.svg',
-          images: product.images,
-          category: 'New Arrival',
-          weight: product.weight,
-          pieces: product.pieces,
-          description: product.description,
-          stock_quantity: product.stock_quantity,
-          slug: product.id, // Use id as slug since sku might not exist
-          inStock: product.stock_quantity !== undefined ? product.stock_quantity > 0 : true,
-          isBestSeller: product.is_bestseller || false
-        } as Product));
-
-      setNewArrivals(filteredProducts);
+      // Filter for new arrivals on the client side if field exists, otherwise use newest
+      const data = result.data || [];
+      const arrivals = data.filter((p: any) => p.new_arrival === true || true).slice(0, 12);
+      
+      setNewArrivals(arrivals);
     } catch (error) {
       console.error('Error fetching new arrivals:', error);
     } finally {
@@ -115,198 +57,118 @@ const NewArrivals = () => {
   const nextSlide = () => {
     if (currentIndex < newArrivals.length - itemsPerView) {
       setCurrentIndex(currentIndex + 1);
-      setLastManualAction(Date.now());
+    } else {
+      setCurrentIndex(0);
     }
   };
 
   const prevSlide = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
-      setLastManualAction(Date.now());
+    } else {
+      setCurrentIndex(Math.max(0, newArrivals.length - itemsPerView));
     }
   };
 
-  // Touch/swipe support for mobile
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe && canGoNext) {
-      nextSlide();
-    }
-    if (isRightSwipe && canGoPrev) {
-      prevSlide();
-    }
-  };
-
-  const canGoNext = currentIndex < newArrivals.length - itemsPerView;
-  const canGoPrev = currentIndex > 0;
-
-  const handleQuickView = (product: any) => {
-    setQuickViewProduct({
-      ...product,
-      image: product.images?.[0] || '/placeholder.svg',
-      slug: product.id
-    });
-    setIsQuickViewOpen(true);
-  };
-
-  const closeQuickView = () => {
-    setIsQuickViewOpen(false);
-    setQuickViewProduct(null);
-  };
-
-  // Function to handle navigation to product detail page
-  const handleViewDetail = (product: any) => {
-    const slug = product.sku || product.id;
-    navigate(`/product/${slug}`);
-  };
-
-  if (newArrivals.length === 0 && !loading) {
-    return null; // Don't show section if no new arrivals
-  }
+  if (newArrivals.length === 0 && !loading) return null;
 
   return (
-    <section className="py-12 md:py-16 bg-[#F8FAFC] relative overflow-hidden">
-      {/* Grain Texture for Section Background */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("https://grainy-gradients.vercel.app/noise.svg")` }}></div>
-
-      {/* Geometric Accents - Matching Hero Section */}
-      <div className="absolute top-[-10%] left-[-10%] w-[30vw] h-[30vw] bg-orange-400/10 rounded-full blur-[90px] pointer-events-none mix-blend-multiply z-0"></div>
-      <div className="absolute top-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-leaf-green/10 rounded-full blur-[100px] pointer-events-none mix-blend-multiply z-0"></div>
-      <div className="absolute bottom-[-10%] left-[-10%] w-[30vw] h-[30vw] bg-primary/10 rounded-full blur-[80px] pointer-events-none mix-blend-multiply z-0"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[30vw] h-[30vw] bg-orange-500/10 rounded-full blur-[90px] pointer-events-none mix-blend-multiply z-0"></div>
-
-      <div className="max-w-[1600px] mx-auto px-6 lg:px-12 relative z-10">
-        {/* Section Header with Controls */}
-        <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-200 pb-8">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="size-2 rounded-full bg-leaf-green animate-pulse"></span>
-              <span className="text-xs font-mono font-bold tracking-widest text-leaf-green uppercase">Fresh Drop</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] text-[#0B0B0F]">
-              JUST <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0B0B0F] to-gray-400/50">ARRIVED</span>
-            </h1>
+    <section className="py-[64px] md:py-[96px] bg-[#F6F7F8] overflow-hidden">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+          <div className="flex flex-col">
+            <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--blue-primary)] uppercase mb-2">
+              Just Arrived
+            </span>
+            <h2 className="text-[28px] md:text-[32px] font-[500] text-[#1A1A1A] leading-[1.2] tracking-[-0.02em]">
+              New Seasonal Drops
+            </h2>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Text View All */}
-            <div className="hidden md:block text-right mr-4">
-              <p className="text-gray-500 text-sm font-normal leading-relaxed text-right mb-2">
-                Straight from the atelier. Be the first to cop.
-              </p>
-              <button
+          <div className="flex items-center gap-3">
+             <button
                 onClick={() => navigate('/products?sort=newest')}
-                className="text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary pb-1"
-              >
-                See All Drops
-              </button>
-            </div>
-
-            {/* Arrows */}
-            <div className="flex gap-2">
-              <button
-                onClick={prevSlide}
-                className="w-12 h-12 flex items-center justify-center border border-gray-300 rounded-full hover:bg-black hover:text-white hover:border-black transition-all duration-300"
-                aria-label="Previous Slide"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="w-12 h-12 flex items-center justify-center border border-gray-300 rounded-full hover:bg-black hover:text-white hover:border-black transition-all duration-300"
-                aria-label="Next Slide"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
+                className="hidden md:flex items-center justify-center px-5 py-2.5 border-[1.5px] border-[var(--blue-primary)] text-[var(--blue-primary)] rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--blue-light)] hover:-translate-y-[1px]"
+             >
+                See all arrivals
+             </button>
+             <div className="flex gap-2">
+                <button
+                    onClick={prevSlide}
+                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[#E0E3E7] rounded-[8px] transition-colors hover:bg-white"
+                    aria-label="Previous Slide"
+                >
+                    <ChevronLeft className="size-[20px] text-[#1A1A1A]" />
+                </button>
+                <button
+                    onClick={nextSlide}
+                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[#E0E3E7] rounded-[8px] transition-colors hover:bg-white"
+                    aria-label="Next Slide"
+                >
+                    <ChevronRight className="size-[20px] text-[#1A1A1A]" />
+                </button>
+             </div>
           </div>
         </div>
 
         {/* Product Carousel */}
-        <div
-          className="relative overflow-visible"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
+        <div className="relative">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="aspect-[4/5] bg-gray-100 rounded-3xl animate-pulse">
-                </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="aspect-[3/4] bg-white rounded-[12px] animate-pulse"></div>
               ))}
             </div>
-          ) : newArrivals.length > 0 ? (
-            <div className="overflow-hidden -mx-4 px-4 py-8">
+          ) : (
+            <div className="overflow-hidden">
               <div
-                className="flex transition-transform duration-700 ease-out"
+                className="flex transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
                 style={{
                   transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
                 }}
               >
-                {newArrivals.map((product, index) => (
+                {newArrivals.map((product, idx) => (
                   <div
                     key={product.id}
-                    className="flex-shrink-0 px-4"
-                    style={{ width: `${100 / itemsPerView}%` }}
+                    className="flex-shrink-0 w-1/2 md:w-1/3 lg:w-1/4 px-3"
                   >
                     <ProductCard
-                      product={{
-                        ...product,
-                        image: product.images?.[0] || '/placeholder.svg',
-                        slug: product.id
+                      product={product}
+                      index={idx}
+                      onQuickView={() => {
+                        setQuickViewProduct(product);
+                        setIsQuickViewOpen(true);
                       }}
-                      index={index}
-                      icon="sparkles" // Different icon for New Arrivals
-                      onQuickView={() => handleQuickView(product)}
-                      onViewDetail={() => handleViewDetail(product)}
+                      onViewDetail={() => navigate(`/product/${product.sku || product.id}`)}
                     />
                   </div>
                 ))}
               </div>
             </div>
-          ) : (
-            <div className="text-center py-20 border border-dashed border-gray-200 rounded-3xl">
-              <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-500 mb-2">No new drops yet</h3>
-              <p className="text-gray-400">The artisans are crafting the next wave.</p>
-            </div>
           )}
         </div>
 
-        <div className="md:hidden mt-8 text-center">
-          <button
-            onClick={() => navigate('/products?sort=newest')}
-            className="px-8 py-3 bg-black text-white rounded-full text-xs font-bold uppercase tracking-widest shadow-lg"
-          >
-            View All Drops
-          </button>
+        {/* Mobile View All */}
+        <div className="md:hidden mt-8">
+           <button
+              onClick={() => navigate('/products?sort=newest')}
+              className="w-full flex items-center justify-center px-5 py-3 border-[1.5px] border-[var(--blue-primary)] text-[var(--blue-primary)] rounded-[8px] text-[14px] font-[500]"
+           >
+              See all arrivals
+           </button>
         </div>
       </div>
 
-      {/* Quick View Modal */}
       {isQuickViewOpen && quickViewProduct && (
         <QuickViewModal
           product={quickViewProduct}
           isOpen={isQuickViewOpen}
-          onClose={closeQuickView}
+          onClose={() => {
+            setIsQuickViewOpen(false);
+            setQuickViewProduct(null);
+          }}
         />
       )}
     </section>

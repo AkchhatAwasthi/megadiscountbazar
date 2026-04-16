@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { formatPrice } from '../utils/currency';
+import { ShoppingCart, Heart, Eye } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -11,12 +12,9 @@ interface Product {
   image?: string;
   images?: string[];
   category?: any;
-  weight?: string;
-  pieces?: string;
   rating?: number;
   stock_quantity?: number;
   isBestSeller?: boolean;
-  features?: string[];
   sku?: string;
   [key: string]: any;
 }
@@ -25,43 +23,31 @@ interface ProductCardProps {
   product: Product;
   onViewDetail?: () => void;
   onQuickView?: (product?: Product) => void;
-  icon?: string; // For the background abstract shape
-  index?: number; // To determine HOT/NEW badge if standard logic isn't used
-  variant?: 'standard' | 'dark'; // 'standard' = light/glasmorphism, 'dark' = minimal dark theme
-  aspectRatio?: 'portrait' | 'square';
+  index?: number;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onViewDetail,
   onQuickView,
-  icon = 'bolt',
   index = 0,
-  variant = 'standard',
-  aspectRatio = 'portrait'
 }) => {
   const addToCart = useStore((state) => state.addToCart);
 
-  // Always use the first image as the primary image
   const primaryImage = product.images?.[0] || product.image || '/placeholder.svg';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    // Normalize category to string for the store
     const categoryString = typeof product.category === 'object' && product.category?.name
       ? product.category.name
-      : (typeof product.category === 'string' ? product.category : 'STREETWEAR');
+      : (typeof product.category === 'string' ? product.category : 'General');
 
-    const defaultSize = product.available_sizes?.[0] || 'Standard';
+    const defaultSize = 'Standard';
 
     addToCart({
       ...product,
       category: categoryString,
       image: primaryImage,
-      id: product.id,
-      name: product.name,
-      price: product.price
     } as any, defaultSize);
   };
 
@@ -72,146 +58,127 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const isOutOfStock = product.stock_quantity !== undefined && product.stock_quantity <= 0;
 
-  // Determine badge text
-  let badgeText = 'NEW';
-  let badgeColorClass = 'bg-white/80 text-[#0B0B0F]';
+  // Badge logic
+  let badgeText = '';
+  let badgeType: 'sale' | 'new' | 'best' = 'new';
 
-  if (variant === 'dark') {
-    badgeColorClass = 'bg-[#FF4500] text-white'; // Ninja Orange for dark mode
+  if (product.originalPrice && product.originalPrice > product.price) {
+    const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+    badgeText = `${discount}% OFF`;
+    badgeType = 'sale';
+  } else if (product.isBestSeller) {
+    badgeText = 'BEST SELLER';
+    badgeType = 'best';
+  } else if (index < 4) {
+    badgeText = 'NEW';
+    badgeType = 'new';
   }
 
-  if (product.stock_quantity && product.stock_quantity < 5) badgeText = 'LIMITED';
-  if (product.isBestSeller || index < 2) badgeText = 'BEST';
-
-
-  // Variant Styles
-  const isDark = variant === 'dark';
-
-  const containerClasses = isDark
-    ? "bg-[#18181B] border-none shadow-none rounded-xl" // Dark Theme
-    : "bg-[#F1F5F9] border border-white/60 shadow-[inset_0_0_60px_rgba(249,116,21,0.05)] rounded-3xl"; // Standard Theme
-
-  const textPrimaryClass = isDark ? "text-white" : "text-[#0B0B0F]";
-  const textSecondaryClass = isDark ? "text-zinc-400" : "text-primary";
-  const hoverTranslateClass = isDark ? "group-hover:-translate-y-2" : "";
-
-  const aspectRatioClass = aspectRatio === 'square' ? 'aspect-square' : 'aspect-[4/5]';
+  const badgeStyles = {
+    sale: { bg: 'bg-[#FCEBEB]', text: 'text-[#A32D2D]' },
+    new: { bg: 'bg-[#E6F1FB]', text: 'text-[#0C447C]' },
+    best: { bg: 'bg-[#FAEEDA]', text: 'text-[#633806]' }
+  };
 
   return (
-    <div className={`group relative flex flex-col gap-4 cursor-pointer w-full font-display transition-transform duration-300 ${hoverTranslateClass}`} onClick={onViewDetail}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      viewport={{ once: true }}
+      className="group relative flex flex-col bg-[#FFFFFF] border-[0.5px] border-[#E0E3E7] rounded-[12px] p-[12px] cursor-pointer transition-all duration-[220ms] ease-[cubic-bezier(0.4,0,0.2,1)] hover:border-[#0071DC] hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)]"
+      onClick={onViewDetail}
+    >
       {/* Image Container */}
-      <div className={`relative w-full ${aspectRatioClass} overflow-hidden isolate ${containerClasses}`}>
+      <div className="relative aspect-square overflow-hidden rounded-[8px] bg-[#F6F7F8] mb-3">
+        <img
+          src={primaryImage}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+          loading="lazy"
+        />
+        
+        {/* Badge Overlay */}
+        {badgeText && (
+          <div className="absolute top-2 left-2 flex gap-1 z-10">
+            <span className={`inline-flex items-center px-[8px] py-[3px] rounded-[6px] text-[11px] font-[500] tracking-[0.02em] ${badgeStyles[badgeType].bg} ${badgeStyles[badgeType].text}`}>
+              {badgeText}
+            </span>
+          </div>
+        )}
 
-        {/* Background Motif (Standard Only) */}
-        {!isDark && (
-          <>
-            <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-700 pointer-events-none z-0">
-              <span className="material-symbols-outlined text-[300px] select-none scale-[1.5] text-black" style={{ fontVariationSettings: "'FILL' 0, 'wght' 200" }}>{icon}</span>
+        {/* Wishlist Icon */}
+        <button 
+          className="absolute top-2 right-2 size-[32px] flex items-center justify-center bg-white/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white text-[var(--blue-primary)]"
+          onClick={(e) => { e.stopPropagation(); /* Wishlist logic */ }}
+        >
+          <Heart className="size-[16px]" />
+        </button>
+
+        {/* Quick View Button Overlay */}
+        <div className="absolute inset-x-2 bottom-2 z-20">
+            <button
+                onClick={handleQuickView}
+                className="w-full py-2 bg-white/90 backdrop-blur-sm text-[#0071DC] rounded-[8px] text-[12px] font-[500] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-white flex items-center justify-center gap-2"
+            >
+                <Eye className="size-[14px]" />
+                Quick View
+            </button>
+        </div>
+      </div>
+
+      {/* Product Content */}
+      <div className="flex flex-col flex-grow">
+        <h3 className="text-[17px] font-[500] text-[#1A1A1A] leading-[1.35] mb-2 line-clamp-2 min-h-[46px]">
+          {product.name}
+        </h3>
+
+        {/* Rating Placeholder */}
+        <div className="flex items-center gap-1 mb-2">
+            <div className="flex items-center text-[var(--yellow-accent)]">
+                {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="size-[12px] fill-current" viewBox="0 0 24 24">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                ))}
             </div>
-            <div className="absolute inset-0 rounded-3xl shadow-[inset_0_0_40px_rgba(249,115,22,0.1)] z-10 pointer-events-none mix-blend-soft-light"></div>
-            <div className="absolute inset-0 opacity-30 mix-blend-overlay z-20 pointer-events-none" style={{ backgroundImage: `url("https://grainy-gradients.vercel.app/noise.svg")` }}></div>
-          </>
-        )}
-
-        {/* Product Image */}
-        {/* Product Image */}
-        <div className="relative w-full h-full z-10 transition-transform duration-700 ease-out group-hover:scale-110">
-          {/* Primary Image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-300"
-            style={{ backgroundImage: `url('${primaryImage}')` }}
-          ></div>
-
-          {/* Secondary Image Overlay for Hover Effect */}
-          {product.images && product.images.length > 1 && (
-            <div
-              className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out z-20"
-              style={{ backgroundImage: `url('${product.images[1]}')` }}
-            ></div>
-          )}
+            <span className="text-[13px] text-[#5F6368]">(124)</span>
         </div>
 
-        {/* Quick Add Actions */}
-        {!isOutOfStock ? (
-          <div className={`absolute bottom-0 left-0 right-0 flex justify-center items-center gap-2 z-30 p-4 transition-all duration-300 
-            ${isDark
-              ? 'translate-y-0 opacity-100 md:translate-y-full md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 bg-black/60 backdrop-blur-md'
-              : 'translate-y-0 opacity-100 md:translate-y-12 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100'
-            }`}>
-
-            {isDark ? (
-              <button
-                onClick={handleAddToCart}
-                className="w-full py-3 bg-[#FF4500] text-black font-bold text-sm tracking-widest uppercase hover:bg-white transition-colors rounded-sm"
-              >
-                ADD TO CART
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleQuickView}
-                  aria-label="Quick View"
-                  className="size-11 flex items-center justify-center bg-white/90 backdrop-blur text-black rounded-full shadow-lg hover:bg-white hover:scale-110 transition-all duration-300 md:flex"
-                >
-                  <span className="material-symbols-outlined text-[20px]">visibility</span>
-                </button>
-                <button
-                  onClick={handleAddToCart}
-                  className="h-11 px-3 md:px-6 flex items-center justify-center bg-primary text-white rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all duration-300 gap-2 font-bold text-xs md:text-sm tracking-wide flex-1 md:flex-none md:w-auto btn-summon relative overflow-hidden"
-                >
-                  <div className="summon-particles"></div>
-                  {/* Summoning Circle SVG */}
-                  <svg className="circle-svg absolute inset-0 w-full h-full text-white/20" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="5,5" />
-                    <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                    <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="currentColor" strokeWidth="0.5" transform="rotate(180 50 50)" />
-                    <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                  </svg>
-                  <span className="relative z-10">ADD TO CART</span>
-                </button>
-              </>
+        {/* Price Row */}
+        <div className="flex flex-col gap-0.5 mb-4">
+            <div className="flex items-center gap-2">
+                <span className="text-[22px] font-[600] text-[#1A1A1A]">{formatPrice(product.price)}</span>
+                {product.originalPrice && product.originalPrice > product.price && (
+                    <span className="text-[15px] font-[400] text-[#5F6368] line-through">
+                    {formatPrice(product.originalPrice)}
+                    </span>
+                )}
+            </div>
+            {product.originalPrice && product.originalPrice > product.price && (
+                <span className="text-[12px] text-[#2E8B57] font-[500]">You save {formatPrice(product.originalPrice - product.price)}</span>
             )}
-          </div>
-        ) : (
-          <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-            <span className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase">Sold Out</span>
-          </div>
-        )}
+        </div>
 
-        {/* Badge */}
-        <div className="absolute top-3 left-3 z-30">
-          <span className={`px-2 py-1 text-[10px] font-bold tracking-widest shadow-sm ${badgeColorClass} ${isDark ? 'rounded-none' : 'rounded-full border border-white/50'}`}>
-            {badgeText}
-          </span>
+        {/* Action Button */}
+        <div className="mt-auto">
+            {isOutOfStock ? (
+                <button disabled className="w-full py-[10px] bg-[#F6F7F8] text-[#9AA0A6] rounded-[8px] text-[14px] font-[500] cursor-not-allowed">
+                    Out of Stock
+                </button>
+            ) : (
+                <button
+                    onClick={handleAddToCart}
+                    className="w-full py-[10px] bg-[#FFC220] text-[#1A1A1A] rounded-[8px] text-[14px] font-[500] transition-all duration-200 hover:bg-[#E6AA00] hover:shadow-[0_4px_12px_rgba(255,194,32,0.4)] hover:-translate-y-[1px] flex items-center justify-center gap-2"
+                >
+                    <ShoppingCart className="size-[16px]" />
+                    Add to Cart
+                </button>
+            )}
         </div>
       </div>
-
-      {/* Product Details */}
-      <div className={`flex flex-col gap-1 ${isDark ? 'px-0' : 'px-1'}`}>
-        {!isDark && (
-          <div className="flex justify-between items-start">
-            <span className="text-leaf-green font-mono text-xs font-bold tracking-widest uppercase mb-1">
-              {typeof product.category === 'object' ? product.category?.name : (product.category || 'STREETWEAR')}
-            </span>
-          </div>
-        )}
-
-        <div className="flex justify-between items-start">
-          <h3 className={`font-sans font-bold text-base md:text-lg leading-tight tracking-wide group-hover:text-[#FF4500] transition-colors line-clamp-1 ${textPrimaryClass}`}>
-            {product.name}
-          </h3>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className={`font-bold text-base ${isDark ? 'text-[#FF4500]' : 'text-primary'}`}>{formatPrice(product.price)}</span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-zinc-500 text-xs font-medium line-through">
-              {formatPrice(product.originalPrice)}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
+    </motion.div>
   );
 };
+
 export default ProductCard;

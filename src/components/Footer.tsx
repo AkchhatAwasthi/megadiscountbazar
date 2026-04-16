@@ -1,141 +1,134 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
-import logoImage from '../assets/logo.png';
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { useSettings } from '@/hooks/useSettings';
-import QRCodeComponent from './QRCode';
-import { MarqueeAnimation } from '@/components/ui/marquee-effect';
 
-interface FooterProps {
-  isAdminRoute?: boolean;
-}
+const Footer = () => {
+  const { settings } = useSettings();
 
-const Footer: React.FC<FooterProps> = ({ isAdminRoute = false }) => {
-
-
-  const { settings, loading } = useSettings();
-
-  // Show loading state or fallback values
   const contactInfo = {
     phone: settings?.store_phone || '+91 9996616153',
     email: settings?.store_email || 'contact@supersweets.fit',
-    address: settings?.store_address || 'Shop number 5, Patel Nagar,\nHansi road, Patiala chowk,\nJIND (Haryana) 126102',
-    storeName: settings?.store_name || 'Paridhan Haat'
+    address: settings?.store_address || 'Shop number 5, Patel Nagar, Jind, Haryana',
+    storeName: settings?.store_name || 'Megadiscountstore'
   };
 
-  if (isAdminRoute) {
-    return null;
-  }
-
   return (
-    <footer className="w-full relative pt-20 pb-10 overflow-hidden bg-background-light dark:bg-background-dark font-display text-[#1a0e0e] dark:text-white transition-colors duration-300">
-
-      {/* Background Character Silhouette Overlay */}
-      <div className="absolute bottom-0 right-0 w-1/3 h-full pointer-events-none opacity-10 dark:opacity-20 flex items-end justify-end translate-x-12 translate-y-12 z-0">
-        <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px]">
-          {/* Character Base */}
-          <div
-            className="absolute bottom-0 right-0 w-full h-full bg-contain bg-no-repeat bg-bottom"
-            style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDNCfEWhMrKQwQ7gZdXHsUVAM5_EH5kfZcHM_9GU8QxEoqGgG3lRldZ6kqTLNzxWF_FFWgbvpC83g_RWRFu7KD3LW5qOcXRzt5CdD8Fp_cBDVYrD91Je-FbCF1xkOmgv762E0AODAUmf28xgLHVylGKD-Nj-5o-kDamwr39-9FMg3FZ2p5Oid_hWdjG0JaJwQXWQaVdGGHn2LyrOTSBqjBDq8kVPTo2SflADS_6G4G15TofTRehu2ZZXFJ8b9iHQE8XgiGCVpk77CqJ')" }}
-          ></div>
-          {/* Red Chakra Glow */}
-          <div className="absolute bottom-1/3 right-1/4 w-32 h-32 bg-primary/40 blur-[80px] rounded-full"></div>
-        </div>
-      </div>
-
-
-
-      {/* Marquee Divider */}
-      <div className="w-full border-t border-b border-primary/10 py-4 mb-16 overflow-hidden whitespace-nowrap bg-white/30 dark:bg-black/20 relative z-10">
-        <MarqueeAnimation
-          direction="left"
-          baseVelocity={-0.5}
-          className="font-bebas text-4xl mx-8 tracking-widest text-primary opacity-80"
-        >
-          OBITO ARCHIVES • UCHIHA CLAN • STREETWEAR REDEFINED • NINJA TECH • CALM AFTER ACTION • OBITO ARCHIVES • UCHIHA CLAN • STREETWEAR REDEFINED • NINJA TECH • CALM AFTER ACTION
-        </MarqueeAnimation>
-      </div>
-
-      {/* Main Footer Grid */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-
-          {/* Brand Section */}
-          <div className="md:col-span-4 flex flex-col gap-6">
-            <h3 className="font-bebas text-5xl tracking-tight text-primary">OBITO</h3>
-            <p className="font-serif text-lg leading-relaxed text-[#5a4242] dark:text-gray-400 italic">
-              “No one cared who I was until I put on the mask.” We curate the cinematic essence of the shinobi world into high-end streetwear.
+    <footer className="w-full bg-[var(--surface-white)] border-t border-[var(--border-default)] pt-[64px] pb-[32px]">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
+        
+        {/* Main Footer Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-[64px]">
+          
+          {/* Logo & About (4 cols) */}
+          <div className="lg:col-span-4 flex flex-col items-start">
+            <h3 className="text-[24px] font-[600] text-[var(--blue-primary)] tracking-tighter mb-4 uppercase">
+              {contactInfo.storeName}
+            </h3>
+            <p className="text-[14px] text-[#5F6368] leading-[1.65] mb-8 max-w-sm">
+                Your premier destination for high-quality electronics, fashion, and home essentials. Experience the premium hypermarket service directly at your doorstep.
             </p>
-            <div className="flex gap-4 mt-2">
-              <a href="#" className="text-[#945151] hover:text-ninja-orange hover:-translate-y-1 transition-all duration-300">
-                <span className="material-symbols-outlined text-[28px]">brand_awareness</span>
-              </a>
-              <a href="#" className="text-[#945151] hover:text-ninja-orange hover:-translate-y-1 transition-all duration-300">
-                <span className="material-symbols-outlined text-[28px]">public</span>
-              </a>
-              <a href="#" className="text-[#945151] hover:text-ninja-orange hover:-translate-y-1 transition-all duration-300">
-                <span className="material-symbols-outlined text-[28px]">podcasts</span>
-              </a>
+            <div className="flex gap-3">
+              {[Facebook, Instagram, Twitter, Youtube].map((Icon, idx) => (
+                <a 
+                    key={idx} 
+                    href="#" 
+                    className="size-[36px] flex items-center justify-center border-[1.5px] border-[#E0E3E7] text-[#5F6368] rounded-[8px] transition-all hover:bg-[var(--blue-light)] hover:text-[var(--blue-primary)] hover:border-[var(--blue-primary)]"
+                >
+                  <Icon className="size-[18px]" />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Navigation Columns */}
-          <div className="md:col-span-5 grid grid-cols-2 md:grid-cols-3 gap-8">
-            <div className="flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#945151]">The Collection</h4>
-              <ul className="flex flex-col gap-2 text-sm">
-                <li><Link to="/products?sort=newest" className="hover:text-primary hover:pl-1 transition-all">New Arrivals</Link></li>
-                <li><Link to="/products?tag=limited" className="hover:text-primary hover:pl-1 transition-all">Limited Drop</Link></li>
-                <li><Link to="/products?collection=uchiha" className="hover:text-primary hover:pl-1 transition-all">Uchiha Heritage</Link></li>
-                <li><Link to="/products?category=accessories" className="hover:text-primary hover:pl-1 transition-all">Accessories</Link></li>
-              </ul>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#945151]">Shinobi Archives</h4>
-              <ul className="flex flex-col gap-2 text-sm">
-                <li><Link to="/about" className="hover:text-primary hover:pl-1 transition-all">Legacy Records</Link></li>
-                <li><Link to="/lookbook" className="hover:text-primary hover:pl-1 transition-all">Cinematic Clips</Link></li>
-                <li><Link to="/about" className="hover:text-primary hover:pl-1 transition-all">Behind the Mask</Link></li>
-                <li><Link to="/contact" className="hover:text-primary hover:pl-1 transition-all">The Lab</Link></li>
-              </ul>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#945151]">Support</h4>
-              <ul className="flex flex-col gap-2 text-sm">
-                <li><Link to="/contact" className="hover:text-primary hover:pl-1 transition-all">Mission Control</Link></li>
-                <li><Link to="/shipping" className="hover:text-primary hover:pl-1 transition-all">Shipping</Link></li>
-                <li><Link to="/privacy" className="hover:text-primary hover:pl-1 transition-all">Privacy & Terms</Link></li>
-                <li><Link to="/returns" className="hover:text-primary hover:pl-1 transition-all">Returns</Link></li>
-              </ul>
-            </div>
+          {/* Navigation Links (2 cols per group) */}
+          <div className="lg:col-span-2">
+            <h4 className="text-[14px] font-[600] text-[#1A1A1A] uppercase tracking-[0.05em] mb-6">Shop</h4>
+            <ul className="flex flex-col gap-3">
+              {['All Products', 'Groceries', 'Electronics', 'Fashion', 'Home & Living'].map((item) => (
+                <li key={item}>
+                  <Link to="/products" className="text-[14px] text-[#5F6368] hover:text-[var(--blue-primary)] transition-colors">
+                    {item}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* QR Card Section */}
-          <div className="md:col-span-3">
-            <div className="glass bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-ninja-orange/20 p-6 rounded-xl flex flex-col items-center text-center gap-4 relative group">
-              <div className="absolute inset-0 border-2 border-ninja-orange/0 group-hover:border-ninja-orange/40 transition-all duration-500 rounded-xl pointer-events-none"></div>
-              <div className="w-32 h-32 bg-white p-2 rounded-lg shadow-inner">
-                <QRCodeComponent />
-              </div>
-              <div>
-                <h5 className="font-bold text-sm">JOIN THE UCHIHA CLAN</h5>
-                <p className="text-xs text-[#945151] mt-1">Scan to unlock early drops &amp; mobile archives.</p>
-              </div>
-            </div>
+          <div className="lg:col-span-2">
+            <h4 className="text-[14px] font-[600] text-[#1A1A1A] uppercase tracking-[0.05em] mb-6">Company</h4>
+            <ul className="flex flex-col gap-3">
+              {['About Us', 'Sustainability', 'Carreers', 'Press', 'Investors'].map((item) => (
+                <li key={item}>
+                  <Link to="/about" className="text-[14px] text-[#5F6368] hover:text-[var(--blue-primary)] transition-colors">
+                    {item}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
+          {/* Newsletter (4 cols) */}
+          <div className="lg:col-span-4">
+            <h4 className="text-[14px] font-[600] text-[#1A1A1A] uppercase tracking-[0.05em] mb-6">Join our Newsletter</h4>
+            <p className="text-[14px] text-[#5F6368] mb-6 leading-[1.5]">
+                Get the latest drops, exclusive deals and market updates delivered to your inbox.
+            </p>
+            <div className="relative group">
+                <input 
+                    type="email" 
+                    placeholder="Enter your email"
+                    className="w-full px-4 py-3 bg-[var(--surface-light)] border border-[var(--border-default)] rounded-[8px] text-[14px] focus:outline-none focus:border-[var(--blue-primary)] transition-all"
+                />
+                <button className="absolute right-2 top-1.5 size-[36px] bg-[var(--blue-primary)] text-white rounded-[6px] flex items-center justify-center transition-all hover:bg-[var(--blue-deep)]">
+                    <Send className="size-[16px]" />
+                </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Strip */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-8 border-t border-b border-[var(--border-default)] mb-8">
+            <div className="flex items-start gap-4">
+                <div className="size-[40px] bg-[var(--surface-light)] rounded-full flex items-center justify-center text-[var(--blue-primary)]">
+                    <Phone className="size-[20px]" />
+                </div>
+                <div>
+                    <h5 className="text-[13px] font-[600] text-[#1A1A1A]">Call Us</h5>
+                    <p className="text-[13px] text-[#5F6368]">{contactInfo.phone}</p>
+                </div>
+            </div>
+            <div className="flex items-start gap-4">
+                <div className="size-[40px] bg-[var(--surface-light)] rounded-full flex items-center justify-center text-[var(--blue-primary)]">
+                    <Mail className="size-[20px]" />
+                </div>
+                <div>
+                    <h5 className="text-[13px] font-[600] text-[#1A1A1A]">Email Us</h5>
+                    <p className="text-[13px] text-[#5F6368]">{contactInfo.email}</p>
+                </div>
+            </div>
+            <div className="flex items-start gap-4">
+                <div className="size-[40px] bg-[var(--surface-light)] rounded-full flex items-center justify-center text-[var(--blue-primary)]">
+                    <MapPin className="size-[20px]" />
+                </div>
+                <div>
+                    <h5 className="text-[13px] font-[600] text-[#1A1A1A]">Visit Us</h5>
+                    <p className="text-[13px] text-[#5F6368]">{contactInfo.address}</p>
+                </div>
+            </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-20 pt-8 border-t border-primary/10 relative">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent"></div>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-[#945151] font-medium uppercase tracking-widest">© 2025 OBITO STUDIOS. ALL RIGHTS RESERVED.</p>
-            <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-[#945151]">
-              <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
-              <Link to="/cookies" className="hover:text-primary transition-colors">Cookies</Link>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-[13px] text-[#9AA0A6] font-[400]">
+                © {new Date().getFullYear()} {contactInfo.storeName}. All rights reserved. | 100% Secure Checkout
+            </p>
+            <div className="flex items-center gap-8">
+                {['Privacy Policy', 'Terms of Use', 'Returns'].map((item) => (
+                    <Link key={item} to="#" className="text-[13px] font-[500] text-[#5F6368] hover:text-[var(--blue-primary)]">
+                        {item}
+                    </Link>
+                ))}
             </div>
-          </div>
         </div>
 
       </div>

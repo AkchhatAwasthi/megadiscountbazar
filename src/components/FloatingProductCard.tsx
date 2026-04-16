@@ -130,42 +130,44 @@ const FloatingProductCard = () => {
                 {/* Main Card Container */}
                 <div
                     onClick={() => { setQuickViewProduct(currentProduct); setIsQuickViewOpen(true); }}
-                    className="relative w-full sm:w-[380px] h-[90px] sm:h-[110px] bg-white dark:bg-[#0B0B0F]/95 border border-white/20 rounded-full flex items-center p-2 sm:p-3 shadow-2xl overflow-hidden backdrop-blur-md transition-transform hover:scale-[1.02]"
+                    className="relative w-full sm:w-[380px] bg-[#FFFFFF] border-[0.5px] border-[#E0E3E7] rounded-[12px] flex items-center p-3 shadow-lg hover:border-[#0071DC] transition-all duration-200 hover:-translate-y-[2px]"
                 >
                     {/* Left: Product Image */}
-                    <div className="relative h-full aspect-square rounded-full overflow-hidden flex-shrink-0 group">
+                    <div className="relative h-[80px] w-[80px] sm:h-[90px] sm:w-[90px] rounded-[8px] overflow-hidden flex-shrink-0 group bg-[#F6F7F8]">
                         <img
                             src={currentProduct.image}
                             alt={currentProduct.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                         />
-                        {/* Sharingan Overlay */}
-                        <div className="absolute top-1 right-1 size-5 bg-black rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(249,116,21,0.4)] border border-primary/50">
-                            <span className="material-symbols-outlined text-[12px] text-primary animate-spin">cyclone</span>
-                        </div>
                     </div>
 
                     {/* Right: Product Details */}
-                    <div className="flex flex-col flex-grow pl-3 sm:pl-5 pr-4 sm:pr-8 justify-center gap-0.5 overflow-hidden">
-                        <div className="flex items-center gap-2">
-                            <span className="bg-primary text-white text-[8px] sm:text-[9px] font-black px-1.5 sm:px-2 py-0.5 rounded-full tracking-wider uppercase">
-                                {currentProduct.isBestSeller ? 'BEST SELLER' : 'NEW DROP'}
-                            </span>
+                    <div className="flex flex-col flex-grow pl-4 pr-4 justify-center gap-1 overflow-hidden">
+                        <div className="flex items-center gap-2 mb-0.5">
+                            {currentProduct.isBestSeller ? (
+                                <span className="bg-[#FAEEDA] text-[#633806] text-[11px] font-[500] px-2 py-[2px] rounded-[6px] tracking-[0.02em]">
+                                    Best Seller
+                                </span>
+                            ) : (
+                                <span className="bg-[#E6F1FB] text-[#0C447C] text-[11px] font-[500] px-2 py-[2px] rounded-[6px] tracking-[0.02em]">
+                                    New
+                                </span>
+                            )}
                         </div>
-                        <h3 className="text-black dark:text-white text-base sm:text-lg font-bold leading-none tracking-tight uppercase italic truncate font-['Space_Grotesk']">
+                        <h3 className="text-[#1A1A1A] text-[15px] sm:text-[16px] font-[500] leading-[1.35] truncate tracking-[-0.01em]">
                             {currentProduct.name}
                         </h3>
-                        <p className="text-zinc-400 text-[10px] sm:text-[11px] font-medium italic truncate">born kind. broken once.</p>
-                        <div className="flex items-center justify-between mt-0.5">
-                            <span className="text-primary font-bold text-xs sm:text-sm">₹{currentProduct.price.toLocaleString()}</span>
-                            <span className="text-[8px] sm:text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Limited</span>
+                        <div className="flex items-center justify-between mt-1">
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-[#1A1A1A] font-[600] text-[16px] sm:text-[18px] leading-none">₹{currentProduct.price.toLocaleString()}</span>
+                            </div>
                         </div>
                     </div>
 
                     {/* Progress Bar Bottom */}
-                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-100 dark:bg-white/5">
+                    <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#F6F7F8] rounded-b-[12px] overflow-hidden">
                         <motion.div
-                            className="h-full bg-primary"
+                            className="h-full bg-[#0071DC]"
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
                             transition={{ ease: "linear", duration: 0.1 }}

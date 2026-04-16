@@ -7,7 +7,8 @@ import {
   TrendingUp,
   Calendar,
   IndianRupee,
-  ArrowRight
+  ArrowRight,
+  Star
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -176,44 +177,89 @@ const AdminDashboard = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadgeStyle = (status: string) => {
     switch (status.toLowerCase()) {
       case 'delivered':
-        return 'text-green-700 bg-green-50 border-green-100';
+        return { background: '#EAF3DE', color: '#27500A' };
       case 'shipped':
-        return 'text-blue-700 bg-blue-50 border-blue-100';
+        return { background: '#E6F1FB', color: '#0C447C' };
       case 'processing':
-        return 'text-amber-700 bg-amber-50 border-amber-100';
+        return { background: '#FAEEDA', color: '#633806' };
       case 'pending':
       case 'placed':
-        return 'text-orange-700 bg-orange-50 border-orange-100';
+        return { background: '#FAEEDA', color: '#633806' };
       default:
-        return 'text-gray-600 bg-gray-50 border-gray-100';
+        return { background: '#F1EFE8', color: '#444441' };
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B38B46]"></div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <div style={{
+          width: 36, height: 36, border: '3px solid #E6F1FB',
+          borderTopColor: '#0071DC', borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
+  const statCards = [
+    {
+      label: 'Total Revenue',
+      value: `₹${stats.totalRevenue.toLocaleString('en-IN')}`,
+      growth: stats.revenueGrowth,
+      icon: <IndianRupee style={{ width: 20, height: 20, color: '#0071DC' }} />,
+      iconBg: '#E6F1FB',
+    },
+    {
+      label: 'Total Orders',
+      value: stats.totalOrders,
+      growth: stats.ordersGrowth,
+      icon: <ShoppingCart style={{ width: 20, height: 20, color: '#FFC220' }} />,
+      iconBg: '#FFF8E6',
+    },
+    {
+      label: 'Total Products',
+      value: stats.totalProducts,
+      growth: stats.productsGrowth,
+      icon: <Package style={{ width: 20, height: 20, color: '#2E8B57' }} />,
+      iconBg: '#EAF3DE',
+    },
+    {
+      label: 'Active Customers',
+      value: stats.totalCustomers,
+      growth: stats.customersGrowth,
+      icon: <Users style={{ width: 20, height: 20, color: '#9B59B6' }} />,
+      iconBg: '#EEEDFE',
+    },
+  ];
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[#D4B6A2]/20 pb-6">
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+
+      {/* Page Header */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24, marginBottom: 40 }}>
         <div>
-          <h1 className="text-3xl font-serif text-[#4A1C1F] mb-2 tracking-tight">Dashboard Overview</h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">Welcome back. Here's what's happening today.</p>
+          <h1 style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em', color: '#1A1A1A', margin: 0 }}>Dashboard Overview</h1>
+          <p style={{ fontSize: 13, color: '#5F6368', margin: '8px 0 0', lineHeight: 1.5 }}>Welcome back. Here's what's happening today.</p>
         </div>
-        <div className="flex items-center space-x-3 bg-white/50 border border-[#D4B6A2]/30 px-3 py-1.5 rounded-sm">
-          <Calendar className="w-4 h-4 text-[#B38B46]" />
+
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: '#FFFFFF', border: '1.5px solid #E0E3E7', borderRadius: 8,
+          padding: '0 12px', height: 40,
+        }}>
+          <Calendar style={{ width: 16, height: 16, color: '#9AA0A6' }} />
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="border-none bg-transparent text-sm focus:ring-0 text-[#4A1C1F] font-medium cursor-pointer outline-none min-w-[120px]"
+            style={{
+              border: 'none', outline: 'none', background: 'transparent',
+              fontSize: 14, color: '#1A1A1A', cursor: 'pointer',
+            }}
           >
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
@@ -223,204 +269,200 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Total Revenue</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <IndianRupee className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
+      {/* Stat Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}
+        className="max-lg:grid-cols-2 max-sm:grid-cols-1">
+        {statCards.map((card) => (
+          <div key={card.label} style={{
+            background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12,
+            padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 8,
+            transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+          }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
+              (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+              (e.currentTarget as HTMLElement).style.transform = 'none';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%',
+                background: card.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {card.icon}
+              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-serif text-[#4A1C1F] mb-1">₹{stats.totalRevenue.toLocaleString('en-IN')}</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span className={`font-medium ${stats.revenueGrowth >= 0 ? "text-green-600" : "text-red-500"}`}>
-                {stats.revenueGrowth >= 0 ? '+' : ''}{stats.revenueGrowth}%
-              </span>
-              <span className="text-[#5C4638]/60">vs last period</span>
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Total Orders</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <ShoppingCart className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
+            <div style={{ fontSize: 22, fontWeight: 600, color: '#1A1A1A', lineHeight: 1 }}>{card.value}</div>
+            <div style={{ fontSize: 13, color: '#5F6368', lineHeight: 1.5 }}>{card.label}</div>
+            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '0.05em', color: card.growth >= 0 ? '#2E8B57' : '#E74040' }}>
+              {card.growth >= 0 ? '↑' : '↓'} {Math.abs(card.growth)}% vs last period
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-serif text-[#4A1C1F] mb-1">{stats.totalOrders}</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span className={`font-medium ${stats.ordersGrowth >= 0 ? "text-green-600" : "text-red-500"}`}>
-                {stats.ordersGrowth >= 0 ? '+' : ''}{stats.ordersGrowth}%
-              </span>
-              <span className="text-[#5C4638]/60">vs last period</span>
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Total Products</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <Package className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-serif text-[#4A1C1F] mb-1">{stats.totalProducts}</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span className={`font-medium ${stats.productsGrowth >= 0 ? "text-green-600" : "text-red-500"}`}>
-                {stats.productsGrowth >= 0 ? '+' : ''}{stats.productsGrowth}%
-              </span>
-              <span className="text-[#5C4638]/60">vs last period</span>
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Active Customers</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <Users className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-serif text-[#4A1C1F] mb-1">{stats.totalCustomers}</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span className={`font-medium ${stats.customersGrowth >= 0 ? "text-green-600" : "text-red-500"}`}>
-                {stats.customersGrowth >= 0 ? '+' : ''}{stats.customersGrowth}%
-              </span>
-              <span className="text-[#5C4638]/60">vs last period</span>
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+        ))}
       </div>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Recent Orders + Top Products */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}
+        className="max-lg:grid-cols-1">
+
         {/* Recent Orders */}
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white">
-          <CardHeader className="border-b border-[#D4B6A2]/10 pb-4 flex flex-row items-center justify-between">
-            <CardTitle className="font-serif text-xl text-[#4A1C1F]">Recent Orders</CardTitle>
-            <Button variant="ghost" size="sm" className="text-xs uppercase tracking-widest text-[#B38B46] hover:text-[#4A1C1F] hover:bg-transparent p-0">
-              View All <ArrowRight className="w-3 h-3 ml-1" />
+        <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '16px 20px', borderBottom: '1px solid #E0E3E7',
+          }}>
+            <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Recent Orders</span>
+            <Button variant="ghost" size="sm" style={{ fontSize: 12, color: '#0071DC', padding: '4px 8px' }}>
+              View All <ArrowRight style={{ width: 12, height: 12, marginLeft: 4 }} />
             </Button>
-          </CardHeader>
-          <CardContent className="pt-0 p-0">
-            <div className="divide-y divide-[#D4B6A2]/10">
-              {recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-4 bg-white hover:bg-[#F9F9F7] transition-colors">
-                  <div className="space-y-1">
-                    <p className="font-medium text-[#4A1C1F] font-serif text-sm">{order.id}</p>
-                    <p className="text-xs text-[#5C4638]">{order.customer}</p>
-                    <p className="text-[10px] text-gray-400 font-mono tracking-tighter">{order.date}</p>
-                  </div>
-                  <div className="text-right space-y-1">
-                    <p className="font-medium text-[#4A1C1F] text-sm">₹{order.amount.toLocaleString('en-IN')}</p>
-                    <span className={`inline-block px-2 py-0.5 text-[10px] uppercase tracking-widest font-bold border rounded-sm ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                    <p className="text-[10px] text-gray-400">{order.items} items</p>
-                  </div>
+          </div>
+          <div>
+            {recentOrders.map((order) => (
+              <div key={order.id} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '14px 20px', borderBottom: '1px solid #F0F4F8',
+                transition: 'background 0.12s ease',
+              }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F8FBFF'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+              >
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>{order.id}</p>
+                  <p style={{ fontSize: 12, color: '#5F6368', margin: '2px 0 0' }}>{order.customer}</p>
+                  <p style={{ fontSize: 11, color: '#9AA0A6', margin: '2px 0 0' }}>{order.date} · {order.items} items</p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>₹{order.amount.toLocaleString('en-IN')}</p>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center',
+                    padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 500,
+                    marginTop: 4,
+                    ...getStatusBadgeStyle(order.status),
+                  }}>
+                    {order.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Top Products */}
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white">
-          <CardHeader className="border-b border-[#D4B6A2]/10 pb-4 flex flex-row items-center justify-between">
-            <CardTitle className="font-serif text-xl text-[#4A1C1F]">Top Products</CardTitle>
-            <Button variant="ghost" size="sm" className="text-xs uppercase tracking-widest text-[#B38B46] hover:text-[#4A1C1F] hover:bg-transparent p-0">
-              View All <ArrowRight className="w-3 h-3 ml-1" />
+        <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '16px 20px', borderBottom: '1px solid #E0E3E7',
+          }}>
+            <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Top Products</span>
+            <Button variant="ghost" size="sm" style={{ fontSize: 12, color: '#0071DC', padding: '4px 8px' }}>
+              View All <ArrowRight style={{ width: 12, height: 12, marginLeft: 4 }} />
             </Button>
-          </CardHeader>
-          <CardContent className="pt-0 p-0">
-            <div className="divide-y divide-[#D4B6A2]/10">
-              {topProducts.map((product, index) => (
-                <div key={product.name} className="flex items-center justify-between p-4 bg-white hover:bg-[#F9F9F7] transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#F5EFE7] flex items-center justify-center text-[#B38B46] font-serif font-bold text-xs border border-[#D4B6A2]/20">
-                      {index + 1}
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="font-medium text-sm text-[#4A1C1F] line-clamp-1">{product.name}</p>
-                      <p className="text-[10px] uppercase tracking-widest text-[#7E5A34]">{product.category}</p>
-                    </div>
+          </div>
+          <div>
+            {topProducts.map((product, index) => (
+              <div key={product.name} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '14px 20px', borderBottom: '1px solid #F0F4F8',
+                transition: 'background 0.12s ease',
+              }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F8FBFF'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: 8,
+                    background: '#E6F1FB', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 13, fontWeight: 600, color: '#0071DC', flexShrink: 0,
+                  }}>
+                    {index + 1}
                   </div>
-                  <div className="text-right space-y-0.5">
-                    <p className="font-medium text-[#4A1C1F] text-sm">₹{product.revenue.toLocaleString('en-IN')}</p>
-                    <p className="text-[10px] uppercase tracking-wide text-gray-400">{product.sales} sold</p>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>{product.name}</p>
+                    <p style={{ fontSize: 11, color: '#9AA0A6', margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.category}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>₹{product.revenue.toLocaleString('en-IN')}</p>
+                  <p style={{ fontSize: 11, color: '#9AA0A6', margin: '2px 0 0' }}>{product.sales} sold</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Analytics Section */}
-      <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white mb-8">
-        <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-          <CardTitle className="flex items-center space-x-2 font-serif text-xl text-[#4A1C1F]">
-            <BarChart3 className="w-5 h-5 text-[#B38B46]" />
-            <span>Analytics Overview</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-6">
+      <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #E0E3E7', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <BarChart3 style={{ width: 18, height: 18, color: '#0071DC' }} />
+          <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Analytics Overview</span>
+        </div>
+        <div style={{ padding: 24 }}>
           <Tabs defaultValue="revenue" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8 bg-[#F5EFE7] p-1 rounded-sm">
-              <TabsTrigger value="revenue" className="rounded-sm data-[state=active]:bg-white data-[state=active]:text-[#4A1C1F] text-[#5C4638] data-[state=active]:shadow-sm text-xs uppercase tracking-widest font-medium">Revenue</TabsTrigger>
-              <TabsTrigger value="orders" className="rounded-sm data-[state=active]:bg-white data-[state=active]:text-[#4A1C1F] text-[#5C4638] data-[state=active]:shadow-sm text-xs uppercase tracking-widest font-medium">Orders</TabsTrigger>
-              <TabsTrigger value="customers" className="rounded-sm data-[state=active]:bg-white data-[state=active]:text-[#4A1C1F] text-[#5C4638] data-[state=active]:shadow-sm text-xs uppercase tracking-widest font-medium">Customers</TabsTrigger>
-              <TabsTrigger value="products" className="rounded-sm data-[state=active]:bg-white data-[state=active]:text-[#4A1C1F] text-[#5C4638] data-[state=active]:shadow-sm text-xs uppercase tracking-widest font-medium">Products</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4 mb-8 bg-[#F0F4F8] p-1 rounded-lg">
+              <TabsTrigger value="revenue" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-[#0071DC] data-[state=active]:shadow-sm text-[#5F6368] text-xs font-medium">Revenue</TabsTrigger>
+              <TabsTrigger value="orders" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-[#0071DC] data-[state=active]:shadow-sm text-[#5F6368] text-xs font-medium">Orders</TabsTrigger>
+              <TabsTrigger value="customers" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-[#0071DC] data-[state=active]:shadow-sm text-[#5F6368] text-xs font-medium">Customers</TabsTrigger>
+              <TabsTrigger value="products" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-[#0071DC] data-[state=active]:shadow-sm text-[#5F6368] text-xs font-medium">Products</TabsTrigger>
             </TabsList>
 
             <TabsContent value="revenue" className="space-y-4">
-              <div className="h-80 flex items-center justify-center border border-dashed border-[#D4B6A2]/30 bg-[#F5EFE7]/30 rounded-sm">
-                <div className="text-center space-y-3">
-                  <TrendingUp className="w-12 h-12 mx-auto text-[#D4B6A2]" />
-                  <p className="text-[#5C4638] font-light">Revenue analytics chart will appear here</p>
-                  <Button variant="outline" className="border-[#B38B46] text-[#B38B46] hover:bg-[#B38B46] hover:text-white text-xs uppercase tracking-widest">Connect Analytics</Button>
+              <div style={{
+                height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '2px dashed #E0E3E7', borderRadius: 10, background: '#FAFBFC',
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <TrendingUp style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
+                  <p style={{ color: '#9AA0A6', fontSize: 14, margin: '0 0 16px' }}>Revenue analytics chart will appear here</p>
+                  <Button variant="outline" style={{ borderColor: '#0071DC', color: '#0071DC', fontSize: 13, borderRadius: 8 }}>Connect Analytics</Button>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="orders" className="space-y-4">
-              <div className="h-80 flex items-center justify-center border border-dashed border-[#D4B6A2]/30 bg-[#F5EFE7]/30 rounded-sm">
-                <div className="text-center space-y-3">
-                  <ShoppingCart className="w-12 h-12 mx-auto text-[#D4B6A2]" />
-                  <p className="text-[#5C4638] font-light">Order volume chart will appear here</p>
-                  <Button variant="outline" className="border-[#B38B46] text-[#B38B46] hover:bg-[#B38B46] hover:text-white text-xs uppercase tracking-widest">Connect Analytics</Button>
+              <div style={{
+                height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '2px dashed #E0E3E7', borderRadius: 10, background: '#FAFBFC',
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <ShoppingCart style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
+                  <p style={{ color: '#9AA0A6', fontSize: 14, margin: '0 0 16px' }}>Order volume chart will appear here</p>
+                  <Button variant="outline" style={{ borderColor: '#0071DC', color: '#0071DC', fontSize: 13, borderRadius: 8 }}>Connect Analytics</Button>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="customers" className="space-y-4">
-              <div className="h-80 flex items-center justify-center border border-dashed border-[#D4B6A2]/30 bg-[#F5EFE7]/30 rounded-sm">
-                <div className="text-center space-y-3">
-                  <Users className="w-12 h-12 mx-auto text-[#D4B6A2]" />
-                  <p className="text-[#5C4638] font-light">Customer growth chart will appear here</p>
-                  <Button variant="outline" className="border-[#B38B46] text-[#B38B46] hover:bg-[#B38B46] hover:text-white text-xs uppercase tracking-widest">Connect Analytics</Button>
+              <div style={{
+                height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '2px dashed #E0E3E7', borderRadius: 10, background: '#FAFBFC',
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <Users style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
+                  <p style={{ color: '#9AA0A6', fontSize: 14, margin: '0 0 16px' }}>Customer growth chart will appear here</p>
+                  <Button variant="outline" style={{ borderColor: '#0071DC', color: '#0071DC', fontSize: 13, borderRadius: 8 }}>Connect Analytics</Button>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="products" className="space-y-4">
-              <div className="h-80 flex items-center justify-center border border-dashed border-[#D4B6A2]/30 bg-[#F5EFE7]/30 rounded-sm">
-                <div className="text-center space-y-3">
-                  <Package className="w-12 h-12 mx-auto text-[#D4B6A2]" />
-                  <p className="text-[#5C4638] font-light">Product performance chart will appear here</p>
-                  <Button variant="outline" className="border-[#B38B46] text-[#B38B46] hover:bg-[#B38B46] hover:text-white text-xs uppercase tracking-widest">Connect Analytics</Button>
+              <div style={{
+                height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '2px dashed #E0E3E7', borderRadius: 10, background: '#FAFBFC',
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <Package style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
+                  <p style={{ color: '#9AA0A6', fontSize: 14, margin: '0 0 16px' }}>Product performance chart will appear here</p>
+                  <Button variant="outline" style={{ borderColor: '#0071DC', color: '#0071DC', fontSize: 13, borderRadius: 8 }}>Connect Analytics</Button>
                 </div>
               </div>
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

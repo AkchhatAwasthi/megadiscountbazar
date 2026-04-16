@@ -54,10 +54,10 @@ const FloatingWhatsApp = () => {
     >
       <button
         onClick={handleWhatsAppClick}
-        className="p-4 bg-[#059669] text-white rounded-full shadow-2xl hover:scale-110 transition-transform cursor-pointer flex items-center justify-center"
+        className="h-[56px] w-[56px] bg-[#2E8B57] hover:bg-[#236b43] text-white rounded-full shadow-[0_8px_24px_rgba(46,139,87,0.4)] transition-all duration-200 hover:-translate-y-[3px] active:scale-[0.98] cursor-pointer flex items-center justify-center"
         aria-label="Chat with us on WhatsApp"
       >
-        <span className="material-symbols-outlined text-2xl">chat_bubble</span>
+        <span className="material-symbols-outlined text-[28px]">chat_bubble</span>
       </button>
     </div>
   );

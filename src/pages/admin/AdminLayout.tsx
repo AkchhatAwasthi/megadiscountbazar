@@ -54,33 +54,60 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5EFE7] font-sans text-[#4A1C1F]">
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F6F7F8', fontFamily: "var(--font-inter)" }}>
+
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-sm"
+          style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
+          className="lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-[#D4B6A2]/30 shadow-sm transform transition-transform duration-300 ease-in-out lg:translate-x-0
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className="flex items-center justify-between h-20 px-6 border-b border-[#D4B6A2]/30 flex-shrink-0">
-          <h2 className="text-2xl font-serif font-bold text-[#4A1C1F] tracking-tight">Admin Panel</h2>
-          <Button
-            variant="ghost"
-            size="sm"
+      {/* ── SIDEBAR ── */}
+      <div style={{
+        width: 240,
+        minHeight: '100vh',
+        background: '#0D1B2A',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        zIndex: 50,
+        transition: 'transform 0.3s ease',
+        transform: sidebarOpen ? 'translateX(0)' : undefined,
+      }}
+        className={`${sidebarOpen ? '' : 'max-lg:-translate-x-full'} lg:translate-x-0`}
+      >
+        {/* Logo area */}
+        <div style={{
+          padding: '20px 24px',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 18, fontWeight: 500, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
+            Megadiscountstore
+          </span>
+          <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-[#4A1C1F]/60 hover:text-[#4A1C1F]"
+            className="lg:hidden"
+            style={{ background: 'transparent', border: 'none', color: '#CBD5E1', cursor: 'pointer', padding: 4, borderRadius: 6 }}
           >
-            <X className="w-5 h-5" />
-          </Button>
+            <X style={{ width: 18, height: 18 }} />
+          </button>
         </div>
 
-        <nav className="flex-1 px-4 py-8 space-y-1 overflow-y-auto h-[calc(100vh-9rem)]">
+        {/* Nav */}
+        <nav style={{ flex: 1, overflowY: 'auto', paddingTop: 8, paddingBottom: 8 }}>
+          <div style={{ padding: '16px 24px 6px', fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>
+            Navigation
+          </div>
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -88,79 +115,144 @@ const AdminLayout = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`
-                  flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-300 group
-                  ${active
-                    ? 'bg-[#4A1C1F] text-[#F5EFE7] shadow-md translate-x-1'
-                    : 'text-[#5C4638] hover:bg-[#F5EFE7] hover:text-[#4A1C1F] hover:translate-x-1'
-                  }
-                `}
                 onClick={() => setSidebarOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '10px 24px',
+                  fontSize: 14,
+                  fontWeight: active ? 500 : 400,
+                  color: active ? '#FFFFFF' : '#CBD5E1',
+                  textDecoration: 'none',
+                  transition: 'all 0.15s ease',
+                  borderLeft: active ? '3px solid #0071DC' : '3px solid transparent',
+                  background: active ? 'rgba(0,113,220,0.18)' : 'transparent',
+                }}
+                onMouseEnter={e => {
+                  if (!active) {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)';
+                    (e.currentTarget as HTMLElement).style.color = '#FFFFFF';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!active) {
+                    (e.currentTarget as HTMLElement).style.background = 'transparent';
+                    (e.currentTarget as HTMLElement).style.color = '#CBD5E1';
+                  }
+                }}
               >
-                <Icon className={`mr-3 h-4 w-4 transition-colors ${active ? 'text-[#B38B46]' : 'text-[#B38B46]/70 group-hover:text-[#B38B46]'}`} />
-                <span className="font-medium tracking-wide">{item.name}</span>
+                <Icon style={{ width: 18, height: 18, opacity: active ? 1 : 0.75, flexShrink: 0 }} />
+                <span>{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-[#D4B6A2]/30 bg-[#F5EFE7]/30 absolute bottom-0 w-full">
-          <Card className="border-0 shadow-none bg-transparent">
-            <CardContent className="p-0">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-[#4A1C1F] rounded-full flex items-center justify-center shadow-md ring-2 ring-[#B38B46]/20">
-                  <span className="text-[#F5EFE7] text-sm font-serif">
-                    {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'A'}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-serif font-medium text-[#4A1C1F] truncate">
-                    {profile?.full_name || 'Admin User'}
-                  </p>
-                  <p className="text-xs text-[#5C4638] truncate font-light">
-                    {user?.email || 'admin@example.com'}
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="w-full border-[#D4B6A2] hover:bg-[#4A1C1F] hover:text-white hover:border-[#4A1C1F] transition-all uppercase tracking-wider text-[10px] h-9 font-medium"
-              >
-                <LogOut className="w-3 h-3 mr-2" />
-                Logout
-              </Button>
-            </CardContent>
-          </Card>
+        {/* User footer */}
+        <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: '50%',
+              background: 'linear-gradient(135deg, #0071DC, #0055A6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <span style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 500 }}>
+                {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'A'}
+              </span>
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: '#FFFFFF', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {profile?.full_name || 'Admin User'}
+              </p>
+              <p style={{ fontSize: 11, color: 'rgba(203,213,225,0.7)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user?.email || 'admin@example.com'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              padding: '8px 0', background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8,
+              color: '#CBD5E1', fontSize: 12, fontWeight: 500, cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = 'rgba(231,64,64,0.15)';
+              (e.currentTarget as HTMLElement).style.borderColor = 'rgba(231,64,64,0.4)';
+              (e.currentTarget as HTMLElement).style.color = '#F87171';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = 'transparent';
+              (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)';
+              (e.currentTarget as HTMLElement).style.color = '#CBD5E1';
+            }}
+          >
+            <LogOut style={{ width: 14, height: 14 }} />
+            Logout
+          </button>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="lg:ml-64 transition-all duration-300 min-h-screen">
-        {/* Top bar */}
-        <div className="sticky top-0 z-30 flex items-center h-20 px-8 bg-[#F5EFE7]/90 backdrop-blur-md border-b border-[#D4B6A2]/30">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden mr-4 text-[#4A1C1F]"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
+      {/* ── MAIN ── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginLeft: 240, minHeight: '100vh' }} className="max-lg:ml-0">
 
-          <div className="ml-auto flex items-center space-x-4">
+        {/* Top bar */}
+        <div style={{
+          height: 60,
+          background: '#FFFFFF',
+          borderBottom: '1px solid #E0E3E7',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden"
+              style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                color: '#5F6368', padding: 6, borderRadius: 6, display: 'flex', alignItems: 'center',
+              }}
+            >
+              <Menu style={{ width: 20, height: 20 }} />
+            </button>
+            <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>
+              {navigation.find(n => isActive(n.href))?.name || 'Admin'}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Link
               to="/"
-              className="text-xs uppercase tracking-widest font-bold text-[#4A1C1F] hover:text-[#B38B46] transition-colors flex items-center gap-2"
+              style={{
+                fontSize: 13, fontWeight: 500, color: '#0071DC',
+                textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6,
+                padding: '6px 12px', borderRadius: 8, border: '1.5px solid #0071DC',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = '#E6F1FB';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = 'transparent';
+              }}
             >
-              <span>← Back to Store</span>
+              ← Back to Store
             </Link>
           </div>
         </div>
 
         {/* Page content */}
-        <main className="p-6 md:p-8 max-w-7xl mx-auto animate-fade-in">
+        <main style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
           <Outlet />
         </main>
       </div>

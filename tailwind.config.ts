@@ -27,96 +27,66 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'inter': ['Inter', 'sans-serif'],
-				'merriweather': ['Merriweather', 'serif'],
-				'sans': ['Inter', 'sans-serif'],
-				'display': ['"Space Grotesk"', 'sans-serif'],
-				'handwritten': ['"Permanent Marker"', 'cursive'],
-				'manga': ['"Noto Sans JP"', 'sans-serif'],
-				'bebas': ['"Bebas Neue"', 'sans-serif'],
-				'serif': ['Merriweather', 'serif'],
-				'playfair': ['"Playfair Display"', 'serif'],
-				'jetbrains': ['"JetBrains Mono"', 'monospace'],
-				'spline': ['"Spline Sans"', 'sans-serif'],
+				'inter': ['var(--font-inter)'],
+				'sans': ['var(--font-inter)'],
 			},
 			colors: {
-				'hero-primary': "#F97316", // Ninja Orange
-				'hero-bg-light': "#F8FAFC", // Scroll White
-				'hero-bg-dark': "#0B0B0F", // Shadow Black
-				'ninja-orange': '#F97316',
-				'shadow-black': '#0B0B0F',
-				'scroll-white': '#F8FAFC',
-				'smoke-grey': '#9CA3AF',
-				'chakra-red': '#DC2626',
-				'leaf-green': '#16A34A',
-				'storm-blue': '#2563EB',
-				border: 'var(--color-accent)', // Muted Brown for borders
-				input: 'var(--color-secondary)', // Antique Bronze for inputs
-				ring: 'var(--color-primary)', // Royal Gold for focus rings
-				background: 'var(--color-bg)', // Light Sand Beige
-				foreground: 'var(--color-dark)', // Deep Maroon
+				border: 'var(--border-default)',
+				input: 'var(--border-default)',
+				ring: 'var(--blue-primary)',
+				background: 'var(--surface-light)',
+				foreground: 'var(--text-primary)',
 				primary: {
-					DEFAULT: 'var(--color-primary)', // Royal Gold
-					foreground: 'var(--color-light)', // Cream White
-					hover: 'var(--color-secondary)', // Antique Bronze
+					DEFAULT: 'var(--blue-primary)',
+					foreground: '#FFFFFF',
+					hover: 'var(--blue-deep)',
 				},
 				secondary: {
-					DEFAULT: 'var(--color-secondary)', // Antique Bronze
-					foreground: 'var(--color-light)', // Cream White
+					DEFAULT: 'var(--text-secondary)',
+					foreground: '#FFFFFF',
 				},
 				destructive: {
-					DEFAULT: 'var(--color-dark)', // Using Deep Maroon as strong emphasis/destructive replacement
-					foreground: 'var(--color-light)',
+					DEFAULT: 'var(--red-sale)',
+					foreground: '#FFFFFF',
 				},
 				muted: {
-					DEFAULT: 'var(--color-soft-bg)', // Warm Blush Beige
-					foreground: 'var(--color-accent)', // Muted Brown
+					DEFAULT: 'var(--surface-light)',
+					foreground: 'var(--text-muted)',
 				},
 				accent: {
-					DEFAULT: 'var(--color-soft)', // Peach Rose
-					foreground: 'var(--color-dark)',
+					DEFAULT: 'var(--yellow-accent)',
+					foreground: 'var(--text-primary)',
 				},
 				popover: {
-					DEFAULT: 'var(--color-light)', // Cream White
-					foreground: 'var(--color-dark)',
+					DEFAULT: 'var(--surface-white)',
+					foreground: 'var(--text-primary)',
 				},
 				card: {
-					DEFAULT: 'var(--color-soft)', // Peach Rose
-					foreground: 'var(--color-dark)',
+					DEFAULT: 'var(--surface-white)',
+					foreground: 'var(--text-primary)',
 				},
-				// Custom brand aliases if needed, or just map them to above
-				blue: {
-					DEFAULT: 'var(--color-primary)', // Replacing implicit usage of blue with primary
-					foreground: 'var(--color-light)'
-				},
-				sidebar: {
-					DEFAULT: 'var(--color-soft-bg)',
-					foreground: 'var(--color-dark)',
-					primary: 'var(--color-primary)',
-					'primary-foreground': 'var(--color-light)',
-					accent: 'var(--color-secondary)',
-					'accent-foreground': 'var(--color-light)',
-					border: 'var(--color-accent)',
-					ring: 'var(--color-primary)'
-				},
-				// Admin colors mapped to new palette
-				admin: {
-					primary: 'var(--color-primary)',
-					secondary: 'var(--color-secondary)',
-					accent: 'var(--color-accent)',
-					background: 'var(--color-bg)',
-					card: 'var(--color-soft)'
-				}
+				'blue-primary': 'var(--blue-primary)',
+				'blue-deep': 'var(--blue-deep)',
+				'blue-light': 'var(--blue-light)',
+				'yellow-accent': 'var(--yellow-accent)',
+				'yellow-hover': 'var(--yellow-hover)',
+				'red-sale': 'var(--red-sale)',
+				'green-fresh': 'var(--green-fresh)',
+				'surface-light': 'var(--surface-light)',
+				'surface-white': 'var(--surface-white)',
+				'text-primary': 'var(--text-primary)',
+				'text-secondary': 'var(--text-secondary)',
+				'text-muted': 'var(--text-muted)',
+				'border-default': 'var(--border-default)',
+				'border-hover': 'var(--border-hover)',
 			},
 			boxShadow: {
-				'soft': 'var(--shadow-soft)',
-				'medium': 'var(--shadow-medium)',
-				'large': 'var(--shadow-large)',
+				'soft': '0 8px 24px rgba(0, 0, 0, 0.1)',
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				lg: 'var(--radius-product)',
+				md: 'var(--radius-button)',
+				sm: 'var(--radius-badge)',
 			},
 			keyframes: {
 				'accordion-down': {

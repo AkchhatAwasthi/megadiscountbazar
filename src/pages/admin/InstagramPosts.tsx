@@ -219,219 +219,309 @@ const InstagramPosts = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B38B46]"></div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <div style={{
+          width: 36, height: 36, border: '3px solid #E6F1FB',
+          borderTopColor: '#0071DC', borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
-  const CardStyle = "border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300";
-  const LabelStyle = "text-[#7E5A34] text-xs uppercase tracking-widest font-medium";
-  const InputStyle = "border-[#D4B6A2]/30 focus:border-[#B38B46] bg-[#F9F9F7] text-[#4A1C1F] rounded-none";
+  const inputStyle: React.CSSProperties = {
+    border: '1.5px solid #E0E3E7', borderRadius: 8,
+    fontSize: 14, color: '#1A1A1A', background: '#FFFFFF', outline: 'none',
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center border-b border-[#D4B6A2]/20 pb-6">
-        <div>
-          <h1 className="text-3xl font-serif text-[#4A1C1F] tracking-tight mb-1">Instagram Feed</h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">Manage your social media presence</p>
-        </div>
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+
+      {/* Page Header */}
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 500, color: '#1A1A1A', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Instagram style={{ width: 22, height: 22, color: '#E1306C' }} />
+          Instagram Feed
+        </h1>
+        <p style={{ fontSize: 13, color: '#9AA0A6', margin: '4px 0 0' }}>Manage your social media presence</p>
       </div>
 
-      <Card className={CardStyle}>
-        <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-          <CardTitle className="font-serif text-lg text-[#4A1C1F] flex items-center">
-            <Instagram className="h-5 w-5 mr-2 text-[#E1306C]" />
-            Add New Instagram Post
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6 pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="embed_html" className={LabelStyle}>Embed HTML</Label>
+      {/* Add New Post Card */}
+      <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden', marginBottom: 24 }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0E3E7', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Instagram style={{ width: 18, height: 18, color: '#E1306C' }} />
+          <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Add New Instagram Post</span>
+        </div>
+        <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="max-sm:grid-cols-1">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label htmlFor="embed_html" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Embed HTML</label>
               <Textarea
                 id="embed_html"
                 placeholder="Paste Instagram embed HTML here"
                 value={newPost.embed_html}
                 onChange={(e) => setNewPost({ ...newPost, embed_html: e.target.value })}
                 rows={6}
-                className={InputStyle}
+                style={{ ...inputStyle, padding: '10px 12px', resize: 'vertical', minHeight: 100 }}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="caption" className={LabelStyle}>Caption</Label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label htmlFor="caption" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Caption</label>
               <Textarea
                 id="caption"
                 placeholder="Enter caption for the post"
                 value={newPost.caption}
                 onChange={(e) => setNewPost({ ...newPost, caption: e.target.value })}
                 rows={3}
-                className={InputStyle}
+                style={{ ...inputStyle, padding: '10px 12px', resize: 'vertical', minHeight: 80 }}
               />
             </div>
           </div>
 
-          <div className="flex items-center space-x-6 bg-[#F9F9F7] p-4 rounded border border-[#D4B6A2]/10">
-            <div className="flex items-center space-x-2">
+          <div style={{
+            display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 20,
+            background: '#F8FBFF', border: '1px solid #E6F1FB', borderRadius: 8, padding: '12px 16px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Switch
                 id="is_active"
                 checked={newPost.is_active}
                 onCheckedChange={(checked) => setNewPost({ ...newPost, is_active: checked })}
-                className="data-[state=checked]:bg-[#B38B46]"
+                className="data-[state=checked]:bg-[#0071DC]"
               />
-              <Label htmlFor="is_active" className={LabelStyle}>Active</Label>
+              <label htmlFor="is_active" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}>Active</label>
             </div>
-
-            <div className="space-y-2 flex items-center gap-2">
-              <Label htmlFor="sort_order" className={`${LabelStyle} mt-0`}>Sort Order:</Label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <label htmlFor="sort_order" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Sort Order:</label>
               <Input
                 id="sort_order"
                 type="number"
                 min="0"
                 value={newPost.sort_order || ''}
                 onChange={(e) => setNewPost({ ...newPost, sort_order: parseInt(e.target.value) || 0 })}
-                className={`w-24 ${InputStyle} h-8`}
+                style={{ ...inputStyle, height: 36, padding: '0 12px', width: 100 }}
               />
             </div>
           </div>
 
-          <Button onClick={handleCreatePost} disabled={saving} className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white uppercase tracking-widest text-xs rounded-none transition-all duration-300">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {saving ? 'Adding...' : 'Add Post'}
-          </Button>
-        </CardContent>
-      </Card>
+          <div>
+            <button
+              type="button"
+              onClick={handleCreatePost}
+              disabled={saving}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: saving ? '#5A8FFF' : '#0071DC', color: '#FFFFFF',
+                border: 'none', borderRadius: 8, padding: '8px 18px',
+                fontSize: 13, fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer',
+                opacity: saving ? 0.7 : 1, transition: 'background 0.15s ease',
+              }}
+              onMouseEnter={e => { if (!saving) (e.currentTarget as HTMLElement).style.background = '#0055A6'; }}
+              onMouseLeave={e => { if (!saving) (e.currentTarget as HTMLElement).style.background = '#0071DC'; }}
+            >
+              <PlusCircle style={{ width: 16, height: 16 }} />
+              {saving ? 'Adding...' : 'Add Post'}
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <div className="space-y-6">
-        <h2 className="text-2xl font-serif text-[#4A1C1F]">Existing Posts</h2>
+      {/* Existing Posts */}
+      <div>
+        <h2 style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A', margin: '0 0 16px' }}>
+          Existing Posts <span style={{ fontSize: 13, color: '#9AA0A6', fontWeight: 400 }}>({posts.length})</span>
+        </h2>
 
         {posts.length === 0 ? (
-          <div className="text-center py-12 text-[#5C4638] bg-[#F9F9F7] border border-[#D4B6A2]/20 rounded">
-            <AlertCircle className="mx-auto h-12 w-12 text-[#B38B46] mb-2" />
-            <p className="font-light">No Instagram posts found</p>
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            padding: 48, background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12,
+          }}>
+            <AlertCircle style={{ width: 40, height: 40, color: '#CBD5E1', marginBottom: 12 }} />
+            <p style={{ fontSize: 14, color: '#9AA0A6', margin: 0 }}>No Instagram posts found</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}
+            className="max-lg:grid-cols-2 max-sm:grid-cols-1">
             {posts.map((post) => (
-              <Card key={post.id} className={`${CardStyle} overflow-hidden`}>
-                <CardContent className="p-4">
+              <div key={post.id} style={{
+                background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden',
+                transition: 'box-shadow 0.2s ease',
+              }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = 'none'}
+              >
+                <div style={{ padding: 16 }}>
                   {editingId === post.id && editData ? (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label className={LabelStyle}>Embed HTML</Label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <label style={{ fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Embed HTML</label>
                         <Textarea
                           value={editData.embed_html}
                           onChange={(e) => setEditData({ ...editData, embed_html: e.target.value })}
                           rows={4}
-                          className={InputStyle}
+                          style={{ ...inputStyle, padding: '8px 10px', resize: 'vertical', fontSize: 13 }}
                         />
                       </div>
-
-                      <div className="space-y-2">
-                        <Label className={LabelStyle}>Caption</Label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <label style={{ fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Caption</label>
                         <Textarea
                           value={editData.caption}
                           onChange={(e) => setEditData({ ...editData, caption: e.target.value })}
                           rows={2}
-                          className={InputStyle}
+                          style={{ ...inputStyle, padding: '8px 10px', resize: 'vertical', fontSize: 13 }}
                         />
                       </div>
-
-                      <div className="flex items-center space-x-2">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Switch
                           checked={editData.is_active}
                           onCheckedChange={(checked) => setEditData({ ...editData, is_active: checked })}
-                          className="data-[state=checked]:bg-[#B38B46]"
+                          className="data-[state=checked]:bg-[#0071DC]"
                         />
-                        <Label className={LabelStyle}>Active</Label>
+                        <Label style={{ fontSize: 13, color: '#1A1A1A' }}>Active</Label>
                       </div>
-
-                      <div className="space-y-2">
-                        <Label className={LabelStyle}>Sort Order</Label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <label style={{ fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sort Order</label>
                         <Input
                           type="number"
                           min="0"
                           value={editData.sort_order}
                           onChange={(e) => setEditData({ ...editData, sort_order: parseInt(e.target.value) || 0 })}
-                          className={InputStyle}
+                          style={{ ...inputStyle, height: 36, padding: '0 10px', fontSize: 13 }}
                         />
                       </div>
-
-                      <div className="flex space-x-2 pt-2">
-                        <Button onClick={handleUpdatePost} size="sm" disabled={saving} className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white">
-                          <Save className="mr-2 h-4 w-4" />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={handleUpdatePost}
+                          disabled={saving}
+                          style={{
+                            flex: 1, height: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                            background: '#0071DC', color: '#FFFFFF', border: 'none', borderRadius: 8,
+                            fontSize: 13, fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
+                          }}
+                        >
+                          <Save style={{ width: 14, height: 14 }} />
                           {saving ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button variant="outline" onClick={cancelEditing} size="sm" className="border-[#D4B6A2] text-[#5C4638] hover:bg-[#F9F9F7]">
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          style={{
+                            flex: 1, height: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                            background: 'transparent', color: '#5F6368',
+                            border: '1.5px solid #E0E3E7', borderRadius: 8,
+                            fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                          }}
+                        >
                           Cancel
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      <div className="aspect-square overflow-hidden rounded bg-[#F9F9F7] border border-[#D4B6A2]/20">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {/* Embed preview */}
+                      <div style={{
+                        aspectRatio: '1 / 1', overflow: 'hidden', borderRadius: 8,
+                        background: '#F0F4F8', border: '1px solid #E0E3E7',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
                         <div
-                          className="w-full h-full flex items-center justify-center p-0.5 overflow-hidden scale-[0.85] origin-top"
+                          style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 2, overflow: 'hidden', transform: 'scale(0.85)', transformOrigin: 'top center' }}
                           dangerouslySetInnerHTML={{ __html: post.embed_html }}
                         />
                       </div>
 
-                      <p className="text-sm line-clamp-2 text-[#5C4638]">{post.caption}</p>
+                      {/* Caption */}
+                      <p style={{ fontSize: 13, color: '#5F6368', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {post.caption}
+                      </p>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-[#D4B6A2]/10">
-                        <div className="flex items-center space-x-2">
-                          <span className={`inline-flex items-center px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-none ${post.is_active ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                      {/* Status + order */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #F0F4F8' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center',
+                            padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 500,
+                            background: post.is_active ? '#EAF3DE' : '#FCEBEB',
+                            color: post.is_active ? '#27500A' : '#A32D2D',
+                          }}>
                             {post.is_active ? 'Active' : 'Inactive'}
                           </span>
-                          <span className="text-[10px] text-[#7E5A34] uppercase tracking-wider">
-                            Order: {post.sort_order}
-                          </span>
+                          <span style={{ fontSize: 11, color: '#9AA0A6' }}>#{post.sort_order}</span>
                         </div>
-
-                        <div className="flex space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <button
+                            type="button"
                             onClick={() => startEditing(post)}
-                            className="text-[#7E5A34] hover:text-[#4A1C1F] h-8 w-8 p-0"
+                            style={{
+                              width: 32, height: 32, border: 'none', background: 'transparent', borderRadius: 6,
+                              color: '#5F6368', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              transition: 'background 0.15s ease',
+                            }}
+                            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F0F4F8'}
+                            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                           >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                            <Eye style={{ width: 16, height: 16 }} />
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => handleDeletePost(post.id)}
-                            className="text-red-400 hover:text-red-600 h-8 w-8 p-0"
+                            style={{
+                              width: 32, height: 32, border: 'none', background: 'transparent', borderRadius: 6,
+                              color: '#9AA0A6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              transition: 'all 0.15s ease',
+                            }}
+                            onMouseEnter={e => {
+                              (e.currentTarget as HTMLElement).style.background = '#FCEBEB';
+                              (e.currentTarget as HTMLElement).style.color = '#A32D2D';
+                            }}
+                            onMouseLeave={e => {
+                              (e.currentTarget as HTMLElement).style.background = 'transparent';
+                              (e.currentTarget as HTMLElement).style.color = '#9AA0A6';
+                            }}
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                            <Trash2 style={{ width: 16, height: 16 }} />
+                          </button>
                         </div>
                       </div>
 
-                      <div className="flex space-x-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
+                      {/* Reorder buttons */}
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          type="button"
                           onClick={() => movePost(post.id, 'up')}
                           disabled={posts.findIndex(p => p.id === post.id) === 0}
-                          className="flex-1 border-[#D4B6A2]/30 text-[#5C4638] h-7 text-xs"
+                          style={{
+                            flex: 1, height: 30, border: '1px solid #E0E3E7', borderRadius: 6,
+                            background: '#FFFFFF', fontSize: 13, color: '#5F6368',
+                            cursor: posts.findIndex(p => p.id === post.id) === 0 ? 'not-allowed' : 'pointer',
+                            opacity: posts.findIndex(p => p.id === post.id) === 0 ? 0.4 : 1,
+                            transition: 'all 0.15s ease', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}
                         >
-                          ↑
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
+                          ↑ Up
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => movePost(post.id, 'down')}
                           disabled={posts.findIndex(p => p.id === post.id) === posts.length - 1}
-                          className="flex-1 border-[#D4B6A2]/30 text-[#5C4638] h-7 text-xs"
+                          style={{
+                            flex: 1, height: 30, border: '1px solid #E0E3E7', borderRadius: 6,
+                            background: '#FFFFFF', fontSize: 13, color: '#5F6368',
+                            cursor: posts.findIndex(p => p.id === post.id) === posts.length - 1 ? 'not-allowed' : 'pointer',
+                            opacity: posts.findIndex(p => p.id === post.id) === posts.length - 1 ? 0.4 : 1,
+                            transition: 'all 0.15s ease', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}
                         >
-                          ↓
-                        </Button>
+                          ↓ Down
+                        </button>
                       </div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         )}

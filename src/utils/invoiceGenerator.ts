@@ -89,7 +89,7 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             line-height: 1.6;
-            color: #1a1a1a;
+            color: var(--color-text-primary);
             background: #F9F9F7;
         }
         
@@ -103,10 +103,10 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         }
         
         .invoice-header {
-            background: #ffffff;
-            color: #1a1a1a;
+            background: var(--color-surface-card);
+            color: var(--color-text-primary);
             padding: 20px;
-            border-bottom: 3px solid #1a1a1a;
+            border-bottom: 3px solid var(--color-text-primary);
         }
         
         .header-top {
@@ -130,12 +130,12 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         .company-name {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #1a1a1a;
+            color: var(--color-text-primary);
             margin: 0;
         }
         
         .invoice-badge {
-            background: #0071DC;
+            background: var(--color-brand-red);
             color: white;
             padding: 3px 10px;
             border-radius: 0;
@@ -164,7 +164,7 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         }
         
         .info-section h3 {
-            color: #1a1a1a;
+            color: var(--color-text-primary);
             margin-bottom: 10px;
             font-size: 1rem;
             font-weight: 600;
@@ -179,18 +179,18 @@ export function generateInvoiceHTML(data: InvoiceData): string {
             left: 0;
             width: 30px;
             height: 2px;
-            background: #1a1a1a;
+            background: var(--color-text-primary);
             border-radius: 0;
         }
         
         .info-section p {
             margin-bottom: 5px;
-            color: #5F6368;
+            color: var(--color-text-secondary);
             font-size: 0.9rem;
         }
         
         .info-section strong {
-            color: #1a1a1a;
+            color: var(--color-text-primary);
             font-weight: 600;
         }
         
@@ -204,19 +204,19 @@ export function generateInvoiceHTML(data: InvoiceData): string {
         
         .items-table th {
             background: #F9F9F7;
-            color: #1a1a1a;
+            color: var(--color-text-primary);
             padding: 12px 10px;
             text-align: left;
             font-weight: 600;
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 2px solid #1a1a1a;
+            border-bottom: 2px solid var(--color-text-primary);
         }
         
         .items-table td {
             padding: 6px 6px;
-            border-bottom: 1px solid #E0E3E7;
+            border-bottom: 1px solid var(--color-border-default);
         }
         
         .items-table tr:last-child td {

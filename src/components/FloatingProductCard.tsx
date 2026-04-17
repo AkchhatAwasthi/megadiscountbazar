@@ -130,10 +130,10 @@ const FloatingProductCard = () => {
                 {/* Main Card Container */}
                 <div
                     onClick={() => { setQuickViewProduct(currentProduct); setIsQuickViewOpen(true); }}
-                    className="relative w-full sm:w-[380px] bg-[#FFFFFF] border-[0.5px] border-[#E0E3E7] rounded-[12px] flex items-center p-3 shadow-lg hover:border-[#0071DC] transition-all duration-200 hover:-translate-y-[2px]"
+                    className="relative w-full sm:w-[380px] bg-[var(--color-surface-card)] border-[0.5px] border-[var(--color-border-default)] rounded-[12px] flex items-center p-3 shadow-lg hover:border-[var(--color-brand-red)] transition-all duration-200 hover:-translate-y-[2px]"
                 >
                     {/* Left: Product Image */}
-                    <div className="relative h-[80px] w-[80px] sm:h-[90px] sm:w-[90px] rounded-[8px] overflow-hidden flex-shrink-0 group bg-[#F6F7F8]">
+                    <div className="relative h-[80px] w-[80px] sm:h-[90px] sm:w-[90px] rounded-[8px] overflow-hidden flex-shrink-0 group bg-[var(--color-surface-page)]">
                         <img
                             src={currentProduct.image}
                             alt={currentProduct.name}
@@ -149,25 +149,25 @@ const FloatingProductCard = () => {
                                     Best Seller
                                 </span>
                             ) : (
-                                <span className="bg-[#E6F1FB] text-[#0C447C] text-[11px] font-[500] px-2 py-[2px] rounded-[6px] tracking-[0.02em]">
+                                <span className="bg-[var(--color-brand-red-light)] text-[#0C447C] text-[11px] font-[500] px-2 py-[2px] rounded-[6px] tracking-[0.02em]">
                                     New
                                 </span>
                             )}
                         </div>
-                        <h3 className="text-[#1A1A1A] text-[15px] sm:text-[16px] font-[500] leading-[1.35] truncate tracking-[-0.01em]">
+                        <h3 className="text-[var(--color-text-primary)] text-[15px] sm:text-[16px] font-[500] leading-[1.35] truncate tracking-[-0.01em]">
                             {currentProduct.name}
                         </h3>
                         <div className="flex items-center justify-between mt-1">
                             <div className="flex items-baseline gap-2">
-                                <span className="text-[#1A1A1A] font-[600] text-[16px] sm:text-[18px] leading-none">₹{currentProduct.price.toLocaleString()}</span>
+                                <span className="text-[var(--color-text-primary)] font-[600] text-[16px] sm:text-[18px] leading-none">₹{currentProduct.price.toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Progress Bar Bottom */}
-                    <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#F6F7F8] rounded-b-[12px] overflow-hidden">
+                    <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[var(--color-surface-page)] rounded-b-[12px] overflow-hidden">
                         <motion.div
-                            className="h-full bg-[#0071DC]"
+                            className="h-full bg-[var(--color-brand-red)]"
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
                             transition={{ ease: "linear", duration: 0.1 }}
@@ -190,3 +190,4 @@ const FloatingProductCard = () => {
 
 
 export default FloatingProductCard;
+

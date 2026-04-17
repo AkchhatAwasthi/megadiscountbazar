@@ -91,14 +91,14 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
             {/* Close Button Mobile */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-50 md:hidden size-10 flex items-center justify-center bg-white border border-[#E0E3E7] rounded-full text-[#1A1A1A] shadow-sm"
+              className="absolute top-4 right-4 z-50 md:hidden size-10 flex items-center justify-center bg-white border border-[var(--color-border-default)] rounded-full text-[var(--color-text-primary)] shadow-sm"
             >
               <X className="size-5" />
             </button>
 
             {/* Left: Image Gallery */}
-            <div className="w-full md:w-[450px] bg-[#F6F7F8] flex flex-col p-4 md:p-8 shrink-0">
-               <div className="relative flex-1 bg-white rounded-[12px] border border-[#E0E3E7] overflow-hidden flex items-center justify-center mb-4">
+            <div className="w-full md:w-[450px] bg-[var(--color-surface-page)] flex flex-col p-4 md:p-8 shrink-0">
+               <div className="relative flex-1 bg-white rounded-[12px] border border-[var(--color-border-default)] overflow-hidden flex items-center justify-center mb-4">
                   <img
                     src={currentImage}
                     alt={product.name}
@@ -107,7 +107,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
                   {/* Badges */}
                   <div className="absolute top-4 left-4 flex flex-col gap-2">
                     {product.isBestSeller && (
-                      <span className="bg-[#FFC220] text-[#1A1A1A] text-[11px] font-[600] px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                      <span className="bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] text-[11px] font-[600] px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                         Best Seller
                       </span>
                     )}
@@ -128,7 +128,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
                         onClick={() => setSelectedImageIndex(idx)}
                         className={cn(
                           "size-16 rounded-[8px] border-2 transition-all p-1 bg-white shrink-0",
-                          selectedImageIndex === idx ? "border-[var(--blue-primary)]" : "border-transparent hover:border-gray-300"
+                          selectedImageIndex === idx ? "border-[var(--color-brand-red)]" : "border-transparent hover:border-gray-300"
                         )}
                       >
                         <img src={img} alt="" className="w-full h-full object-contain" />
@@ -143,50 +143,50 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
               {/* Header */}
               <div className="p-6 md:p-10 pb-0">
                 <div className="flex items-center justify-between mb-2">
-                   <span className="text-[12px] font-[600] text-[var(--blue-primary)] uppercase tracking-wider">
+                   <span className="text-[12px] font-[600] text-[var(--color-brand-red)] uppercase tracking-wider">
                      {product.category || 'Category'}
                    </span>
                    {/* Close Button Desktop */}
                    <button
                     onClick={onClose}
-                    className="hidden md:flex size-10 items-center justify-center text-[#1A1A1A]/40 hover:text-[#1A1A1A] transition-colors"
+                    className="hidden md:flex size-10 items-center justify-center text-[var(--color-text-primary)]/40 hover:text-[var(--color-text-primary)] transition-colors"
                   >
                     <X className="size-6" />
                   </button>
                 </div>
                 
-                <h2 className="text-[24px] md:text-[32px] font-[600] text-[#1A1A1A] leading-[1.2] mb-4">
+                <h2 className="text-[24px] md:text-[32px] font-[600] text-[var(--color-text-primary)] leading-[1.2] mb-4">
                    {product.name}
                 </h2>
 
                 <div className="flex items-center gap-4 mb-6">
-                   <div className="flex items-center bg-[#F6F7F8] px-3 py-1 rounded-[6px]">
-                      <Star className="size-3.5 text-[#FFC220] fill-[#FFC220] mr-1.5" />
-                      <span className="text-[13px] font-[600] text-[#1A1A1A]">{product.rating || '4.8'}</span>
+                   <div className="flex items-center bg-[var(--color-surface-page)] px-3 py-1 rounded-[6px]">
+                      <Star className="size-3.5 text-[var(--color-brand-yellow)] fill-[var(--color-brand-yellow)] mr-1.5" />
+                      <span className="text-[13px] font-[600] text-[var(--color-text-primary)]">{product.rating || '4.8'}</span>
                    </div>
-                   <span className="text-[14px] text-[#5F6368]">{displaySku}</span>
+                   <span className="text-[14px] text-[var(--color-text-secondary)]">{displaySku}</span>
                 </div>
 
                 <div className="flex items-baseline gap-3 mb-8">
-                   <span className="text-[28px] md:text-[36px] font-[600] text-[var(--blue-primary)]">
+                   <span className="text-[28px] md:text-[36px] font-[600] text-[var(--color-brand-red)]">
                      {formatPrice(product.price)}
                    </span>
                    {product.originalPrice && (
-                      <span className="text-[18px] text-[#5F6368] line-through">
+                      <span className="text-[18px] text-[var(--color-text-secondary)] line-through">
                         {formatPrice(product.originalPrice)}
                       </span>
                    )}
                 </div>
 
-                <div className="h-px bg-[#E0E3E7] w-full mb-8"></div>
+                <div className="h-px bg-[var(--color-border-default)] w-full mb-8"></div>
 
                 {/* Options */}
                 <div className="space-y-8 mb-10">
                    {/* Size Picker */}
                    <div>
                       <div className="flex justify-between items-center mb-3">
-                         <span className="text-[14px] font-[600] text-[#1A1A1A]">Select Size</span>
-                         <button className="text-[13px] text-[var(--blue-primary)] hover:underline font-[500]">Size Guide</button>
+                         <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Size</span>
+                         <button className="text-[13px] text-[var(--color-brand-red)] hover:underline font-[500]">Size Guide</button>
                       </div>
                       <div className="flex flex-wrap gap-2">
                          {['S', 'M', 'L', 'XL', 'XXL'].map((size) => {
@@ -201,9 +201,9 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
                                  className={cn(
                                    "min-w-[56px] h-[48px] rounded-[10px] border-[1.5px] text-[14px] font-[600] transition-all flex items-center justify-center",
                                    isSelected 
-                                     ? "border-[var(--blue-primary)] bg-[var(--blue-light)] text-[var(--blue-primary)]" 
+                                     ? "border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]" 
                                      : isAvailable 
-                                       ? "border-[#E0E3E7] text-[#1A1A1A] hover:border-[var(--blue-primary)]" 
+                                       ? "border-[var(--color-border-default)] text-[var(--color-text-primary)] hover:border-[var(--color-brand-red)]" 
                                        : "border-[#F1F3F4] text-[#BDC1C6] cursor-not-allowed bg-[#F8F9FA]"
                                  )}
                                >
@@ -216,19 +216,19 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
 
                    {/* Quantity */}
                    <div>
-                      <span className="text-[14px] font-[600] text-[#1A1A1A] block mb-3">Quantity</span>
+                      <span className="text-[14px] font-[600] text-[var(--color-text-primary)] block mb-3">Quantity</span>
                       <div className="flex items-center gap-4">
-                         <div className="flex items-center border-[1.5px] border-[#E0E3E7] rounded-full h-[48px] px-2 bg-white">
+                         <div className="flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-full h-[48px] px-2 bg-white">
                             <button
                               onClick={() => handleQuantityChange(-1)}
-                              className="size-10 flex items-center justify-center transition-colors hover:text-[var(--blue-primary)]"
+                              className="size-10 flex items-center justify-center transition-colors hover:text-[var(--color-brand-red)]"
                             >
                                <Minus className="size-4" />
                             </button>
                             <span className="w-10 text-center text-[15px] font-[600]">{quantity}</span>
                             <button
                               onClick={() => handleQuantityChange(1)}
-                              className="size-10 flex items-center justify-center transition-colors hover:text-[var(--blue-primary)]"
+                              className="size-10 flex items-center justify-center transition-colors hover:text-[var(--color-brand-red)]"
                             >
                                <Plus className="size-4" />
                             </button>
@@ -249,13 +249,13 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
                  <button
                     onClick={handleAddToCart}
                     disabled={displayStock === 0}
-                    className="flex-1 bg-[#FFC220] hover:bg-[#E5AF1C] text-[#1A1A1A] h-[56px] rounded-full font-[600] text-[16px] flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] disabled:bg-[#F1F3F4] disabled:text-[#BDC1C6] disabled:shadow-none"
+                    className="flex-1 bg-[var(--color-brand-yellow)] hover:bg-[#E5AF1C] text-[var(--color-text-primary)] h-[56px] rounded-full font-[600] text-[16px] flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] disabled:bg-[#F1F3F4] disabled:text-[#BDC1C6] disabled:shadow-none"
                  >
                     <ShoppingCart className="size-5" />
                     {displayStock > 0 ? 'Add to Cart' : 'Out of Stock'}
                  </button>
-                 <button className="size-[56px] rounded-full border-[1.5px] border-[#E0E3E7] flex items-center justify-center transition-all hover:bg-[#F6F7F8] hover:border-[#BDC1C6] active:scale-[0.95]">
-                    <Heart className="size-6 text-[#5F6368]" />
+                 <button className="size-[56px] rounded-full border-[1.5px] border-[var(--color-border-default)] flex items-center justify-center transition-all hover:bg-[var(--color-surface-page)] hover:border-[#BDC1C6] active:scale-[0.95]">
+                    <Heart className="size-6 text-[var(--color-text-secondary)]" />
                  </button>
               </div>
 
@@ -263,7 +263,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
               <div className="p-6 md:p-10 pt-0 pb-10">
                  <button 
                   onClick={() => navigate(`/product/${product.id}`)}
-                  className="w-full text-center text-[14px] font-[600] text-[var(--blue-primary)] hover:underline"
+                  className="w-full text-center text-[14px] font-[600] text-[var(--color-brand-red)] hover:underline"
                  >
                    View full details
                  </button>
@@ -277,3 +277,4 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
 };
 
 export default QuickViewModal;
+

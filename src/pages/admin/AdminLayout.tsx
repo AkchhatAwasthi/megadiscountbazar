@@ -54,7 +54,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F6F7F8', fontFamily: "var(--font-inter)" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--color-surface-page)', fontFamily: "var(--font-inter)" }}>
 
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
@@ -69,7 +69,7 @@ const AdminLayout = () => {
       <div style={{
         width: 240,
         minHeight: '100vh',
-        background: '#0D1B2A',
+        background: 'var(--color-admin-sidebar-bg)',
         display: 'flex',
         flexDirection: 'column',
         position: 'fixed',
@@ -91,7 +91,7 @@ const AdminLayout = () => {
           justifyContent: 'space-between',
           flexShrink: 0,
         }}>
-          <span style={{ fontSize: 18, fontWeight: 500, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
+          <span style={{ fontSize: 18, fontWeight: 500, color: 'var(--color-surface-card)', letterSpacing: '-0.01em' }}>
             Megadiscountstore
           </span>
           <button
@@ -123,16 +123,16 @@ const AdminLayout = () => {
                   padding: '10px 24px',
                   fontSize: 14,
                   fontWeight: active ? 500 : 400,
-                  color: active ? '#FFFFFF' : '#CBD5E1',
+                  color: active ? 'var(--color-surface-card)' : '#CBD5E1',
                   textDecoration: 'none',
                   transition: 'all 0.15s ease',
-                  borderLeft: active ? '3px solid #0071DC' : '3px solid transparent',
+                  borderLeft: active ? '3px solid var(--color-brand-red)' : '3px solid transparent',
                   background: active ? 'rgba(0,113,220,0.18)' : 'transparent',
                 }}
                 onMouseEnter={e => {
                   if (!active) {
                     (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)';
-                    (e.currentTarget as HTMLElement).style.color = '#FFFFFF';
+                    (e.currentTarget as HTMLElement).style.color = 'var(--color-surface-card)';
                   }
                 }}
                 onMouseLeave={e => {
@@ -154,16 +154,16 @@ const AdminLayout = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
             <div style={{
               width: 36, height: 36, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #0071DC, #0055A6)',
+              background: 'linear-gradient(135deg, var(--color-brand-red), var(--color-brand-red-deep))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
-              <span style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 500 }}>
+              <span style={{ color: 'var(--color-surface-card)', fontSize: 14, fontWeight: 500 }}>
                 {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'A'}
               </span>
             </div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 13, fontWeight: 500, color: '#FFFFFF', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-surface-card)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {profile?.full_name || 'Admin User'}
               </p>
               <p style={{ fontSize: 11, color: 'rgba(203,213,225,0.7)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -203,8 +203,8 @@ const AdminLayout = () => {
         {/* Top bar */}
         <div style={{
           height: 60,
-          background: '#FFFFFF',
-          borderBottom: '1px solid #E0E3E7',
+          background: 'var(--color-surface-card)',
+          borderBottom: '1px solid var(--color-border-default)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -220,12 +220,12 @@ const AdminLayout = () => {
               className="lg:hidden"
               style={{
                 background: 'transparent', border: 'none', cursor: 'pointer',
-                color: '#5F6368', padding: 6, borderRadius: 6, display: 'flex', alignItems: 'center',
+                color: 'var(--color-text-secondary)', padding: 6, borderRadius: 6, display: 'flex', alignItems: 'center',
               }}
             >
               <Menu style={{ width: 20, height: 20 }} />
             </button>
-            <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>
+            <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>
               {navigation.find(n => isActive(n.href))?.name || 'Admin'}
             </span>
           </div>
@@ -234,13 +234,13 @@ const AdminLayout = () => {
             <Link
               to="/"
               style={{
-                fontSize: 13, fontWeight: 500, color: '#0071DC',
+                fontSize: 13, fontWeight: 500, color: 'var(--color-brand-red)',
                 textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6,
-                padding: '6px 12px', borderRadius: 8, border: '1.5px solid #0071DC',
+                padding: '6px 12px', borderRadius: 8, border: '1.5px solid var(--color-brand-red)',
                 transition: 'all 0.15s ease',
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.background = '#E6F1FB';
+                (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-light)';
               }}
               onMouseLeave={e => {
                 (e.currentTarget as HTMLElement).style.background = 'transparent';

@@ -24,8 +24,8 @@ const Testimonials = () => {
 
   if (loading) {
     return (
-      <section className="py-[64px] bg-[var(--surface-white)] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--blue-primary)] border-t-transparent rounded-full animate-spin"></div>
+      <section className="py-[64px] bg-[var(--color-surface-card)] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[var(--color-brand-red)] border-t-transparent rounded-full animate-spin"></div>
       </section>
     );
   }
@@ -33,18 +33,18 @@ const Testimonials = () => {
   if (testimonials.length === 0) return null;
 
   return (
-    <section className="py-[64px] md:py-[96px] bg-[var(--surface-white)] overflow-hidden">
+    <section className="py-[64px] md:py-[96px] bg-[var(--color-surface-card)] overflow-hidden">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--blue-primary)] uppercase mb-2 block">
+          <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--color-brand-red)] uppercase mb-2 block">
             Customer Voices
           </span>
-          <h2 className="text-[28px] md:text-[32px] font-[500] text-[#1A1A1A] leading-[1.2] tracking-[-0.02em] mb-4">
+          <h2 className="text-[28px] md:text-[32px] font-[500] text-[var(--color-text-primary)] leading-[1.2] tracking-[-0.02em] mb-4">
             Trusted by Thousands
           </h2>
-          <p className="text-[15px] text-[#5F6368] leading-[1.65]">
+          <p className="text-[15px] text-[var(--color-text-secondary)] leading-[1.65]">
             See what our customers have to say about their shopping experience and product quality at Paridhan Haat.
           </p>
         </div>
@@ -61,15 +61,15 @@ const Testimonials = () => {
                     {testimonials.concat(testimonials).map((testimonial, idx) => (
                         <div 
                             key={`${testimonial.id}-${idx}`}
-                            className="w-[320px] md:w-[400px] shrink-0 bg-[var(--surface-light)] p-8 rounded-[16px] border border-[var(--border-default)] flex flex-col justify-between transition-all hover:border-[var(--blue-primary)] group"
+                            className="w-[320px] md:w-[400px] shrink-0 bg-[var(--color-surface-page)] p-8 rounded-[16px] border border-[var(--color-border-default)] flex flex-col justify-between transition-all hover:border-[var(--color-brand-red)] group"
                         >
                             <div>
-                                <div className="flex items-center text-[var(--yellow-accent)] mb-4 gap-0.5">
+                                <div className="flex items-center text-[var(--color-brand-yellow)] mb-4 gap-0.5">
                                     {[...Array(5)].map((_, i) => (
                                         <Star key={i} className="size-[14px] fill-current" />
                                     ))}
                                 </div>
-                                <p className="text-[15px] text-[#1A1A1A] leading-[1.6] italic mb-8 font-[400]">
+                                <p className="text-[15px] text-[var(--color-text-primary)] leading-[1.6] italic mb-8 font-[400]">
                                     "{testimonial.text}"
                                 </p>
                             </div>
@@ -78,8 +78,8 @@ const Testimonials = () => {
                                     <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
                                 </div>
                                 <div>
-                                    <h4 className="text-[14px] font-[600] text-[#1A1A1A]">{testimonial.name}</h4>
-                                    <p className="text-[12px] text-[#5F6368] uppercase tracking-wider">{testimonial.role}</p>
+                                    <h4 className="text-[14px] font-[600] text-[var(--color-text-primary)]">{testimonial.name}</h4>
+                                    <p className="text-[12px] text-[var(--color-text-secondary)] uppercase tracking-wider">{testimonial.role}</p>
                                 </div>
                             </div>
                         </div>
@@ -87,8 +87,8 @@ const Testimonials = () => {
                 </motion.div>
             </div>
             {/* Fade Gradients for edge masking */}
-            <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[var(--surface-white)] to-transparent pointer-events-none hidden md:block"></div>
-            <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[var(--surface-white)] to-transparent pointer-events-none hidden md:block"></div>
+            <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[var(--color-surface-card)] to-transparent pointer-events-none hidden md:block"></div>
+            <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[var(--color-surface-card)] to-transparent pointer-events-none hidden md:block"></div>
         </div>
       </div>
     </section>

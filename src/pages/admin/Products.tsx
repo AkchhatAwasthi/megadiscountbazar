@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Filter, Edit, Trash2, Eye, Package } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, Eye, Package, Upload, Download } from 'lucide-react';
+import Papa from 'papaparse';
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,7 +31,10 @@ const AdminProducts = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState(['all']);
+  const [categoryObjects, setCategoryObjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,15 +73,141 @@ const AdminProducts = () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('name')
+        .select('id, name')
         .eq('is_active', true);
 
       if (error) throw error;
       const categoryNames = data?.map(cat => cat.name) || [];
       setCategories(['all', ...categoryNames]);
+      setCategoryObjects(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
+  };
+
+  const downloadTemplate = () => {
+    const headers = [
+      'name', 'price', 'original_price', 'category_name', 'weight', 
+      'stock_quantity', 'pieces', 'description', 'care_instructions', 'available_sizes', 'is_active'
+    ];
+    // Example row
+    const example = [
+      'Red Cotton T-Shirt', '499', '999', 'T-Shirts', '200g', 
+      '50', '1', 'High quality cotton t-shirt', 'Machine wash cold', 'S,M,L,XL', 'true'
+    ];
+    
+    const csvContent = [headers.join(','), example.join(',')].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'PRODUCT_UPLOAD_TEMPLATE.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const generateBulkSKU = (name: string) => {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 15);
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `${slug.toUpperCase()}-${random}`;
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const rows = results.data as any[];
+        try {
+          const productsToInsert = [];
+
+          for (const row of rows) {
+            if (!row.name || !row.price) {
+              continue; // Skip invalid rows
+            }
+
+            // Find category_id based on name
+            let category_id = null;
+            if (row.category_name) {
+              const categoryMatch = categoryObjects.find(
+                (c) => c.name.toLowerCase() === row.category_name.toLowerCase().trim()
+              );
+              if (categoryMatch) {
+                category_id = categoryMatch.id;
+              }
+            }
+
+            const product = {
+              name: row.name.trim(),
+              price: Number(row.price) || 0,
+              original_price: Number(row.original_price) || Number(row.price),
+              category_id: category_id,
+              weight: row.weight?.trim() || null,
+              description: row.description?.trim() || null,
+              stock_quantity: Number(row.stock_quantity) || 0,
+              is_active: row.is_active?.toLowerCase() === 'true' || row.is_active === '1' ? true : false,
+              sku: generateBulkSKU(row.name),
+              pieces: row.pieces?.trim() || null,
+              care_instructions: row.care_instructions?.trim() || null,
+              available_sizes: row.available_sizes ? row.available_sizes.split(',').map((s: string) => s.trim()) : [],
+            };
+
+            // Remove null or empty values to "only upload the data which is there"
+            const cleanedProduct = Object.fromEntries(
+              Object.entries(product).filter(([_, v]) => v != null && v !== '')
+            );
+
+            productsToInsert.push(cleanedProduct);
+          }
+
+          if (productsToInsert.length > 0) {
+            const { error } = await supabase.from('products').insert(productsToInsert);
+            if (error) throw error;
+
+            toast({
+              title: "Success",
+              description: `${productsToInsert.length} products uploaded successfully`,
+            });
+            fetchProducts();
+          } else {
+             toast({
+              title: "Notice",
+              description: "No valid products found to upload.",
+              variant: "destructive",
+            });
+          }
+        } catch (error: any) {
+          console.error("Upload error:", error);
+          toast({
+            title: "Upload Failed",
+            description: error.message || "Failed to bulk upload products",
+            variant: "destructive",
+          });
+        } finally {
+          setIsUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+      },
+      error: (error: any) => {
+        setIsUploading(false);
+        toast({
+          title: "CSV Parse Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -138,48 +269,106 @@ const AdminProducts = () => {
       {/* Page Header */}
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>Products</h1>
-          <p style={{ fontSize: 13, color: '#9AA0A6', margin: '4px 0 0' }}>Manage your product inventory</p>
+          <h1 style={{ fontSize: 22, fontWeight: 500, color: 'var(--color-text-primary)', margin: 0 }}>Products</h1>
+          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '4px 0 0' }}>Manage your product inventory</p>
         </div>
-        <button
-          onClick={() => navigate('/admin/products/add')}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: '#0071DC', color: '#FFFFFF',
-            border: 'none', borderRadius: 8, padding: '8px 18px',
-            fontSize: 13, fontWeight: 500, cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = '#0055A6';
-            (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = '#0071DC';
-            (e.currentTarget as HTMLElement).style.transform = 'none';
-          }}
-        >
-          <Plus style={{ width: 16, height: 16 }} />
-          Add Product
-        </button>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <button
+            onClick={downloadTemplate}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: 'var(--color-surface-card)', color: 'var(--color-text-secondary)',
+              border: '1px solid var(--color-border-default)', borderRadius: 8, padding: '8px 16px',
+              fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-page)';
+              (e.currentTarget as HTMLElement).style.color = 'var(--color-brand-red)';
+              (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-brand-red)';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-card)';
+              (e.currentTarget as HTMLElement).style.color = 'var(--color-text-secondary)';
+              (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-default)';
+            }}
+          >
+            <Download style={{ width: 16, height: 16 }} />
+            Template
+          </button>
+          
+          <input 
+            type="file" 
+            hidden 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            accept=".csv" 
+          />
+          
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: 'var(--color-surface-card)', color: 'var(--color-text-primary)',
+              border: '1px solid var(--color-border-default)', borderRadius: 8, padding: '8px 16px',
+              fontSize: 13, fontWeight: 500, cursor: isUploading ? 'not-allowed' : 'pointer',
+              opacity: isUploading ? 0.7 : 1,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              if (isUploading) return;
+              (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-page)';
+            }}
+            onMouseLeave={e => {
+              if (isUploading) return;
+              (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-card)';
+            }}
+          >
+            <Upload style={{ width: 16, height: 16 }} />
+            {isUploading ? 'Uploading...' : 'Import CSV'}
+          </button>
+
+          <button
+            onClick={() => navigate('/admin/products/add')}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: 'var(--color-brand-red)', color: 'var(--color-surface-card)',
+              border: 'none', borderRadius: 8, padding: '8px 18px',
+              fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-deep)';
+              (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red)';
+              (e.currentTarget as HTMLElement).style.transform = 'none';
+            }}
+          >
+            <Plus style={{ width: 16, height: 16 }} />
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Filters Bar */}
       <div style={{
-        background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12,
+        background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12,
         padding: '16px 20px', marginBottom: 20,
         display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center',
       }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 240 }}>
-          <Search style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#9AA0A6', pointerEvents: 'none' }} />
+          <Search style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
           <Input
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               height: 36, paddingLeft: 34,
-              border: '1.5px solid #E0E3E7', borderRadius: 8,
-              fontSize: 14, color: '#1A1A1A', background: '#FFFFFF', outline: 'none',
+              border: '1.5px solid var(--color-border-default)', borderRadius: 8,
+              fontSize: 14, color: 'var(--color-text-primary)', background: 'var(--color-surface-card)', outline: 'none',
             }}
           />
         </div>
@@ -188,8 +377,8 @@ const AdminProducts = () => {
           onChange={(e) => setFilterCategory(e.target.value)}
           style={{
             height: 36, padding: '0 36px 0 12px',
-            border: '1.5px solid #E0E3E7', borderRadius: 8,
-            fontSize: 14, color: '#1A1A1A', background: '#FFFFFF',
+            border: '1.5px solid var(--color-border-default)', borderRadius: 8,
+            fontSize: 14, color: 'var(--color-text-primary)', background: 'var(--color-surface-card)',
             cursor: 'pointer', outline: 'none', minWidth: 200,
             appearance: 'none',
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235F6368' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
@@ -205,50 +394,50 @@ const AdminProducts = () => {
       </div>
 
       {/* Products Table */}
-      <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #E0E3E7', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Product List</span>
-          <span style={{ fontSize: 12, color: '#9AA0A6' }}>{filteredProducts.length} items</span>
+      <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border-default)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Product List</span>
+          <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{filteredProducts.length} items</span>
         </div>
         <Table>
           <TableHeader>
-            <TableRow style={{ background: '#F0F4F8' }} className="hover:bg-[#F0F4F8]">
-              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Product</TableHead>
-              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Category</TableHead>
-              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Price</TableHead>
-              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Stock</TableHead>
-              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</TableHead>
-              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Rating</TableHead>
-              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sales</TableHead>
-              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'right' }}>Actions</TableHead>
+            <TableRow style={{ background: 'var(--color-admin-table-head)' }} className="hover:bg-[var(--color-admin-table-head)]">
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Product</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Category</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Price</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Stock</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Rating</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sales</TableHead>
+              <TableHead style={{ padding: '10px 16px', fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'right' }}>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={index} style={{ borderBottom: '1px solid #F0F4F8' }}>
-                  <TableCell><div style={{ height: 48, width: 48, background: '#F0F4F8', borderRadius: 8, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
-                  <TableCell><div style={{ height: 14, width: 96, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
-                  <TableCell><div style={{ height: 14, width: 64, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
-                  <TableCell><div style={{ height: 14, width: 48, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
-                  <TableCell><div style={{ height: 24, width: 80, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
-                  <TableCell><div style={{ height: 14, width: 48, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
-                  <TableCell><div style={{ height: 14, width: 48, background: '#F0F4F8', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
-                  <TableCell><div style={{ height: 32, width: 32, background: '#F0F4F8', borderRadius: 8, animation: 'pulse 1.5s ease infinite', marginLeft: 'auto' }}></div></TableCell>
+                <TableRow key={index} style={{ borderBottom: '1px solid var(--color-admin-table-head)' }}>
+                  <TableCell><div style={{ height: 48, width: 48, background: 'var(--color-admin-table-head)', borderRadius: 8, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 96, background: 'var(--color-admin-table-head)', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 64, background: 'var(--color-admin-table-head)', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 48, background: 'var(--color-admin-table-head)', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 24, width: 80, background: 'var(--color-admin-table-head)', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 48, background: 'var(--color-admin-table-head)', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 14, width: 48, background: 'var(--color-admin-table-head)', borderRadius: 6, animation: 'pulse 1.5s ease infinite' }}></div></TableCell>
+                  <TableCell><div style={{ height: 32, width: 32, background: 'var(--color-admin-table-head)', borderRadius: 8, animation: 'pulse 1.5s ease infinite', marginLeft: 'auto' }}></div></TableCell>
                 </TableRow>
               ))
             ) : paginatedProducts.length > 0 ? (
               paginatedProducts.map((product: any) => (
                 <TableRow key={product.id}
-                  style={{ borderBottom: '1px solid #F0F4F8', transition: 'background 0.12s ease' }}
-                  className="hover:bg-[#F8FBFF]"
+                  style={{ borderBottom: '1px solid var(--color-admin-table-head)', transition: 'background 0.12s ease' }}
+                  className="hover:bg-[var(--color-surface-page)]"
                 >
                   <TableCell style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{
                         width: 52, height: 52, borderRadius: 8,
-                        overflow: 'hidden', border: '1px solid #E0E3E7',
-                        flexShrink: 0, background: '#F0F4F8',
+                        overflow: 'hidden', border: '1px solid var(--color-border-default)',
+                        flexShrink: 0, background: 'var(--color-admin-table-head)',
                       }}>
                         <img
                           src={product.images?.[0] || '/placeholder.svg'}
@@ -257,14 +446,14 @@ const AdminProducts = () => {
                         />
                       </div>
                       <div>
-                        <p style={{ fontSize: 14, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>{product.name}</p>
-                        <p style={{ fontSize: 11, color: '#9AA0A6', margin: '3px 0 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>SKU: {product.sku}</p>
+                        <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', margin: 0 }}>{product.name}</p>
+                        <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '3px 0 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>SKU: {product.sku}</p>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: '#5F6368' }}>{product.categories?.name || 'Unknown'}</TableCell>
-                  <TableCell style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500, color: '#1A1A1A' }}>₹{product.price}</TableCell>
-                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: '#5F6368' }}>{product.stock_quantity}</TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: 'var(--color-text-secondary)' }}>{product.categories?.name || 'Unknown'}</TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)' }}>₹{product.price}</TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: 'var(--color-text-secondary)' }}>{product.stock_quantity}</TableCell>
                   <TableCell style={{ padding: '12px 16px' }}>
                     <span style={{
                       display: 'inline-flex', alignItems: 'center',
@@ -274,31 +463,31 @@ const AdminProducts = () => {
                       {getStatus(product)}
                     </span>
                   </TableCell>
-                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: '#5F6368' }}>
-                    <span style={{ color: '#FFC220' }}>★</span> {product.rating || 'N/A'}
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                    <span style={{ color: 'var(--color-brand-yellow)' }}>★</span> {product.rating || 'N/A'}
                   </TableCell>
-                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: '#5F6368' }}>{product.sales || 0}</TableCell>
+                  <TableCell style={{ padding: '12px 16px', fontSize: 14, color: 'var(--color-text-secondary)' }}>{product.sales || 0}</TableCell>
                   <TableCell style={{ padding: '12px 16px', textAlign: 'right' }}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-[#F0F4F8] rounded-lg data-[state=open]:bg-[#F0F4F8] text-[#5F6368]">
+                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-[var(--color-admin-table-head)] rounded-lg data-[state=open]:bg-[var(--color-admin-table-head)] text-[var(--color-text-secondary)]">
                           <span className="sr-only">Open menu</span>
                           <span style={{ fontSize: 20, lineHeight: 1 }}>⋯</span>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="rounded-lg border-[#E0E3E7] shadow-lg bg-white p-1 min-w-[120px]">
+                      <DropdownMenuContent align="end" className="rounded-lg border-[var(--color-border-default)] shadow-lg bg-white p-1 min-w-[120px]">
                         <DropdownMenuItem
                           onClick={() => navigate(`/product/${product.sku || product.id}`)}
-                          className="rounded-md hover:bg-[#F8FBFF] cursor-pointer text-sm py-2 text-[#1A1A1A]"
+                          className="rounded-md hover:bg-[var(--color-surface-page)] cursor-pointer text-sm py-2 text-[var(--color-text-primary)]"
                         >
-                          <Eye className="mr-2 h-4 w-4 text-[#0071DC]" />
+                          <Eye className="mr-2 h-4 w-4 text-[var(--color-brand-red)]" />
                           View
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => navigate(`/admin/products/edit/${product.id}`)}
-                          className="rounded-md hover:bg-[#F8FBFF] cursor-pointer text-sm py-2 text-[#1A1A1A]"
+                          className="rounded-md hover:bg-[var(--color-surface-page)] cursor-pointer text-sm py-2 text-[var(--color-text-primary)]"
                         >
-                          <Edit className="mr-2 h-4 w-4 text-[#0071DC]" />
+                          <Edit className="mr-2 h-4 w-4 text-[var(--color-brand-red)]" />
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -318,7 +507,7 @@ const AdminProducts = () => {
                 <TableCell colSpan={8} style={{ padding: '48px 16px', textAlign: 'center' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                     <Package style={{ width: 36, height: 36, color: '#CBD5E1' }} />
-                    <p style={{ fontSize: 14, color: '#9AA0A6', margin: 0 }}>No products found.</p>
+                    <p style={{ fontSize: 14, color: 'var(--color-text-muted)', margin: 0 }}>No products found.</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -331,10 +520,10 @@ const AdminProducts = () => {
       {!loading && totalPages > 1 && (
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12,
+          background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12,
           padding: '14px 20px', marginTop: 16,
         }}>
-          <span style={{ fontSize: 13, color: '#5F6368' }}>
+          <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
             Page {currentPage} of {totalPages} · {filteredProducts.length} items
           </span>
           <div style={{ display: 'flex', gap: 4 }}>
@@ -343,8 +532,8 @@ const AdminProducts = () => {
               onClick={() => handlePageChange(currentPage - 1)}
               style={{
                 minWidth: 32, height: 32, padding: '0 8px',
-                border: '1px solid #E0E3E7', borderRadius: 6,
-                background: '#FFFFFF', fontSize: 13, color: currentPage === 1 ? '#CBD5E1' : '#1A1A1A',
+                border: '1px solid var(--color-border-default)', borderRadius: 6,
+                background: 'var(--color-surface-card)', fontSize: 13, color: currentPage === 1 ? '#CBD5E1' : 'var(--color-text-primary)',
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'all 0.15s ease',
@@ -358,11 +547,11 @@ const AdminProducts = () => {
                 onClick={() => handlePageChange(page)}
                 style={{
                   minWidth: 32, height: 32, padding: '0 8px',
-                  border: '1px solid', borderColor: page === currentPage ? '#0071DC' : '#E0E3E7',
+                  border: '1px solid', borderColor: page === currentPage ? 'var(--color-brand-red)' : 'var(--color-border-default)',
                   borderRadius: 6,
-                  background: page === currentPage ? '#0071DC' : '#FFFFFF',
+                  background: page === currentPage ? 'var(--color-brand-red)' : 'var(--color-surface-card)',
                   fontSize: 13,
-                  color: page === currentPage ? '#FFFFFF' : '#1A1A1A',
+                  color: page === currentPage ? 'var(--color-surface-card)' : 'var(--color-text-primary)',
                   cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'all 0.15s ease',
@@ -376,8 +565,8 @@ const AdminProducts = () => {
               onClick={() => handlePageChange(currentPage + 1)}
               style={{
                 minWidth: 32, height: 32, padding: '0 8px',
-                border: '1px solid #E0E3E7', borderRadius: 6,
-                background: '#FFFFFF', fontSize: 13, color: currentPage === totalPages ? '#CBD5E1' : '#1A1A1A',
+                border: '1px solid var(--color-border-default)', borderRadius: 6,
+                background: 'var(--color-surface-card)', fontSize: 13, color: currentPage === totalPages ? '#CBD5E1' : 'var(--color-text-primary)',
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'all 0.15s ease',

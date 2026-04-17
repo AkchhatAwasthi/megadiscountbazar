@@ -51,7 +51,7 @@ const Home = () => {
         <WhyChooseUs />
 
         {/* 7. Testimonials - Social Proof */}
-        <div className="py-20 md:py-32 bg-[var(--surface-light)]/30">
+        <div className="py-20 md:py-32 bg-[var(--color-surface-page)]/30">
            <Testimonials />
         </div>
 

@@ -41,6 +41,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import FloatingProductCard from '@/components/FloatingProductCard';
 import Preloader from '@/components/Preloader';
+import LottieOverlay from '@/components/LottieOverlay';
 import Index from '@/pages/Index';
 import Products from '@/pages/Products';
 import ProductDetail from '@/pages/ProductDetail';
@@ -184,6 +185,7 @@ const AppContent = () => {
           {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <CartSidebar />}
           {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <FloatingWhatsApp />}
           <ShinobiToast />
+          <LottieOverlay />
           <FloatingProductCard />
           <Toaster />
           <Sonner />

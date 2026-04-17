@@ -26,7 +26,7 @@ const BulkShoppingIllustration = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <rect x="150" y="200" width="100" height="80" rx="10" fill="#B38B46" opacity="0.9" />
-            <rect x="160" y="210" width="80" height="60" rx="5" fill="#ffffff" opacity="0.9" />
+            <rect x="160" y="210" width="80" height="60" rx="5" fill="var(--color-surface-card)" opacity="0.9" />
             <circle cx="170" cy="290" r="8" fill="#374151" />
             <circle cx="230" cy="290" r="8" fill="#374151" />
             <path d="M140 180 L160 180 L160 200 L250 200 L250 180 L270 180" stroke="#374151" strokeWidth="3" fill="none" />
@@ -40,7 +40,7 @@ const BulkShoppingIllustration = () => {
           >
             {/* Grocery Box 1 */}
             <rect x="80" y="150" width="40" height="40" rx="5" fill="#7E5A34" opacity="0.8" />
-            <rect x="85" y="155" width="30" height="30" rx="3" fill="#ffffff" opacity="0.9" />
+            <rect x="85" y="155" width="30" height="30" rx="3" fill="var(--color-surface-card)" opacity="0.9" />
             <text x="100" y="175" textAnchor="middle" fontSize="20" fill="#7E5A34">🍎</text>
           </motion.g>
 
@@ -51,7 +51,7 @@ const BulkShoppingIllustration = () => {
           >
             {/* Grocery Box 2 */}
             <rect x="280" y="160" width="40" height="40" rx="5" fill="#C9A29B" opacity="0.8" />
-            <rect x="285" y="165" width="30" height="30" rx="3" fill="#ffffff" opacity="0.9" />
+            <rect x="285" y="165" width="30" height="30" rx="3" fill="var(--color-surface-card)" opacity="0.9" />
             <text x="300" y="185" textAnchor="middle" fontSize="20" fill="#C9A29B">📦</text>
           </motion.g>
 
@@ -62,7 +62,7 @@ const BulkShoppingIllustration = () => {
           >
             {/* Grocery Box 3 */}
             <rect x="120" y="100" width="40" height="40" rx="5" fill="#D4B6A2" opacity="0.8" />
-            <rect x="125" y="105" width="30" height="30" rx="3" fill="#ffffff" opacity="0.9" />
+            <rect x="125" y="105" width="30" height="30" rx="3" fill="var(--color-surface-card)" opacity="0.9" />
             <text x="140" y="125" textAnchor="middle" fontSize="20" fill="#D4B6A2">☕</text>
           </motion.g>
 
@@ -73,7 +73,7 @@ const BulkShoppingIllustration = () => {
           >
             {/* Grocery Box 4 */}
             <rect x="240" y="110" width="40" height="40" rx="5" fill="#4A1C1F" opacity="0.8" />
-            <rect x="245" y="115" width="30" height="30" rx="3" fill="#ffffff" opacity="0.9" />
+            <rect x="245" y="115" width="30" height="30" rx="3" fill="var(--color-surface-card)" opacity="0.9" />
             <text x="260" y="135" textAnchor="middle" fontSize="20" fill="#4A1C1F">🏠</text>
           </motion.g>
 
@@ -83,7 +83,7 @@ const BulkShoppingIllustration = () => {
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           >
             <circle cx="100" cy="80" r="15" fill="#D4B6A2" opacity="0.7" />
-            <text x="100" y="85" textAnchor="middle" fontSize="16" fill="#ffffff">%</text>
+            <text x="100" y="85" textAnchor="middle" fontSize="16" fill="var(--color-surface-card)">%</text>
           </motion.g>
 
           <motion.g
@@ -91,7 +91,7 @@ const BulkShoppingIllustration = () => {
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
           >
             <circle cx="320" cy="90" r="15" fill="#4A1C1F" opacity="0.7" />
-            <text x="320" y="95" textAnchor="middle" fontSize="16" fill="#ffffff">🚚</text>
+            <text x="320" y="95" textAnchor="middle" fontSize="16" fill="var(--color-surface-card)">🚚</text>
           </motion.g>
 
           {/* Savings Badge */}
@@ -101,8 +101,8 @@ const BulkShoppingIllustration = () => {
             transition={{ duration: 0.5, delay: 1.2 }}
           >
             <ellipse cx="200" cy="320" rx="60" ry="25" fill="#7E5A34" opacity="0.9" />
-            <text x="200" y="315" textAnchor="middle" fontSize="12" fill="#ffffff" fontWeight="bold">SAVE UP TO</text>
-            <text x="200" y="330" textAnchor="middle" fontSize="16" fill="#ffffff" fontWeight="bold">50% OFF</text>
+            <text x="200" y="315" textAnchor="middle" fontSize="12" fill="var(--color-surface-card)" fontWeight="bold">SAVE UP TO</text>
+            <text x="200" y="330" textAnchor="middle" fontSize="16" fill="var(--color-surface-card)" fontWeight="bold">50% OFF</text>
           </motion.g>
 
           {/* Decorative Lines */}

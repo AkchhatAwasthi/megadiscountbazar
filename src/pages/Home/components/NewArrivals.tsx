@@ -73,16 +73,16 @@ const NewArrivals = () => {
   if (newArrivals.length === 0 && !loading) return null;
 
   return (
-    <section className="py-[64px] md:py-[96px] bg-[#F6F7F8] overflow-hidden">
+    <section className="py-[64px] md:py-[96px] bg-[var(--color-surface-page)] overflow-hidden">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div className="flex flex-col">
-            <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--blue-primary)] uppercase mb-2">
+            <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--color-brand-red)] uppercase mb-2">
               Just Arrived
             </span>
-            <h2 className="text-[28px] md:text-[32px] font-[500] text-[#1A1A1A] leading-[1.2] tracking-[-0.02em]">
+            <h2 className="text-[28px] md:text-[32px] font-[500] text-[var(--color-text-primary)] leading-[1.2] tracking-[-0.02em]">
               New Seasonal Drops
             </h2>
           </div>
@@ -90,24 +90,24 @@ const NewArrivals = () => {
           <div className="flex items-center gap-3">
              <button
                 onClick={() => navigate('/products?sort=newest')}
-                className="hidden md:flex items-center justify-center px-5 py-2.5 border-[1.5px] border-[var(--blue-primary)] text-[var(--blue-primary)] rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--blue-light)] hover:-translate-y-[1px]"
+                className="hidden md:flex items-center justify-center px-5 py-2.5 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--color-brand-red-light)] hover:-translate-y-[1px]"
              >
                 See all arrivals
              </button>
              <div className="flex gap-2">
                 <button
                     onClick={prevSlide}
-                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[#E0E3E7] rounded-[8px] transition-colors hover:bg-white"
+                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[var(--color-border-default)] rounded-[8px] transition-colors hover:bg-white"
                     aria-label="Previous Slide"
                 >
-                    <ChevronLeft className="size-[20px] text-[#1A1A1A]" />
+                    <ChevronLeft className="size-[20px] text-[var(--color-text-primary)]" />
                 </button>
                 <button
                     onClick={nextSlide}
-                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[#E0E3E7] rounded-[8px] transition-colors hover:bg-white"
+                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[var(--color-border-default)] rounded-[8px] transition-colors hover:bg-white"
                     aria-label="Next Slide"
                 >
-                    <ChevronRight className="size-[20px] text-[#1A1A1A]" />
+                    <ChevronRight className="size-[20px] text-[var(--color-text-primary)]" />
                 </button>
              </div>
           </div>
@@ -154,7 +154,7 @@ const NewArrivals = () => {
         <div className="md:hidden mt-8">
            <button
               onClick={() => navigate('/products?sort=newest')}
-              className="w-full flex items-center justify-center px-5 py-3 border-[1.5px] border-[var(--blue-primary)] text-[var(--blue-primary)] rounded-[8px] text-[14px] font-[500]"
+              className="w-full flex items-center justify-center px-5 py-3 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] text-[14px] font-[500]"
            >
               See all arrivals
            </button>

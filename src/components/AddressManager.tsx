@@ -248,7 +248,7 @@ const AddressManager = ({ onAddressSelect, selectedAddressId, showSelector = fal
         <Button
           onClick={() => setShowForm(true)}
           size="sm"
-          className="bg-[#0B0B0F] hover:bg-[#F97316] text-white border-2 border-[#0B0B0F] hover:border-[#F97316] uppercase tracking-widest text-[10px] font-bold rounded-none transition-all shadow-none hover:translate-x-1 hover:translate-y-1"
+          className="bg-[#0B0B0F] hover:bg-[var(--color-brand-yellow)] text-white border-2 border-[#0B0B0F] hover:border-[var(--color-brand-yellow)] uppercase tracking-widest text-[10px] font-bold rounded-none transition-all shadow-none hover:translate-x-1 hover:translate-y-1"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add New Address

@@ -35,16 +35,16 @@ const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: 
   return (
     <div className="animate-in fade-in duration-500">
       <div className="flex items-center gap-3 mb-8">
-        <div className="size-10 bg-[var(--blue-light)] rounded-full flex items-center justify-center text-[var(--blue-primary)]">
+        <div className="size-10 bg-[var(--color-brand-red-light)] rounded-full flex items-center justify-center text-[var(--color-brand-red)] shadow-sm">
            <User size={20} />
         </div>
-        <h2 className="text-[20px] md:text-[24px] font-[600] text-[#1A1A1A]">Contact Information</h2>
+        <h2 className="text-[20px] md:text-[24px] font-[700] text-[var(--color-text-primary)] tracking-tight">Contact Information</h2>
       </div>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-[13px] font-[600] text-[#1A1A1A]">
+            <Label htmlFor="name" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
               Full Name *
             </Label>
             <div className="relative group">
@@ -58,8 +58,8 @@ const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: 
                   if (contactErrors.length > 0) setContactErrors([]);
                 }}
                 className={cn(
-                  "h-12 border-[#E0E3E7] rounded-[8px] focus:ring-[var(--blue-primary)]/10 font-inter text-[14px]",
-                  contactErrors.some(e => e.includes('name') || e.includes('Name')) && "border-[#E01E26] bg-[#E01E26]/5"
+                  "h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full",
+                  contactErrors.some(e => e.includes('name') || e.includes('Name')) && "border-[#E01E26] focus:border-[#E01E26] focus:ring-[#E01E26]/10"
                 )}
                 required
               />
@@ -67,7 +67,7 @@ const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-[13px] font-[600] text-[#1A1A1A]">
+            <Label htmlFor="phone" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
               Phone Number *
             </Label>
             <div className="relative group">
@@ -81,8 +81,8 @@ const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: 
                   if (contactErrors.length > 0) setContactErrors([]);
                 }}
                 className={cn(
-                  "h-12 border-[#E0E3E7] rounded-[8px] focus:ring-[var(--blue-primary)]/10 font-inter text-[14px]",
-                  contactErrors.some(e => e.includes('phone') || e.includes('Phone')) && "border-[#E01E26] bg-[#E01E26]/5"
+                  "h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full",
+                  contactErrors.some(e => e.includes('phone') || e.includes('Phone')) && "border-[#E01E26] focus:border-[#E01E26] focus:ring-[#E01E26]/10"
                 )}
                 required
               />
@@ -91,7 +91,7 @@ const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-[13px] font-[600] text-[#1A1A1A]">
+          <Label htmlFor="email" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
             Email Address *
           </Label>
           <div className="relative group">
@@ -105,8 +105,8 @@ const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: 
                 if (contactErrors.length > 0) setContactErrors([]);
               }}
               className={cn(
-                "h-12 border-[#E0E3E7] rounded-[10px] focus:ring-[var(--blue-primary)]/10 font-inter text-[14px]",
-                contactErrors.some(e => e.includes('email') || e.includes('Email')) && "border-[#E01E26] bg-[#E01E26]/5"
+                "h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full",
+                contactErrors.some(e => e.includes('email') || e.includes('Email')) && "border-[#E01E26] focus:border-[#E01E26] focus:ring-[#E01E26]/10"
               )}
               required
             />
@@ -130,10 +130,10 @@ const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: 
         <div className="flex justify-end pt-6">
           <Button
             onClick={handleNext}
-            className="group bg-[var(--blue-primary)] hover:bg-[var(--blue-deep)] text-white font-[500] text-[14px] px-10 h-14 rounded-[8px] transition-all active:scale-[0.98] shadow-md"
+            className="group bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white font-[600] text-[15px] px-10 h-[52px] rounded-[10px] transition-all duration-300 hover:shadow-[0_8px_20px_rgba(0,113,220,0.24)] hover:-translate-y-[2px] active:scale-[0.98]"
           >
             Continue to Shipping
-            <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+            <ChevronRight size={18} className="ml-2 group-hover:translate-x-1.5 transition-transform duration-300" />
           </Button>
         </div>
       </div>

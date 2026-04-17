@@ -247,72 +247,72 @@ const AdminOrders = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-[var(--surface-light)]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--blue-primary)]"></div>
+      <div className="flex items-center justify-center min-h-[60vh] bg-[var(--color-surface-page)]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-brand-red)]"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-[1280px] mx-auto bg-[var(--surface-light)] min-h-screen">
-      <div className="flex justify-between items-center border-b border-[#E0E3E7] pb-6">
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-[1280px] mx-auto bg-[var(--color-surface-page)] min-h-screen">
+      <div className="flex justify-between items-center border-b border-[var(--color-border-default)] pb-6">
         <div>
-          <h1 className="text-[28px] md:text-[32px] font-[600] text-[#1A1A1A] mb-2 tracking-tight">Orders</h1>
-          <p className="text-[#5F6368] text-[15px]">Manage customer orders and shipments</p>
+          <h1 className="text-[28px] md:text-[32px] font-[600] text-[var(--color-text-primary)] mb-2 tracking-tight">Orders</h1>
+          <p className="text-[var(--color-text-secondary)] text-[15px]">Manage customer orders and shipments</p>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border border-[#E0E3E7] shadow-sm bg-white hover:border-[var(--blue-primary)] hover:-translate-y-[3px] transition-all duration-220 group rounded-[12px]">
+        <Card className="border border-[var(--color-border-default)] shadow-sm bg-white hover:border-[var(--color-brand-red)] hover:-translate-y-[3px] transition-all duration-220 group rounded-[12px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[13px] font-[600] text-[#5F6368]">Total Orders</CardTitle>
-            <div className="p-2 bg-[var(--surface-light)] rounded-full group-hover:bg-[var(--blue-light)] transition-colors">
-              <Package className="h-4 w-4 text-[var(--blue-primary)]" />
+            <CardTitle className="text-[13px] font-[600] text-[var(--color-text-secondary)]">Total Orders</CardTitle>
+            <div className="p-2 bg-[var(--color-surface-page)] rounded-full group-hover:bg-[var(--color-brand-red-light)] transition-colors">
+              <Package className="h-4 w-4 text-[var(--color-brand-red)]" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-[28px] font-[600] text-[#1A1A1A]">{orders.length}</div>
+            <div className="text-[28px] font-[600] text-[var(--color-text-primary)]">{orders.length}</div>
           </CardContent>
         </Card>
 
-        <Card className="border border-[#E0E3E7] shadow-sm bg-white hover:border-[var(--blue-primary)] hover:-translate-y-[3px] transition-all duration-220 group rounded-[12px]">
+        <Card className="border border-[var(--color-border-default)] shadow-sm bg-white hover:border-[var(--color-brand-red)] hover:-translate-y-[3px] transition-all duration-220 group rounded-[12px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[13px] font-[600] text-[#5F6368]">Pending</CardTitle>
-            <div className="p-2 bg-[var(--surface-light)] rounded-full group-hover:bg-[var(--blue-light)] transition-colors">
-              <Calendar className="h-4 w-4 text-[var(--blue-primary)]" />
+            <CardTitle className="text-[13px] font-[600] text-[var(--color-text-secondary)]">Pending</CardTitle>
+            <div className="p-2 bg-[var(--color-surface-page)] rounded-full group-hover:bg-[var(--color-brand-red-light)] transition-colors">
+              <Calendar className="h-4 w-4 text-[var(--color-brand-red)]" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-[28px] font-[600] text-[#1A1A1A]">
+            <div className="text-[28px] font-[600] text-[var(--color-text-primary)]">
               {orders.filter(o => o.status === 'pending' || o.status === 'placed').length}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-[#E0E3E7] shadow-sm bg-white hover:border-[var(--blue-primary)] hover:-translate-y-[3px] transition-all duration-220 group rounded-[12px]">
+        <Card className="border border-[var(--color-border-default)] shadow-sm bg-white hover:border-[var(--color-brand-red)] hover:-translate-y-[3px] transition-all duration-220 group rounded-[12px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[13px] font-[600] text-[#5F6368]">Processing</CardTitle>
-            <div className="p-2 bg-[var(--surface-light)] rounded-full group-hover:bg-[var(--blue-light)] transition-colors">
-              <Package className="h-4 w-4 text-[var(--blue-primary)]" />
+            <CardTitle className="text-[13px] font-[600] text-[var(--color-text-secondary)]">Processing</CardTitle>
+            <div className="p-2 bg-[var(--color-surface-page)] rounded-full group-hover:bg-[var(--color-brand-red-light)] transition-colors">
+              <Package className="h-4 w-4 text-[var(--color-brand-red)]" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-[28px] font-[600] text-[#1A1A1A]">
+            <div className="text-[28px] font-[600] text-[var(--color-text-primary)]">
               {orders.filter(o => o.status === 'processing').length}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-[#E0E3E7] shadow-sm bg-white hover:border-[var(--blue-primary)] hover:-translate-y-[3px] transition-all duration-220 group rounded-[12px]">
+        <Card className="border border-[var(--color-border-default)] shadow-sm bg-white hover:border-[var(--color-brand-red)] hover:-translate-y-[3px] transition-all duration-220 group rounded-[12px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[13px] font-[600] text-[#5F6368]">Delivered</CardTitle>
-            <div className="p-2 bg-[var(--surface-light)] rounded-full group-hover:bg-[var(--blue-light)] transition-colors">
-              <Package className="h-4 w-4 text-[var(--blue-primary)]" />
+            <CardTitle className="text-[13px] font-[600] text-[var(--color-text-secondary)]">Delivered</CardTitle>
+            <div className="p-2 bg-[var(--color-surface-page)] rounded-full group-hover:bg-[var(--color-brand-red-light)] transition-colors">
+              <Package className="h-4 w-4 text-[var(--color-brand-red)]" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-[28px] font-[600] text-[#1A1A1A]">
+            <div className="text-[28px] font-[600] text-[var(--color-text-primary)]">
               {orders.filter(o => o.status === 'delivered').length}
             </div>
           </CardContent>
@@ -320,36 +320,36 @@ const AdminOrders = () => {
       </div>
 
       {/* Filters */}
-      <Card className="border border-[#E0E3E7] shadow-sm bg-white rounded-[12px]">
+      <Card className="border border-[var(--color-border-default)] shadow-sm bg-white rounded-[12px]">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-[#9AA0A6]" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-[var(--color-text-muted)]" />
               <Input
                 placeholder="Search orders..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 border-[#E0E3E7] rounded-[8px] focus-visible:ring-[var(--blue-primary)] focus-visible:border-[var(--blue-primary)] bg-white text-[#1A1A1A] text-[14px]"
+                className="pl-10 h-10 border-[var(--color-border-default)] rounded-[8px] focus-visible:ring-[var(--color-brand-red)] focus-visible:border-[var(--color-brand-red)] bg-white text-[var(--color-text-primary)] text-[14px]"
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               <div className="flex gap-2">
                 <div className="space-y-1">
-                  <label className="text-[12px] font-[500] text-[#5F6368]">From</label>
+                  <label className="text-[12px] font-[500] text-[var(--color-text-secondary)]">From</label>
                   <Input
                     type="date"
                     value={dateStart}
                     onChange={(e) => setDateStart(e.target.value)}
-                    className="h-10 border-[#E0E3E7] rounded-[8px] text-[14px] bg-white focus-visible:ring-[var(--blue-primary)]"
+                    className="h-10 border-[var(--color-border-default)] rounded-[8px] text-[14px] bg-white focus-visible:ring-[var(--color-brand-red)]"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[12px] font-[500] text-[#5F6368]">To</label>
+                  <label className="text-[12px] font-[500] text-[var(--color-text-secondary)]">To</label>
                   <Input
                     type="date"
                     value={dateEnd}
                     onChange={(e) => setDateEnd(e.target.value)}
-                    className="h-10 border-[#E0E3E7] rounded-[8px] text-[14px] bg-white focus-visible:ring-[var(--blue-primary)]"
+                    className="h-10 border-[var(--color-border-default)] rounded-[8px] text-[14px] bg-white focus-visible:ring-[var(--color-brand-red)]"
                   />
                 </div>
               </div>
@@ -359,7 +359,7 @@ const AdminOrders = () => {
                   <Button
                     variant="ghost"
                     onClick={() => { setDateStart(''); setDateEnd(''); }}
-                    className="mt-5 h-10 text-[var(--blue-primary)] hover:text-[#0055A6] hover:bg-transparent text-[14px] font-[500]"
+                    className="mt-5 h-10 text-[var(--color-brand-red)] hover:text-[var(--color-brand-red-deep)] hover:bg-transparent text-[14px] font-[500]"
                   >
                     Clear
                   </Button>
@@ -370,7 +370,7 @@ const AdminOrders = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 h-10 border border-[#E0E3E7] rounded-[8px] text-[14px] bg-white focus:outline-none focus:border-[var(--blue-primary)] text-[#1A1A1A] cursor-pointer min-w-[160px]"
+              className="px-4 h-10 border border-[var(--color-border-default)] rounded-[8px] text-[14px] bg-white focus:outline-none focus:border-[var(--color-brand-red)] text-[var(--color-text-primary)] cursor-pointer min-w-[160px]"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -384,58 +384,58 @@ const AdminOrders = () => {
       </Card>
 
       {/* Orders Table */}
-      <Card className="border border-[#E0E3E7] shadow-sm bg-white rounded-[12px]">
-        <CardHeader className="border-b border-[#E0E3E7] pb-4">
+      <Card className="border border-[var(--color-border-default)] shadow-sm bg-white rounded-[12px]">
+        <CardHeader className="border-b border-[var(--color-border-default)] pb-4">
           <div className="flex justify-between items-center">
-            <CardTitle className="font-[600] text-[20px] text-[#1A1A1A]">Orders List</CardTitle>
-            <span className="text-[13px] text-[#5F6368]">{filteredOrders.length} records</span>
+            <CardTitle className="font-[600] text-[20px] text-[var(--color-text-primary)]">Orders List</CardTitle>
+            <span className="text-[13px] text-[var(--color-text-secondary)]">{filteredOrders.length} records</span>
           </div>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
           <Table>
-            <TableHeader className="bg-[var(--surface-light)]">
-              <TableRow className="border-b border-[#E0E3E7]">
-                <TableHead className="text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Order</TableHead>
-                <TableHead className="text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Customer</TableHead>
-                <TableHead className="text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Items</TableHead>
-                <TableHead className="text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Size</TableHead>
-                <TableHead className="text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Total</TableHead>
-                <TableHead className="text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Status</TableHead>
-                <TableHead className="text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Payment</TableHead>
-                <TableHead className="text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Date</TableHead>
-                <TableHead className="text-right text-[13px] text-[#5F6368] font-[600] h-12 uppercase">Actions</TableHead>
+            <TableHeader className="bg-[var(--color-surface-page)]">
+              <TableRow className="border-b border-[var(--color-border-default)]">
+                <TableHead className="text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Order</TableHead>
+                <TableHead className="text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Customer</TableHead>
+                <TableHead className="text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Items</TableHead>
+                <TableHead className="text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Size</TableHead>
+                <TableHead className="text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Total</TableHead>
+                <TableHead className="text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Status</TableHead>
+                <TableHead className="text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Payment</TableHead>
+                <TableHead className="text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Date</TableHead>
+                <TableHead className="text-right text-[13px] text-[var(--color-text-secondary)] font-[600] h-12 uppercase">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedOrders.length > 0 ? (
                 paginatedOrders.map((order) => (
-                  <TableRow key={order.id} className="hover:bg-[#F6F7F8] border-b border-[#E0E3E7] transition-colors group">
+                  <TableRow key={order.id} className="hover:bg-[var(--color-surface-page)] border-b border-[var(--color-border-default)] transition-colors group">
                     <TableCell className="py-4">
                       <div>
-                        <p className="font-[600] text-[#1A1A1A] text-[15px]">{order.orderNumber}</p>
-                        <p className="text-[13px] text-[#5F6368] flex items-center mt-1 truncate max-w-[200px]">
-                          <MapPin className="w-3 h-3 mr-1 shrink-0 text-[#9AA0A6]" />
+                        <p className="font-[600] text-[var(--color-text-primary)] text-[15px]">{order.orderNumber}</p>
+                        <p className="text-[13px] text-[var(--color-text-secondary)] flex items-center mt-1 truncate max-w-[200px]">
+                          <MapPin className="w-3 h-3 mr-1 shrink-0 text-[var(--color-text-muted)]" />
                           {order.address}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-[500] text-[#1A1A1A] text-[14px]">{order.customerName}</p>
-                        <p className="text-[13px] text-[#5F6368]">{order.customerEmail}</p>
+                        <p className="font-[500] text-[var(--color-text-primary)] text-[14px]">{order.customerName}</p>
+                        <p className="text-[13px] text-[var(--color-text-secondary)]">{order.customerEmail}</p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="rounded-[6px] border-[#E0E3E7] text-[#5F6368] font-[500] text-[12px] bg-white">
+                      <Badge variant="outline" className="rounded-[6px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] font-[500] text-[12px] bg-white">
                         {order.items} items
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="text-[13px] text-[#1A1A1A] font-[500]">
+                      <span className="text-[13px] text-[var(--color-text-primary)] font-[500]">
                         {order.selectedSize || '-'}
                       </span>
                     </TableCell>
-                    <TableCell className="font-[600] text-[#1A1A1A] text-[15px]">{formatPrice(order.total)}</TableCell>
+                    <TableCell className="font-[600] text-[var(--color-text-primary)] text-[15px]">{formatPrice(order.total)}</TableCell>
                     <TableCell>
                       <Badge className={`rounded-[6px] px-2.5 py-1 text-[11px] font-[500] hover:bg-opacity-80 border-0 capitalize ${getStatusColor(order.status)}`}>
                         {order.status}
@@ -447,7 +447,7 @@ const AdminOrders = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="text-[13px] text-[#5F6368]">
+                      <div className="text-[13px] text-[var(--color-text-secondary)]">
                         <p>{order.orderDate}</p>
                         {order.deliveryDate && (
                           <p className="text-[#008A00] mt-1 font-[500]">Delivered: {order.deliveryDate}</p>
@@ -457,48 +457,48 @@ const AdminOrders = () => {
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-[#F6F7F8] rounded-[8px] text-[#5F6368]">
+                          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-[var(--color-surface-page)] rounded-[8px] text-[var(--color-text-secondary)]">
                             <span className="sr-only">Open menu</span>
                             <span className="text-xl leading-none mb-2">...</span>
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-[12px] border-[#E0E3E7] shadow-sm bg-white p-2 min-w-[160px]">
+                        <DropdownMenuContent align="end" className="rounded-[12px] border-[var(--color-border-default)] shadow-sm bg-white p-2 min-w-[160px]">
                           <DropdownMenuItem
                             onClick={() => navigate(`/admin/orders/${order.id}`)}
-                            className="rounded-[8px] hover:bg-[#F6F7F8] cursor-pointer text-[14px] py-2 text-[#1A1A1A]"
+                            className="rounded-[8px] hover:bg-[var(--color-surface-page)] cursor-pointer text-[14px] py-2 text-[var(--color-text-primary)]"
                           >
-                            <Eye className="mr-2 h-4 w-4 text-[var(--blue-primary)]" />
+                            <Eye className="mr-2 h-4 w-4 text-[var(--color-brand-red)]" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="rounded-[8px] hover:bg-[#F6F7F8] cursor-pointer text-[14px] py-2 text-[#1A1A1A]">
-                            <Edit className="mr-2 h-4 w-4 text-[var(--blue-primary)]" />
+                          <DropdownMenuItem className="rounded-[8px] hover:bg-[var(--color-surface-page)] cursor-pointer text-[14px] py-2 text-[var(--color-text-primary)]">
+                            <Edit className="mr-2 h-4 w-4 text-[var(--color-brand-red)]" />
                             Update Status
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-[#E0E3E7] my-2" />
+                          <DropdownMenuSeparator className="bg-[var(--color-border-default)] my-2" />
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <DropdownMenuItem
-                                className="rounded-[8px] hover:bg-[#FCEBEB] text-[#E74040] cursor-pointer text-[14px] py-2 focus:bg-[#FCEBEB] focus:text-[#E74040]"
+                                className="rounded-[8px] hover:bg-[#FCEBEB] text-[var(--color-brand-red-bright)] cursor-pointer text-[14px] py-2 focus:bg-[#FCEBEB] focus:text-[var(--color-brand-red-bright)]"
                                 onSelect={(e) => e.preventDefault()}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete Order
                               </DropdownMenuItem>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="rounded-[16px] border-[#E0E3E7] bg-white">
+                            <AlertDialogContent className="rounded-[16px] border-[var(--color-border-default)] bg-white">
                               <AlertDialogHeader>
-                                <AlertDialogTitle className="font-[600] text-[#1A1A1A]">Delete Order</AlertDialogTitle>
-                                <AlertDialogDescription className="text-[#5F6368]">
+                                <AlertDialogTitle className="font-[600] text-[var(--color-text-primary)]">Delete Order</AlertDialogTitle>
+                                <AlertDialogDescription className="text-[var(--color-text-secondary)]">
                                   Are you sure you want to delete order #{order.orderNumber}?
                                   This action cannot be undone and will permanently remove the order
                                   and all associated data.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel className="rounded-[8px] border-[#E0E3E7] text-[14px] font-[500] text-[#1A1A1A]">Cancel</AlertDialogCancel>
+                                <AlertDialogCancel className="rounded-[8px] border-[var(--color-border-default)] text-[14px] font-[500] text-[var(--color-text-primary)]">Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => deleteOrder(order.id, order.orderNumber)}
-                                  className="bg-[#E74040] hover:bg-[#A32D2D] rounded-[8px] text-[14px] font-[500] text-white border-0"
+                                  className="bg-[var(--color-brand-red-bright)] hover:bg-[#A32D2D] rounded-[8px] text-[14px] font-[500] text-white border-0"
                                   disabled={deletingOrderId === order.id}
                                 >
                                   {deletingOrderId === order.id ? 'Deleting...' : 'Delete Order'}
@@ -513,7 +513,7 @@ const AdminOrders = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-32 text-center text-[#5F6368] font-[500]">
+                  <TableCell colSpan={9} className="h-32 text-center text-[var(--color-text-secondary)] font-[500]">
                     No orders found.
                   </TableCell>
                 </TableRow>
@@ -525,23 +525,23 @@ const AdminOrders = () => {
 
       {/* Pagination Controls */}
       {!loading && totalPages > 1 && (
-        <div className="flex justify-between items-center bg-white p-4 border border-[#E0E3E7] shadow-sm rounded-[12px] mt-6">
+        <div className="flex justify-between items-center bg-white p-4 border border-[var(--color-border-default)] shadow-sm rounded-[12px] mt-6">
           <Button
             variant="outline"
             disabled={currentPage === 1}
             onClick={() => handlePageChange(currentPage - 1)}
-            className="rounded-[8px] border-[#E0E3E7] text-[#1A1A1A] hover:bg-[#F6F7F8] hover:text-[var(--blue-primary)] text-[14px] font-[500]"
+            className="rounded-[8px] border-[var(--color-border-default)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] hover:text-[var(--color-brand-red)] text-[14px] font-[500]"
           >
             Previous
           </Button>
-          <span className="text-[13px] text-[#5F6368] font-[500]">
+          <span className="text-[13px] text-[var(--color-text-secondary)] font-[500]">
             Page {currentPage} of {totalPages}
           </span>
           <Button
             variant="outline"
             disabled={currentPage === totalPages}
             onClick={() => handlePageChange(currentPage + 1)}
-            className="rounded-[8px] border-[#E0E3E7] text-[#1A1A1A] hover:bg-[#F6F7F8] hover:text-[var(--blue-primary)] text-[14px] font-[500]"
+            className="rounded-[8px] border-[var(--color-border-default)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] hover:text-[var(--color-brand-red)] text-[14px] font-[500]"
           >
             Next
           </Button>

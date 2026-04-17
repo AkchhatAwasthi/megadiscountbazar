@@ -92,20 +92,20 @@ export default function Profile() {
   ];
 
   return (
-    <div className="bg-[#F6F7F8] min-h-screen font-inter selection:bg-[var(--blue-primary)]/10">
+    <div className="bg-[var(--color-surface-page)] min-h-screen font-inter selection:bg-[var(--color-brand-red)]/10">
       
       <div className="max-w-[1280px] mx-auto px-6 py-12 md:py-20 flex flex-col lg:flex-row gap-12">
         
         {/* Sidebar Navigation */}
         <aside className="lg:w-[320px] flex flex-col gap-6">
-           <div className="bg-white p-8 rounded-[16px] border border-[var(--border-default)] shadow-sm">
+           <div className="bg-white p-8 rounded-[16px] border border-[var(--color-border-default)] shadow-sm">
               <div className="flex items-center gap-4 mb-8">
-                 <div className="size-[64px] bg-[var(--blue-light)] rounded-full flex items-center justify-center text-[var(--blue-primary)] border border-[var(--blue-primary)]/10">
+                 <div className="size-[64px] bg-[var(--color-brand-red-light)] rounded-full flex items-center justify-center text-[var(--color-brand-red)] border border-[var(--color-brand-red)]/10">
                     <User size={32} />
                  </div>
                  <div className="flex-1 min-w-0">
-                    <h3 className="text-[18px] font-[600] text-[var(--text-primary)] truncate">{profileData.full_name || 'My Account'}</h3>
-                    <p className="text-[13px] text-[var(--text-secondary)] truncate">{user?.email}</p>
+                    <h3 className="text-[18px] font-[600] text-[var(--color-text-primary)] truncate">{profileData.full_name || 'My Account'}</h3>
+                    <p className="text-[13px] text-[var(--color-text-secondary)] truncate">{user?.email}</p>
                  </div>
               </div>
 
@@ -116,19 +116,19 @@ export default function Profile() {
                       onClick={() => setActiveTab(item.id)}
                       className={`flex items-center justify-between p-3.5 rounded-[10px] transition-all group ${
                         activeTab === item.id 
-                          ? 'bg-[var(--blue-light)] text-[var(--blue-primary)] font-[600]' 
-                          : 'text-[var(--text-secondary)] hover:bg-[var(--surface-light)] hover:text-[var(--text-primary)]'
+                          ? 'bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)] font-[600]' 
+                          : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-page)] hover:text-[var(--color-text-primary)]'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                         <item.icon size={20} className={activeTab === item.id ? 'text-[var(--blue-primary)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'} />
+                         <item.icon size={20} className={activeTab === item.id ? 'text-[var(--color-brand-red)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]'} />
                          <span className="text-[14px]">{item.label}</span>
                       </div>
                       <ChevronRight size={16} className={activeTab === item.id ? 'opacity-100' : 'opacity-0'} />
                     </button>
                  ))}
                  
-                 <div className="h-px bg-[var(--border-default)] my-3"></div>
+                 <div className="h-px bg-[var(--color-border-default)] my-3"></div>
 
                  <button
                    onClick={handleSignOut}
@@ -140,13 +140,13 @@ export default function Profile() {
               </nav>
            </div>
 
-           <div className="bg-[var(--blue-primary)] text-white p-6 rounded-[16px] shadow-lg shadow-[var(--blue-primary)]/20 relative overflow-hidden">
+           <div className="bg-[var(--color-brand-red)] text-white p-6 rounded-[16px] shadow-lg shadow-[var(--color-brand-red)]/20 relative overflow-hidden">
               <div className="relative z-10">
                  <h4 className="text-[16px] font-[600] mb-2">Member Support</h4>
                  <p className="text-[13px] text-white/80 leading-relaxed mb-4">
                     Need help with an order or your account? Our team is available 24/7.
                  </p>
-                 <button className="bg-white text-[var(--blue-primary)] px-5 py-2.5 rounded-[8px] text-[13px] font-[600] transition-transform active:scale-[0.98]">
+                 <button className="bg-white text-[var(--color-brand-red)] px-5 py-2.5 rounded-[8px] text-[13px] font-[600] transition-transform active:scale-[0.98]">
                     Contact Help Center
                  </button>
               </div>
@@ -158,60 +158,60 @@ export default function Profile() {
         <main className="flex-1">
            
            {/* Tab Content Header */}
-           <div className="mb-10 bg-white p-8 md:p-10 rounded-[20px] border border-[var(--border-default)] shadow-sm">
+           <div className="mb-10 bg-white p-8 md:p-10 rounded-[20px] border border-[var(--color-border-default)] shadow-sm">
               <div className="flex flex-col gap-2">
-                 <h1 className="text-[28px] md:text-[36px] font-[600] text-[var(--text-primary)] tracking-tight">
+                 <h1 className="text-[28px] md:text-[36px] font-[600] text-[var(--color-text-primary)] tracking-tight">
                     {activeTab === 'profile' ? 'Profile Settings' : activeTab === 'orders' ? 'Order History' : 'Saved Addresses'}
                  </h1>
-                 <p className="text-[15px] text-[var(--text-secondary)]">
+                 <p className="text-[15px] text-[var(--color-text-secondary)]">
                     {activeTab === 'profile' ? 'Manage your personal information and contact details.' : activeTab === 'orders' ? 'Track your active missions and past purchases.' : 'Update your shipping and billing addresses.'}
                  </p>
               </div>
 
-              <div className="h-px bg-[var(--border-default)]/50 w-full mt-8 mb-8"></div>
+              <div className="h-px bg-[var(--color-border-default)]/50 w-full mt-8 mb-8"></div>
 
               {/* Tab: Profile */}
               {activeTab === 'profile' && (
                  <div className="space-y-8 animate-in fade-in duration-500 max-w-2xl">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div className="space-y-2">
-                          <label className="text-[13px] font-[600] text-[var(--text-primary)] uppercase tracking-wider">Full Name</label>
+                          <label className="text-[13px] font-[600] text-[var(--color-text-primary)] uppercase tracking-wider">Full Name</label>
                           <input
                             type="text"
                             value={profileData.full_name}
                             onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
-                            className="w-full h-12 bg-[var(--surface-light)] border border-[var(--border-default)] rounded-[8px] px-4 text-[14px] focus:outline-none focus:ring-1 focus:ring-[var(--blue-primary)]"
+                            className="w-full h-12 bg-[var(--color-surface-page)] border border-[var(--color-border-default)] rounded-[8px] px-4 text-[14px] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand-red)]"
                             placeholder="Your display name"
                           />
                        </div>
                        <div className="space-y-2">
-                          <label className="text-[13px] font-[600] text-[var(--text-primary)] uppercase tracking-wider">Phone Number</label>
+                          <label className="text-[13px] font-[600] text-[var(--color-text-primary)] uppercase tracking-wider">Phone Number</label>
                           <input
                             type="tel"
                             value={profileData.phone}
                             onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                            className="w-full h-12 bg-[var(--surface-light)] border border-[var(--border-default)] rounded-[8px] px-4 text-[14px] focus:outline-none focus:ring-1 focus:ring-[var(--blue-primary)]"
+                            className="w-full h-12 bg-[var(--color-surface-page)] border border-[var(--color-border-default)] rounded-[8px] px-4 text-[14px] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand-red)]"
                             placeholder="+91"
                           />
                        </div>
                     </div>
                     
                     <div className="space-y-2">
-                       <label className="text-[13px] font-[600] text-[var(--text-primary)] uppercase tracking-wider">Email Address</label>
+                       <label className="text-[13px] font-[600] text-[var(--color-text-primary)] uppercase tracking-wider">Email Address</label>
                        <input
                          type="email"
                          value={user?.email || ''}
                          disabled
-                         className="w-full h-12 bg-[var(--surface-light)] border border-[var(--border-default)] rounded-[8px] px-4 text-[14px] opacity-60 cursor-not-allowed"
+                         className="w-full h-12 bg-[var(--color-surface-page)] border border-[var(--color-border-default)] rounded-[8px] px-4 text-[14px] opacity-60 cursor-not-allowed"
                        />
-                       <p className="text-[11px] text-[var(--text-muted)] font-[500]">* Email address cannot be changed for security reasons.</p>
+                       <p className="text-[11px] text-[var(--color-text-muted)] font-[500]">* Email address cannot be changed for security reasons.</p>
                     </div>
 
                     <div className="pt-4">
                        <button
                          onClick={updateProfile}
                          disabled={loading}
-                         className="bg-[var(--yellow-accent)] hover:bg-[var(--yellow-hover)] text-[var(--text-primary)] px-10 py-3.5 rounded-[8px] font-[600] text-[15px] transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                         className="bg-[var(--color-brand-yellow)] hover:bg-[var(--color-brand-yellow-hover)] text-[var(--color-text-primary)] px-10 py-3.5 rounded-[8px] font-[600] text-[15px] transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
                        >
                          {loading ? 'Saving Changes...' : 'Save Profile Changes'}
                        </button>
@@ -224,12 +224,12 @@ export default function Profile() {
                  <div className="space-y-6 animate-in fade-in duration-500">
                     {orders.length === 0 ? (
                        <div className="py-20 flex flex-col items-center justify-center text-center">
-                          <div className="size-20 bg-[var(--surface-light)] rounded-full flex items-center justify-center text-[var(--text-muted)] mb-4">
+                          <div className="size-20 bg-[var(--color-surface-page)] rounded-full flex items-center justify-center text-[var(--color-text-muted)] mb-4">
                              <Package size={32} />
                           </div>
-                          <p className="text-[18px] font-[600] text-[var(--text-primary)]">You haven't placed any orders yet</p>
-                          <p className="text-[14px] text-[var(--text-secondary)] mt-2 mb-8">Ready to start shopping? Check out our latest collection.</p>
-                          <button onClick={() => navigate('/products')} className="bg-[var(--blue-primary)] text-white px-8 py-3 rounded-[8px] font-[600] text-[14px]">
+                          <p className="text-[18px] font-[600] text-[var(--color-text-primary)]">You haven't placed any orders yet</p>
+                          <p className="text-[14px] text-[var(--color-text-secondary)] mt-2 mb-8">Ready to start shopping? Check out our latest collection.</p>
+                          <button onClick={() => navigate('/products')} className="bg-[var(--color-brand-red)] text-white px-8 py-3 rounded-[8px] font-[600] text-[14px]">
                              Browse Products
                           </button>
                        </div>
@@ -238,21 +238,21 @@ export default function Profile() {
                           {orders.map((order: any) => (
                              <div 
                                key={order.id} 
-                               className="group flex flex-col md:flex-row items-center border border-[var(--border-default)] rounded-[12px] p-4 md:p-6 transition-all hover:border-[var(--blue-primary)]/50 hover:bg-[var(--blue-light)]/5 cursor-pointer"
+                               className="group flex flex-col md:flex-row items-center border border-[var(--color-border-default)] rounded-[12px] p-4 md:p-6 transition-all hover:border-[var(--color-brand-red)]/50 hover:bg-[var(--color-brand-red-light)]/5 cursor-pointer"
                                onClick={() => window.open(`/order-detail/${order.id}`, '_blank')}
                              >
-                                <div className="size-[80px] bg-[var(--surface-light)] rounded-[10px] flex items-center justify-center shrink-0 overflow-hidden border border-[var(--border-default)]">
+                                <div className="size-[80px] bg-[var(--color-surface-page)] rounded-[10px] flex items-center justify-center shrink-0 overflow-hidden border border-[var(--color-border-default)]">
                                    {order.items?.[0]?.image ? (
                                       <img src={order.items[0].image} alt="" className="w-full h-full object-contain p-2" />
                                    ) : (
-                                      <Package size={24} className="text-[var(--text-muted)]" />
+                                      <Package size={24} className="text-[var(--color-text-muted)]" />
                                    )}
                                 </div>
                                 <div className="flex-1 px-0 md:px-6 py-4 md:py-0 w-full">
                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                       <div>
-                                         <h4 className="text-[16px] font-[600] text-[var(--text-primary)]">Order #{order.order_number?.slice(-8).toUpperCase() || order.id.slice(0, 8)}</h4>
-                                         <p className="text-[13px] text-[var(--text-secondary)] mt-1">
+                                         <h4 className="text-[16px] font-[600] text-[var(--color-text-primary)]">Order #{order.order_number?.slice(-8).toUpperCase() || order.id.slice(0, 8)}</h4>
+                                         <p className="text-[13px] text-[var(--color-text-secondary)] mt-1">
                                             Placed on {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                          </p>
                                       </div>
@@ -262,11 +262,11 @@ export default function Profile() {
                                          }`}>
                                             {order.order_status}
                                          </span>
-                                         <span className="text-[18px] font-[700] text-[var(--blue-primary)]">₹{order.total?.toLocaleString('en-IN')}</span>
+                                         <span className="text-[18px] font-[700] text-[var(--color-brand-red)]">₹{order.total?.toLocaleString('en-IN')}</span>
                                       </div>
                                    </div>
                                 </div>
-                                <div className="shrink-0 flex items-center justify-center p-2 text-[var(--text-muted)] group-hover:text-[var(--blue-primary)] transition-colors">
+                                <div className="shrink-0 flex items-center justify-center p-2 text-[var(--color-text-muted)] group-hover:text-[var(--color-brand-red)] transition-colors">
                                    <ChevronRight size={24} />
                                 </div>
                              </div>
@@ -285,13 +285,13 @@ export default function Profile() {
            </div>
 
            {/* Security Strip */}
-           <div className="bg-white border border-[var(--border-default)] rounded-[20px] p-6 flex items-center gap-6 shadow-sm">
+           <div className="bg-white border border-[var(--color-border-default)] rounded-[20px] p-6 flex items-center gap-6 shadow-sm">
               <div className="size-[48px] bg-[var(--green-fresh)]/10 text-[var(--green-fresh)] rounded-full flex items-center justify-center">
                  <ShieldCheck size={24} />
               </div>
               <div>
-                 <h4 className="text-[15px] font-[600] text-[var(--text-primary)]">Privacy Protected</h4>
-                 <p className="text-[13px] text-[var(--text-secondary)]">Your personal data is encrypted and secure with us.</p>
+                 <h4 className="text-[15px] font-[600] text-[var(--color-text-primary)]">Privacy Protected</h4>
+                 <p className="text-[13px] text-[var(--color-text-secondary)]">Your personal data is encrypted and secure with us.</p>
               </div>
            </div>
         </main>

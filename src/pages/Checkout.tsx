@@ -386,9 +386,10 @@ const Checkout = () => {
 
         if (!currentUser) {
           setGuestOrderData({ ...orderData, orderNumber, deliveryDetails: addressDetails });
+          useStore.getState().triggerAnimation('order-confirmed');
           setShowGuestOrderPopup(true);
         } else {
-          toast({ title: "Order Placed!", description: "Your order has been placed successfully." });
+          useStore.getState().triggerAnimation('order-confirmed');
           navigate('/profile?tab=orders');
         }
         clearCart();
@@ -410,8 +411,10 @@ const Checkout = () => {
             clearCart();
             if (!currentUser) {
                setGuestOrderData({ ...orderData, orderNumber, paymentStatus: 'paid' });
+               useStore.getState().triggerAnimation('order-confirmed');
                setShowGuestOrderPopup(true);
             } else {
+               useStore.getState().triggerAnimation('order-confirmed');
                navigate('/profile?tab=orders');
             }
           },
@@ -427,13 +430,13 @@ const Checkout = () => {
 
   if (cartItems.length === 0 && !showGuestOrderPopup) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F6F7F8] p-6 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-surface-page)] p-6 text-center">
          <div className="size-[120px] bg-white rounded-full flex items-center justify-center mb-8 shadow-sm">
             <ShoppingBag className="size-[48px] text-[#BDC1C6]" />
          </div>
-         <h2 className="text-[28px] font-[600] text-[#1A1A1A] mb-4">Your bag is empty</h2>
-         <p className="text-[#5F6368] mb-10 max-w-sm">Add some items to your bag before moving to checkout.</p>
-         <Button onClick={() => navigate('/products')} className="bg-[var(--blue-primary)] text-white rounded-[8px] px-10 h-12 font-[500] text-[14px] hover:bg-[var(--blue-deep)] transition-all">
+         <h2 className="text-[28px] font-[600] text-[var(--color-text-primary)] mb-4">Your bag is empty</h2>
+         <p className="text-[var(--color-text-secondary)] mb-10 max-w-sm">Add some items to your bag before moving to checkout.</p>
+         <Button onClick={() => navigate('/products')} className="bg-[var(--color-brand-red)] text-white rounded-[8px] px-10 h-12 font-[500] text-[14px] hover:bg-[var(--color-brand-red-deep)] transition-all">
            Start Shopping
          </Button>
       </div>
@@ -441,21 +444,21 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F7F8] font-inter pb-20">
+    <div className="min-h-screen bg-[var(--color-surface-page)] font-inter pb-20">
       
       {/* Checkout Navbar */}
-      <nav className="bg-white border-b border-[#E0E3E7] sticky top-0 z-[50]">
+      <nav className="bg-white border-b border-[var(--color-border-default)] sticky top-0 z-[50]">
          <div className="max-w-[1280px] mx-auto px-6 h-[72px] flex items-center justify-between">
             <button 
               onClick={() => navigate('/cart')}
-              className="flex items-center gap-2 text-[#5F6368] hover:text-[#1A1A1A] transition-colors"
+              className="flex items-center gap-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
             >
               <ChevronLeft size={20} />
               <span className="text-[14px] font-[600]">Back to Cart</span>
             </button>
             <div className="flex items-center gap-2">
                <ShieldCheck className="text-[#008A00] size-5" />
-               <span className="text-[12px] font-[700] text-[#1A1A1A] uppercase tracking-wider">Secure Checkout</span>
+               <span className="text-[12px] font-[700] text-[var(--color-text-primary)] uppercase tracking-wider">Secure Checkout</span>
             </div>
          </div>
       </nav>
@@ -464,17 +467,17 @@ const Checkout = () => {
         
         {/* Page Header */}
         <div className="mb-12">
-           <h1 className="text-[32px] md:text-[40px] font-[600] text-[#1A1A1A] leading-tight">
+           <h1 className="text-[32px] md:text-[40px] font-[600] text-[var(--color-text-primary)] leading-tight">
              Checkout
            </h1>
-           <div className="flex items-center gap-4 mt-3 text-[#5F6368]">
+           <div className="flex items-center gap-4 mt-3 text-[var(--color-text-secondary)]">
               <span className="flex items-center gap-1.5 text-[14px]">
-                 <BadgeCheck size={16} className="text-[var(--blue-primary)]" />
+                 <BadgeCheck size={16} className="text-[var(--color-brand-red)]" />
                  Satisfaction Guaranteed
               </span>
               <span className="size-1 bg-[#BDC1C6] rounded-full"></span>
               <span className="flex items-center gap-1.5 text-[14px]">
-                 <Lock size={16} className="text-[var(--blue-primary)]" />
+                 <Lock size={16} className="text-[var(--color-brand-red)]" />
                  AES-256 Encryption
               </span>
            </div>
@@ -486,12 +489,12 @@ const Checkout = () => {
           <div className="lg:col-span-8">
             
             {/* Stepper */}
-            <div className="mb-12 bg-white p-6 md:p-8 rounded-[12px] border border-[#E0E3E7] shadow-sm">
+            <div className="mb-12 bg-white p-6 md:p-8 rounded-[12px] border border-[var(--color-border-default)] shadow-sm">
                <Stepper steps={steps} currentStep={currentStep} />
             </div>
 
             {/* Step Content */}
-            <div className="bg-white rounded-[12px] border border-[#E0E3E7] shadow-sm p-6 md:p-10">
+            <div className="bg-white rounded-[12px] border border-[var(--color-border-default)] shadow-sm p-6 md:p-10">
               {currentStep === 1 && (
                 <CheckoutContactInfo
                   customerInfo={customerInfo}
@@ -574,21 +577,21 @@ const Checkout = () => {
 
           {/* Right Col: Minimal Sidebar Summary */}
           <aside className="lg:col-span-4 space-y-6">
-            <div className="bg-white p-8 rounded-[12px] border border-[#E0E3E7] shadow-sm">
-               <h2 className="text-[20px] font-[600] text-[#1A1A1A] mb-8">Order Summary</h2>
+            <div className="bg-white p-8 rounded-[12px] border border-[var(--color-border-default)] shadow-sm">
+               <h2 className="text-[20px] font-[600] text-[var(--color-text-primary)] mb-8">Order Summary</h2>
                
                <div className="space-y-4 mb-8 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
                   {cartItems.map((item) => (
                      <div key={`${item.id}-${item.selectedSize}`} className="flex gap-4">
-                        <div className="size-[64px] rounded-[10px] bg-[#F6F7F8] border border-[#E0E3E7] shrink-0 flex items-center justify-center p-1">
+                        <div className="size-[64px] rounded-[10px] bg-[var(--color-surface-page)] border border-[var(--color-border-default)] shrink-0 flex items-center justify-center p-1">
                            <img src={item.image} alt="" className="w-full h-full object-contain" />
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-center">
-                           <h4 className="text-[14px] font-[600] text-[#1A1A1A] leading-tight truncate">{item.name}</h4>
-                           <p className="text-[12px] text-[#5F6368] mt-1">Qty: {item.quantity} • {item.selectedSize || 'Std'}</p>
+                           <h4 className="text-[14px] font-[600] text-[var(--color-text-primary)] leading-tight truncate">{item.name}</h4>
+                           <p className="text-[12px] text-[var(--color-text-secondary)] mt-1">Qty: {item.quantity} • {item.selectedSize || 'Std'}</p>
                         </div>
                         <div className="shrink-0 flex flex-col justify-center items-end">
-                           <p className="text-[14px] font-[700] text-[#1A1A1A]">
+                           <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">
                               {formatCurrency(item.price * item.quantity, settings.currency_symbol)}
                            </p>
                         </div>
@@ -596,23 +599,23 @@ const Checkout = () => {
                   ))}
                </div>
 
-               <div className="h-px bg-[#E0E3E7] w-full mb-6"></div>
+               <div className="h-px bg-[var(--color-border-default)] w-full mb-6"></div>
 
                <div className="space-y-4 mb-4">
                   <div className="flex justify-between items-center text-[14px]">
-                    <span className="text-[#5F6368]">Subtotal</span>
-                    <span className="text-[#1A1A1A] font-[600]">{formatCurrency(subtotal, settings.currency_symbol)}</span>
+                    <span className="text-[var(--color-text-secondary)]">Subtotal</span>
+                    <span className="text-[var(--color-text-primary)] font-[600]">{formatCurrency(subtotal, settings.currency_symbol)}</span>
                   </div>
                   <div className="flex justify-between items-center text-[14px]">
-                    <span className="text-[#5F6368]">Shipping</span>
-                    <span className={`font-[600] ${deliveryFee === 0 ? 'text-[#008A00]' : 'text-[#1A1A1A]'}`}>
+                    <span className="text-[var(--color-text-secondary)]">Shipping</span>
+                    <span className={`font-[600] ${deliveryFee === 0 ? 'text-[#008A00]' : 'text-[var(--color-text-primary)]'}`}>
                       {deliveryFee === 0 ? 'FREE' : formatCurrency(deliveryFee, settings.currency_symbol)}
                     </span>
                   </div>
                   {tax > 0 && (
                     <div className="flex justify-between items-center text-[14px]">
-                      <span className="text-[#5F6368]">Tax ({settings.tax_rate}%)</span>
-                      <span className="text-[#1A1A1A] font-[600]">{formatCurrency(tax, settings.currency_symbol)}</span>
+                      <span className="text-[var(--color-text-secondary)]">Tax ({settings.tax_rate}%)</span>
+                      <span className="text-[var(--color-text-primary)] font-[600]">{formatCurrency(tax, settings.currency_symbol)}</span>
                     </div>
                   )}
                   {discount > 0 && (
@@ -623,10 +626,10 @@ const Checkout = () => {
                   )}
                </div>
 
-               <div className="pt-6 border-t border-[#F6F7F8]">
+               <div className="pt-6 border-t border-[var(--color-surface-page)]">
                   <div className="flex justify-between items-center">
-                     <span className="text-[18px] font-[700] text-[#1A1A1A]">Total</span>
-                     <span className="text-[24px] font-[700] text-[var(--blue-primary)]">
+                     <span className="text-[18px] font-[700] text-[var(--color-text-primary)]">Total</span>
+                     <span className="text-[24px] font-[700] text-[var(--color-brand-red)]">
                         {formatCurrency(total, settings.currency_symbol)}
                      </span>
                   </div>
@@ -634,12 +637,12 @@ const Checkout = () => {
             </div>
 
             {/* Help Content */}
-            <div className="bg-[var(--blue-light)]/30 border border-[var(--blue-light)] p-6 rounded-[12px]">
-               <h3 className="text-[15px] font-[600] text-[#1A1A1A] flex items-center gap-2 mb-2">
-                  <ShieldCheck size={18} className="text-[var(--blue-primary)]" />
+            <div className="bg-[var(--color-brand-red-light)]/30 border border-[var(--color-brand-red-light)] p-6 rounded-[12px]">
+               <h3 className="text-[15px] font-[600] text-[var(--color-text-primary)] flex items-center gap-2 mb-2">
+                  <ShieldCheck size={18} className="text-[var(--color-brand-red)]" />
                   Your privacy is our priority
                </h3>
-               <p className="text-[13px] text-[#5F6368] leading-relaxed">
+               <p className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed">
                   We use secure industry-standard encryption to protect your personal information during checkout.
                </p>
             </div>

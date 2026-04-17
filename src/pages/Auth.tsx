@@ -2,11 +2,20 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Eye, EyeOff, Sparkles, Mail } from 'lucide-react';
+import { useStore } from '@/store/useStore';
+import { AuthCharacters } from '@/components/Auth/AuthCharacters';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -41,6 +50,7 @@ export default function Auth() {
           title: "Welcome back!",
           description: "You have been signed in successfully.",
         });
+        useStore.getState().triggerAnimation('welcome');
         navigate('/');
       } else {
         if (!formData.email || !formData.password || !formData.fullName || !formData.confirmPassword) {
@@ -73,152 +83,204 @@ export default function Auth() {
   };
 
   return (
-    <main className="flex min-h-screen font-sans bg-[#F6F7F8]">
-      {/* Left Side - Image Board */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-white">
-        <img
-          alt="Premium Hypermarket Shopping"
-          className="absolute inset-0 w-full h-full object-cover"
-          src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80"
-        />
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="absolute bottom-16 left-16 right-16 text-white text-left">
-          <h2 className="text-[44px] font-[600] tracking-[-0.03em] leading-[1.1] mb-4">
-            Everything you need, <br />all in one place.
-          </h2>
-          <p className="text-[17px] font-[400] text-white/90 max-w-md leading-[1.35]">
-            Shop groceries, electronics, and daily essentials with Megadiscountstore's premium guarantee.
-          </p>
-        </div>
-        <div className="absolute top-12 left-12">
-          <Link to="/" className="text-[24px] font-[600] tracking-tight text-white hover:text-[#FFC220] transition-colors">
-            Megadiscountstore
+    <div className="min-h-screen grid lg:grid-cols-2 font-inter">
+      {/* Left Content Section - Character Animation */}
+      <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[var(--color-brand-red)]/90 via-[var(--color-brand-red)] to-[var(--color-brand-red-deep)] p-12 text-white overflow-hidden">
+        <div className="relative z-20">
+          <Link to="/" className="flex items-center gap-2 text-lg font-semibold">
+            <div className="size-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
+              <Sparkles className="size-4" />
+            </div>
+            <span>Megadiscountstore</span>
           </Link>
         </div>
+
+        <div className="relative z-20 flex items-end justify-center h-[500px]">
+          <AuthCharacters 
+            isTyping={isTyping} 
+            passwordLength={formData.password.length} 
+            showPassword={showPassword} 
+          />
+        </div>
+
+        <div className="relative z-20 flex items-center gap-8 text-sm text-white/60">
+          <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
+          <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
+          <Link href="#" className="hover:text-white transition-colors">Contact</Link>
+        </div>
+
+        {/* Decorative elements */}
+        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
+        <div className="absolute top-1/4 right-1/4 size-64 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 size-96 bg-white/5 rounded-full blur-3xl" />
       </div>
 
-      {/* Right Side - Auth Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 md:p-12 lg:p-20 relative bg-[#FFFFFF]">
-        <Link
-          to="/"
-          className="absolute top-8 right-8 lg:top-12 lg:right-12 flex items-center gap-2 text-[14px] font-[500] text-[#5F6368] hover:text-[#0071DC] transition-colors"
-        >
-          <ArrowLeft size={16} />
-          Back to Home
-        </Link>
+      {/* Right Login Section */}
+      <div className="flex items-center justify-center p-8 bg-[var(--color-surface-page)]">
+        <div className="w-full max-w-[420px]">
+          {/* Mobile and Back Button */}
+          <div className="flex items-center justify-between mb-12">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-[14px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Home
+            </Link>
+            <div className="lg:hidden flex items-center gap-2 text-lg font-semibold">
+              <div className="size-8 rounded-lg bg-[var(--color-brand-red)]/10 flex items-center justify-center">
+                <Sparkles className="size-4 text-[var(--color-brand-red)]" />
+              </div>
+              <span>Megadiscountstore</span>
+            </div>
+          </div>
 
-        <div className="w-full max-w-md">
-          <div className="mb-10 text-center lg:text-left">
-            <h1 className="text-[28px] font-[500] tracking-[-0.02em] text-[#1A1A1A] mb-2">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
+          <div className="text-center mb-10">
+            <h1 className="text-3xl font-bold tracking-tight mb-2 text-[var(--color-text-primary)]">
+              {isLogin ? 'Welcome Back' : 'Join Us'}
             </h1>
-            <p className="text-[15px] font-[400] text-[#5F6368] leading-[1.65]">
-              {isLogin ? 'Sign in to access your orders and saved items.' : 'Join to enjoy faster checkout and member benefits.'}
+            <p className="text-[var(--color-text-secondary)] text-sm">
+              {isLogin ? 'Please enter your details to sign in' : 'Create an account to start shopping'}
             </p>
           </div>
 
-          {/* Tabs */}
-          <div className="bg-[#F6F7F8] p-1 border border-[#E0E3E7] rounded-[8px] flex mb-8">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 text-[14px] font-[500] rounded-[6px] transition-all ${isLogin
-                ? 'bg-[#0071DC] text-white shadow-sm'
-                : 'text-[#5F6368] hover:text-[#1A1A1A] hover:bg-[#E0E3E7]/50'
-                }`}
+          {/* Login/Signup Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-sm font-medium text-[var(--color-text-primary)]">Full Name</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  required
+                  className="h-12 bg-white border-[var(--color-border-default)] focus:border-[var(--color-brand-red)]"
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-[var(--color-text-primary)]">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="hello@example.com"
+                value={formData.email}
+                autoComplete="off"
+                onChange={handleInputChange}
+                onFocus={() => setIsTyping(true)}
+                onBlur={() => setIsTyping(false)}
+                required
+                className="h-12 bg-white border-[var(--color-border-default)] focus:border-[var(--color-brand-red)]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-[var(--color-text-primary)]">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  className="h-12 pr-10 bg-white border-[var(--color-border-default)] focus:border-[var(--color-brand-red)]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                </button>
+              </div>
+            </div>
+
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-sm font-medium text-[var(--color-text-primary)]">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                  className="h-12 bg-white border-[var(--color-border-default)] focus:border-[var(--color-brand-red)]"
+                />
+              </div>
+            )}
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="remember" className="border-[var(--color-border-default)] data-[state=checked]:bg-[var(--color-brand-red)]" />
+                <Label
+                  htmlFor="remember"
+                  className="text-sm font-normal cursor-pointer text-[var(--color-text-secondary)]"
+                >
+                  Remember for 30 days
+                </Label>
+              </div>
+              {isLogin && (
+                <Link
+                  to="#"
+                  className="text-sm text-[var(--color-brand-red)] hover:underline font-medium"
+                >
+                  Forgot password?
+                </Link>
+              )}
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base font-medium bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white" 
+              size="lg" 
+              disabled={isLoading}
             >
-              Sign In
-            </button>
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 text-[14px] font-[500] rounded-[6px] transition-all ${!isLogin
-                ? 'bg-[#0071DC] text-white shadow-sm'
-                : 'text-[#5F6368] hover:text-[#1A1A1A] hover:bg-[#E0E3E7]/50'
-                }`}
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                isLogin ? 'Log In' : 'Create Account'
+              )}
+            </Button>
+          </form>
+
+          {/* Social Login - Google (Optional UX add) */}
+          {isLogin && (
+            <div className="mt-6">
+              <Button 
+                variant="outline" 
+                className="w-full h-12 bg-white border-[var(--color-border-default)] hover:bg-[var(--color-surface-page)]"
+                type="button"
+              >
+                <Mail className="mr-2 size-5" />
+                Log in with Google
+              </Button>
+            </div>
+          )}
+
+          {/* Toggle Login/Signup */}
+          <div className="text-center text-sm text-[var(--color-text-secondary)] mt-8">
+            {isLogin ? "Don't have an account? " : "Already have an account? "}
+            <button 
+              onClick={() => setIsLogin(!isLogin)} 
+              className="text-[var(--color-text-primary)] font-medium hover:underline"
             >
-              Sign Up
+              {isLogin ? 'Sign Up' : 'Sign In'}
             </button>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {!isLogin && (
-              <div>
-                <label className="text-[#5F6368] text-[12px] font-[500] mb-1.5 block tracking-wide" htmlFor="fullName">Full Name</label>
-                <input
-                  className="h-[40px] px-3 bg-[#FFFFFF] border-[1.5px] border-[#E0E3E7] rounded-[8px] text-[14px] text-[#1A1A1A] focus:border-[#0071DC] focus:outline-none transition-colors w-full"
-                  id="fullName"
-                  placeholder="Enter your full name"
-                  type="text"
-                  onChange={handleInputChange}
-                  value={formData.fullName}
-                  required
-                />
-              </div>
-            )}
-            <div>
-              <label className="text-[#5F6368] text-[12px] font-[500] mb-1.5 block tracking-wide" htmlFor="email">Email Address</label>
-              <input
-                className="h-[40px] px-3 bg-[#FFFFFF] border-[1.5px] border-[#E0E3E7] rounded-[8px] text-[14px] text-[#1A1A1A] focus:border-[#0071DC] focus:outline-none transition-colors w-full"
-                id="email"
-                placeholder="hello@example.com"
-                type="email"
-                onChange={handleInputChange}
-                value={formData.email}
-                required
-              />
-            </div>
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-[#5F6368] text-[12px] font-[500] block tracking-wide" htmlFor="password">Password</label>
-                {isLogin && <a className="text-[13px] font-[400] text-[#0071DC] hover:text-[#0055A6] transition-colors" href="#">Forgot password?</a>}
-              </div>
-              <input
-                className="h-[40px] px-3 bg-[#FFFFFF] border-[1.5px] border-[#E0E3E7] rounded-[8px] text-[14px] text-[#1A1A1A] focus:border-[#0071DC] focus:outline-none transition-colors w-full"
-                id="password"
-                placeholder="Enter your password"
-                type="password"
-                onChange={handleInputChange}
-                value={formData.password}
-                required
-              />
-            </div>
-            {!isLogin && (
-              <div>
-                <label className="text-[#5F6368] text-[12px] font-[500] mb-1.5 block tracking-wide" htmlFor="confirmPassword">Confirm Password</label>
-                <input
-                  className="h-[40px] px-3 bg-[#FFFFFF] border-[1.5px] border-[#E0E3E7] rounded-[8px] text-[14px] text-[#1A1A1A] focus:border-[#0071DC] focus:outline-none transition-colors w-full"
-                  id="confirmPassword"
-                  placeholder="Confirm your password"
-                  type="password"
-                  onChange={handleInputChange}
-                  value={formData.confirmPassword}
-                  required
-                />
-              </div>
-            )}
-
-            <button
-              disabled={isLoading}
-              className="w-full mt-4 h-[40px] bg-[#0071DC] hover:bg-[#0055A6] text-white rounded-[8px] font-[500] text-[14px] flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-[1px] disabled:opacity-70 disabled:hover:translate-y-0"
-            >
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isLogin ? 'Sign In' : 'Create Account'}
-            </button>
-          </form>
-
-          <p className="mt-8 text-center text-[15px] text-[#5F6368]">
-            {isLogin ? "New to Megadiscountstore? " : "Already have an account? "}
-            <button onClick={() => setIsLogin(!isLogin)} className="text-[#0071DC] font-[500] hover:text-[#0055A6] transition-colors">
-              {isLogin ? 'Create an account' : 'Sign in'}
-            </button>
-          </p>
-
-          <div className="mt-12 pt-6 border-t border-[#E0E3E7] text-center">
-            <p className="text-[13px] text-[#9AA0A6] font-[400] leading-[1.5]">
-              By signing in, you agree to our <a className="text-[#5F6368] hover:text-[#1A1A1A] transition-colors" href="#">Terms of Service</a> & <a className="text-[#5F6368] hover:text-[#1A1A1A] transition-colors" href="#">Privacy Policy</a>
+          <div className="mt-12 pt-6 border-t border-[var(--color-border-default)] text-center">
+            <p className="text-[12px] text-[var(--color-text-muted)] leading-relaxed">
+              By signing in, you agree to our <Link to="#" className="underline">Terms of Service</Link> & <Link to="#" className="underline">Privacy Policy</Link>
             </p>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
+

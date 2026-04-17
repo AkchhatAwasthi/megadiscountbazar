@@ -46,8 +46,8 @@ const CategoriesCarousel = () => {
 
   if (loading) {
     return (
-      <section className="py-[64px] bg-[var(--surface-white)] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--blue-primary)] border-t-transparent rounded-full animate-spin"></div>
+      <section className="py-[64px] bg-[var(--color-surface-card)] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[var(--color-brand-red)] border-t-transparent rounded-full animate-spin"></div>
       </section>
     );
   }
@@ -55,16 +55,16 @@ const CategoriesCarousel = () => {
   if (categories.length === 0) return null;
 
   return (
-    <section className="pt-[64px] md:pt-[96px] pb-0 bg-[var(--surface-white)] overflow-hidden">
+    <section className="pt-[64px] md:pt-[96px] pb-0 bg-[var(--color-surface-card)] overflow-hidden">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div className="flex flex-col">
-            <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--blue-primary)] uppercase mb-2">
+            <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--color-brand-red)] uppercase mb-2">
               Browse Collections
             </span>
-            <h2 className="text-[28px] md:text-[32px] font-[500] text-[#1A1A1A] leading-[1.2] tracking-[-0.02em]">
+            <h2 className="text-[28px] md:text-[32px] font-[500] text-[var(--color-text-primary)] leading-[1.2] tracking-[-0.02em]">
               Shop by Category
             </h2>
           </div>
@@ -72,7 +72,7 @@ const CategoriesCarousel = () => {
           <div className="flex items-center gap-3">
              <button
                 onClick={() => navigate('/products')}
-                className="hidden md:flex items-center justify-center px-5 py-2.5 border-[1.5px] border-[var(--blue-primary)] text-[var(--blue-primary)] rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--blue-light)] hover:-translate-y-[1px]"
+                className="hidden md:flex items-center justify-center px-5 py-2.5 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--color-brand-red-light)] hover:-translate-y-[1px]"
              >
                 View all categories
              </button>
@@ -102,7 +102,7 @@ const CategoriesCarousel = () => {
                     className="flex flex-col items-center group cursor-pointer"
                     onClick={() => navigate(`/products?category=${category.name.toLowerCase()}`)}
                   >
-                    <div className="w-full aspect-square rounded-full bg-[var(--surface-light)] flex items-center justify-center overflow-hidden mb-4 transition-colors group-hover:bg-[var(--blue-light)] border border-[var(--border-default)]">
+                    <div className="w-full aspect-square rounded-full bg-[var(--color-surface-page)] flex items-center justify-center overflow-hidden mb-4 transition-colors group-hover:bg-[var(--color-brand-red-light)] border border-[var(--color-border-default)]">
                       {category.image_url ? (
                         <img
                           src={category.image_url}
@@ -113,7 +113,7 @@ const CategoriesCarousel = () => {
                         <div className="text-[24px] opacity-40">🏷️</div>
                       )}
                     </div>
-                    <span className="text-[14px] font-[500] text-[#1A1A1A] group-hover:text-[var(--blue-primary)] transition-colors text-center">
+                    <span className="text-[14px] font-[500] text-[var(--color-text-primary)] group-hover:text-[var(--color-brand-red)] transition-colors text-center">
                       {category.name}
                     </span>
                   </motion.div>
@@ -122,8 +122,8 @@ const CategoriesCarousel = () => {
             </CarouselContent>
             
             <div className="flex justify-center mt-8 gap-3 md:hidden">
-                <CarouselPrevious className="static translate-y-0 size-[40px] border-[#E0E3E7]" />
-                <CarouselNext className="static translate-y-0 size-[40px] border-[#E0E3E7]" />
+                <CarouselPrevious className="static translate-y-0 size-[40px] border-[var(--color-border-default)]" />
+                <CarouselNext className="static translate-y-0 size-[40px] border-[var(--color-border-default)]" />
             </div>
           </Carousel>
         </div>
@@ -133,3 +133,4 @@ const CategoriesCarousel = () => {
 };
 
 export default CategoriesCarousel;
+

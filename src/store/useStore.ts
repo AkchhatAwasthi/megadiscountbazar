@@ -52,6 +52,14 @@ interface Store {
   setProducts: (products: Product[]) => void;
   setSelectedCategory: (category: string) => void;
 
+  // Animation
+  animation: {
+    isOpen: boolean;
+    type: 'add-to-basket' | 'bye-bye' | 'welcome' | 'order-confirmed' | null;
+  };
+  triggerAnimation: (type: 'add-to-basket' | 'bye-bye' | 'welcome' | 'order-confirmed') => void;
+  closeAnimation: () => void;
+
   // User
   isAuthenticated: boolean;
   user: null | { name: string; email: string };
@@ -100,6 +108,14 @@ export const useStore = create<Store>()(
       setNotification: (item: CartItem) => set({ notification: { isOpen: true, item } }),
       closeNotification: () => set((state) => ({ notification: { ...state.notification, isOpen: false } })),
 
+      // Animation state
+      animation: {
+        isOpen: false,
+        type: null,
+      },
+      triggerAnimation: (type: 'add-to-basket' | 'bye-bye' | 'welcome' | 'order-confirmed') => set({ animation: { isOpen: true, type } }),
+      closeAnimation: () => set((state) => ({ animation: { ...state.animation, isOpen: false } })),
+
       // Cart actions
       addToCart: (product, size) => {
         const { cartItems } = get();
@@ -125,6 +141,7 @@ export const useStore = create<Store>()(
 
         set({ cartItems: updatedCartItems });
         get().setNotification(itemToAdd); // Trigger notification
+        get().triggerAnimation('add-to-basket'); // Trigger lottie animation
         saveCartToLocalStorage(updatedCartItems);
       },
 
@@ -169,7 +186,10 @@ export const useStore = create<Store>()(
       isAuthenticated: false,
       user: null,
       login: (user) => set({ isAuthenticated: true, user }),
-      logout: () => set({ isAuthenticated: false, user: null }),
+      logout: () => {
+        set({ isAuthenticated: false, user: null });
+        get().triggerAnimation('bye-bye');
+      },
     }),
     {
       name: 'sweetsshop-storage',

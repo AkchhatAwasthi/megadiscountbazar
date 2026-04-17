@@ -69,17 +69,17 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
   const NavLink = ({ to, children, className = "" }: { to: string; children: React.ReactNode; className?: string }) => (
     <Link
       to={to}
-      className={`text-[14px] font-[400] text-[var(--text-primary)] hover:text-[var(--blue-primary)] transition-colors relative group py-2 ${className}`}
+      className={`text-[14px] font-[400] text-[var(--color-text-primary)] hover:text-[var(--color-brand-red)] transition-colors relative group py-2 ${className}`}
     >
       {children}
-      <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--blue-primary)] transition-all duration-200 group-hover:w-full"></span>
+      <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--color-brand-red)] transition-all duration-200 group-hover:w-full"></span>
     </Link>
   );
 
   return (
     <>
       {/* Top Banner - Dynamic Marquee */}
-      <div className="bg-[var(--blue-deep)] text-white text-[12px] py-1.5 overflow-hidden relative font-[500] tracking-[0.02em]">
+      <div className="bg-[var(--color-brand-red-deep)] text-white text-[12px] py-1.5 overflow-hidden relative font-[500] tracking-[0.02em]">
         <div className="whitespace-nowrap animate-marquee inline-block">
           <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountstore'} • Fast delivery in under 60 minutes!</span>
           <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountstore'} • Fast delivery in under 60 minutes!</span>
@@ -87,7 +87,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
       </div>
 
       <header
-        className={`sticky top-0 z-40 bg-[var(--surface-white)] border-b border-[var(--border-default)] transition-transform duration-300 ease-in-out ${
+        className={`sticky top-0 z-40 bg-[var(--color-surface-card)] border-b border-[var(--color-border-default)] transition-transform duration-300 ease-in-out ${
           isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
         style={{ height: '64px' }}
@@ -96,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
           
           {/* Mobile Menu Toggle */}
           <button
-            className="lg:hidden p-2 -ml-2 text-[var(--text-primary)] hover:bg-[var(--surface-light)] rounded-lg transition-colors"
+            className="lg:hidden p-2 -ml-2 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] rounded-lg transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="w-6 h-6" />
@@ -104,23 +104,23 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
 
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
-            <h1 className="text-[24px] font-[600] text-[var(--blue-primary)] tracking-tight">
-              Megadiscount<span className="text-[var(--text-primary)]">store</span>
+            <h1 className="text-[24px] font-[600] text-[var(--color-brand-red)] tracking-tight">
+              Megadiscount<span className="text-[var(--color-text-primary)]">store</span>
             </h1>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 flex-shrink-0">
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-[14px] font-[500] text-[var(--text-primary)] hover:text-[var(--blue-primary)] transition-colors focus:outline-none py-2">
+              <DropdownMenuTrigger className="flex items-center gap-1 text-[14px] font-[500] text-[var(--color-text-primary)] hover:text-[var(--color-brand-red)] transition-colors focus:outline-none py-2">
                 Departments <ChevronDown className="w-4 h-4 opacity-70" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-[var(--surface-white)] border border-[var(--border-default)] shadow-lg rounded-[8px] p-2 mt-1">
+              <DropdownMenuContent className="w-56 bg-[var(--color-surface-card)] border border-[var(--color-border-default)] shadow-lg rounded-[8px] p-2 mt-1">
                 {categories.map((cat) => (
                   <DropdownMenuItem
                     key={cat.id}
                     onClick={() => navigate(`/products?category=${cat.slug || cat.name.toLowerCase()}`)}
-                    className="px-3 py-2 text-[14px] text-[var(--text-primary)] hover:bg-[var(--blue-light)] hover:text-[var(--blue-primary)] rounded-[6px] cursor-pointer transition-colors"
+                    className="px-3 py-2 text-[14px] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-red-light)] hover:text-[var(--color-brand-red)] rounded-[6px] cursor-pointer transition-colors"
                   >
                     {cat.name}
                   </DropdownMenuItem>
@@ -134,14 +134,14 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
           {/* Search Bar */}
           <div className="flex-grow hidden md:flex items-center max-w-[600px] relative group">
             <div 
-              className="w-full flex items-center bg-[var(--surface-light)] border-[1.5px] border-[var(--border-default)] rounded-[var(--radius-input)] px-4 py-2 transition-all duration-200 group-focus-within:border-[var(--blue-primary)] group-focus-within:bg-white group-focus-within:shadow-sm cursor-text"
+              className="w-full flex items-center bg-[var(--color-surface-page)] border-[1.5px] border-[var(--color-border-default)] rounded-[var(--radius-input)] px-4 py-2 transition-all duration-200 group-focus-within:border-[var(--color-brand-red)] group-focus-within:bg-white group-focus-within:shadow-sm cursor-text"
               onClick={() => setIsSearchOpen(true)}
             >
-              <Search className="w-4 h-4 text-[var(--text-muted)] mr-3" />
+              <Search className="w-4 h-4 text-[var(--color-text-muted)] mr-3" />
               <input
                 type="text"
                 placeholder="Search everything at Megadiscountstore"
-                className="bg-transparent border-none outline-none w-full text-[14px] text-[var(--text-primary)] placeholder-[var(--text-muted)] cursor-pointer"
+                className="bg-transparent border-none outline-none w-full text-[14px] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] cursor-pointer"
                 readOnly
               />
             </div>
@@ -150,14 +150,14 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
           {/* Right Icons */}
           <div className="flex items-center gap-1 lg:gap-3 ml-auto">
              <button
-              className="md:hidden p-2 text-[var(--text-primary)] hover:bg-[var(--surface-light)] rounded-lg"
+              className="md:hidden p-2 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] rounded-lg"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="w-5 h-5" />
             </button>
 
             <button
-              className="p-2 text-[var(--text-primary)] hover:bg-[var(--surface-light)] rounded-lg transition-colors hidden sm:flex"
+              className="p-2 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] rounded-lg transition-colors hidden sm:flex"
               onClick={() => navigate('/products?tag=favorites')}
               title="Favorites"
             >
@@ -165,26 +165,26 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
             </button>
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 p-2 text-[var(--text-primary)] hover:bg-[var(--surface-light)] rounded-lg transition-colors focus:outline-none">
+              <DropdownMenuTrigger className="flex items-center gap-1 p-2 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] rounded-lg transition-colors focus:outline-none">
                 <User className="w-5 h-5" />
                 <span className="hidden xl:inline text-[14px] font-[500] ml-1">
                   {user ? 'Account' : 'Sign In'}
                 </span>
                 <ChevronDown className="hidden xl:inline w-3 h-3 opacity-60" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-[var(--surface-white)] border border-[var(--border-default)] shadow-lg rounded-[8px] p-2 mt-1">
+              <DropdownMenuContent align="end" className="w-56 bg-[var(--color-surface-card)] border border-[var(--color-border-default)] shadow-lg rounded-[8px] p-2 mt-1">
                 {user ? (
                   <>
-                    <div className="px-3 py-2 border-b border-[var(--border-default)] mb-1">
-                      <p className="text-[12px] text-[var(--text-secondary)]">Signed in as</p>
+                    <div className="px-3 py-2 border-b border-[var(--color-border-default)] mb-1">
+                      <p className="text-[12px] text-[var(--color-text-secondary)]">Signed in as</p>
                       <p className="text-[14px] font-[600] truncate">{user.email}</p>
                     </div>
                     {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate('/admin')} className="px-3 py-2 text-[14px] text-[var(--text-primary)] hover:bg-[var(--blue-light)] hover:text-[var(--blue-primary)] rounded-[6px] cursor-pointer">
+                      <DropdownMenuItem onClick={() => navigate('/admin')} className="px-3 py-2 text-[14px] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-red-light)] hover:text-[var(--color-brand-red)] rounded-[6px] cursor-pointer">
                         Admin Dashboard
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem onClick={() => navigate('/profile')} className="px-3 py-2 text-[14px] text-[var(--text-primary)] hover:bg-[var(--blue-light)] hover:text-[var(--blue-primary)] rounded-[6px] cursor-pointer">
+                    <DropdownMenuItem onClick={() => navigate('/profile')} className="px-3 py-2 text-[14px] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-red-light)] hover:text-[var(--color-brand-red)] rounded-[6px] cursor-pointer">
                       Profile Settings
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={signOut} className="px-3 py-2 text-[14px] text-[var(--red-sale)] hover:bg-red-50 rounded-[6px] cursor-pointer">
@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
                     </DropdownMenuItem>
                   </>
                 ) : (
-                  <DropdownMenuItem onClick={() => navigate('/auth')} className="bg-[var(--blue-primary)] text-white hover:bg-[var(--blue-deep)] px-3 py-2.5 text-[14px] font-[500] rounded-[6px] cursor-pointer text-center justify-center">
+                  <DropdownMenuItem onClick={() => navigate('/auth')} className="bg-[var(--color-brand-red)] text-white hover:bg-[var(--color-brand-red-deep)] px-3 py-2.5 text-[14px] font-[500] rounded-[6px] cursor-pointer text-center justify-center">
                     Sign In or Create Account
                   </DropdownMenuItem>
                 )}
@@ -200,7 +200,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
             </DropdownMenu>
 
             <button
-              className="relative p-2 bg-[var(--blue-primary)] text-white hover:bg-[var(--blue-deep)] rounded-lg transition-all duration-200 active:scale-95 flex items-center gap-2 px-3 sm:px-4"
+              className="relative p-2 bg-[var(--color-brand-red)] text-white hover:bg-[var(--color-brand-red-deep)] rounded-lg transition-all duration-200 active:scale-95 flex items-center gap-2 px-3 sm:px-4"
               onClick={toggleCart}
             >
               <ShoppingBag className="w-5 h-5" />
@@ -209,7 +209,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
                 <span className="text-[13px] font-[600]">₹0.00</span>
               </div>
               {cartItemsCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[var(--yellow-accent)] text-[var(--text-primary)] text-[11px] font-[600] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-[var(--surface-white)] shadow-sm">
+                <span className="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] text-[11px] font-[600] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-[var(--color-surface-card)] shadow-sm">
                   {cartItemsCount}
                 </span>
               )}
@@ -234,43 +234,43 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: "tween", duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="fixed top-0 left-0 bottom-0 w-full max-w-[320px] bg-[var(--surface-white)] z-50 shadow-2xl flex flex-col"
+              className="fixed top-0 left-0 bottom-0 w-full max-w-[320px] bg-[var(--color-surface-card)] z-50 shadow-2xl flex flex-col"
             >
-              <div className="p-4 flex items-center justify-between border-b border-[var(--border-default)]">
-                <h2 className="text-[18px] font-[600] text-[var(--blue-primary)]">Megadiscountstore</h2>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-[var(--text-secondary)] hover:bg-[var(--surface-light)] rounded-full">
+              <div className="p-4 flex items-center justify-between border-b border-[var(--color-border-default)]">
+                <h2 className="text-[18px] font-[600] text-[var(--color-brand-red)]">Megadiscountstore</h2>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-page)] rounded-full">
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
               <div className="flex-grow overflow-y-auto py-2">
-                <div className="px-4 py-3 bg-[var(--blue-light)] mb-4 mx-4 rounded-lg">
-                  <p className="text-[14px] font-[500] text-[var(--blue-deep)]">Welcome!</p>
-                  <p className="text-[12px] text-[var(--text-secondary)]">Shop our latest deals and drops.</p>
+                <div className="px-4 py-3 bg-[var(--color-brand-red-light)] mb-4 mx-4 rounded-lg">
+                  <p className="text-[14px] font-[500] text-[var(--color-brand-red-deep)]">Welcome!</p>
+                  <p className="text-[12px] text-[var(--color-text-secondary)]">Shop our latest deals and drops.</p>
                 </div>
                 
-                <p className="px-6 py-2 text-[11px] font-[600] text-[var(--text-muted)] uppercase tracking-wider">Navigation</p>
-                <button onClick={() => { navigate('/products'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--surface-light)] transition-colors">
+                <p className="px-6 py-2 text-[11px] font-[600] text-[var(--color-text-muted)] uppercase tracking-wider">Navigation</p>
+                <button onClick={() => { navigate('/products'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--color-surface-page)] transition-colors">
                   <span className="text-[15px] font-[400]">All Products</span>
                   <ChevronRight className="w-4 h-4 opacity-40" />
                 </button>
-                <button onClick={() => { navigate('/products?collection=new-arrivals'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--surface-light)] transition-colors">
+                <button onClick={() => { navigate('/products?collection=new-arrivals'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--color-surface-page)] transition-colors">
                   <span className="text-[15px] font-[400]">New Arrivals</span>
                   <ChevronRight className="w-4 h-4 opacity-40" />
                 </button>
-                <button onClick={() => { navigate('/products?collection=bestsellers'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--surface-light)] transition-colors">
+                <button onClick={() => { navigate('/products?collection=bestsellers'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--color-surface-page)] transition-colors">
                   <span className="text-[15px] font-[400]">Bestsellers</span>
                   <ChevronRight className="w-4 h-4 opacity-40" />
                 </button>
 
-                <div className="border-t border-[var(--border-default)] my-4"></div>
+                <div className="border-t border-[var(--color-border-default)] my-4"></div>
                 
-                <p className="px-6 py-2 text-[11px] font-[600] text-[var(--text-muted)] uppercase tracking-wider">Categories</p>
+                <p className="px-6 py-2 text-[11px] font-[600] text-[var(--color-text-muted)] uppercase tracking-wider">Categories</p>
                 {categories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => { navigate(`/products?category=${cat.slug || cat.name.toLowerCase()}`); setIsMobileMenuOpen(false); }}
-                    className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--surface-light)] transition-colors text-left"
+                    className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--color-surface-page)] transition-colors text-left"
                   >
                     <span className="text-[15px] font-[400] capitalize">{cat.name}</span>
                     <ChevronRight className="w-4 h-4 opacity-40" />
@@ -278,20 +278,20 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
                 ))}
               </div>
 
-              <div className="p-4 border-t border-[var(--border-default)] bg-[var(--surface-light)]">
+              <div className="p-4 border-t border-[var(--color-border-default)] bg-[var(--color-surface-page)]">
                 {user ? (
                   <div className="space-y-2">
-                    <button onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-[var(--text-primary)] hover:bg-[var(--surface-white)] rounded-lg transition-colors">
+                    <button onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-card)] rounded-lg transition-colors">
                       <User className="w-4 h-4" /> Account Settings
                     </button>
-                    <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-[var(--red-sale)] hover:bg-[var(--surface-white)] rounded-lg transition-colors">
+                    <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-[var(--red-sale)] hover:bg-[var(--color-surface-card)] rounded-lg transition-colors">
                       <LogOut className="w-4 h-4" /> Sign Out
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}
-                    className="w-full bg-[var(--blue-primary)] text-white py-3 rounded-[8px] font-[500] text-[14px] hover:bg-[var(--blue-deep)] transition-colors shadow-sm"
+                    className="w-full bg-[var(--color-brand-red)] text-white py-3 rounded-[8px] font-[500] text-[14px] hover:bg-[var(--color-brand-red-deep)] transition-colors shadow-sm"
                   >
                     Sign In
                   </button>
@@ -308,3 +308,4 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
 };
 
 export default Header;
+

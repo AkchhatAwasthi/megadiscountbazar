@@ -146,16 +146,16 @@ const ProductDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white px-6">
-        <div className="size-12 border-4 border-[var(--blue-primary)] border-t-transparent rounded-full animate-spin"></div>
+        <div className="size-12 border-4 border-[var(--color-brand-red)] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--surface-light)] px-6 text-center">
-        <h1 className="text-[28px] font-[500] text-[var(--text-primary)] mb-4">Product not found</h1>
-        <Link to="/products" className="bg-[var(--blue-primary)] text-white px-8 py-3 rounded-[8px] font-[500] text-[14px]">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-surface-page)] px-6 text-center">
+        <h1 className="text-[28px] font-[500] text-[var(--color-text-primary)] mb-4">Product not found</h1>
+        <Link to="/products" className="bg-[var(--color-brand-red)] text-white px-8 py-3 rounded-[8px] font-[500] text-[14px]">
           Back to Shop
         </Link>
       </div>
@@ -166,16 +166,16 @@ const ProductDetail = () => {
   const sizes = product?.available_sizes?.length > 0 ? product.available_sizes : ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
   return (
-    <div className="bg-white min-h-screen font-inter selection:bg-[var(--blue-primary)]/10">
+    <div className="bg-white min-h-screen font-inter selection:bg-[var(--color-brand-red)]/10">
       
       {/* Navigation Breadcrumb */}
       <div className="max-w-[1280px] mx-auto px-6 py-6 md:py-10">
-         <div className="flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
-            <Link to="/" className="hover:text-[var(--blue-primary)] hover:underline">Home</Link>
+         <div className="flex items-center gap-2 text-[13px] text-[var(--color-text-secondary)]">
+            <Link to="/" className="hover:text-[var(--color-brand-red)] hover:underline">Home</Link>
             <ChevronRight size={14} />
-            <Link to="/products" className="hover:text-[var(--blue-primary)] hover:underline">Shop</Link>
+            <Link to="/products" className="hover:text-[var(--color-brand-red)] hover:underline">Shop</Link>
             <ChevronRight size={14} />
-            <span className="text-[var(--text-primary)] font-[500] truncate">{product.name}</span>
+            <span className="text-[var(--color-text-primary)] font-[500] truncate">{product.name}</span>
          </div>
       </div>
 
@@ -191,7 +191,7 @@ const ProductDetail = () => {
                   key={idx}
                   onClick={() => setActiveImage(img)}
                   className={`size-[72px] md:size-[84px] rounded-[8px] overflow-hidden border-[1.5px] shrink-0 transition-all ${
-                    activeImage === img ? 'border-[var(--blue-primary)] shadow-sm' : 'border-[var(--border-default)] hover:border-[var(--text-muted)]'
+                    activeImage === img ? 'border-[var(--color-brand-red)] shadow-sm' : 'border-[var(--color-border-default)] hover:border-[var(--color-text-muted)]'
                   }`}
                 >
                   <img src={img} alt="" className="w-full h-full object-cover" />
@@ -200,7 +200,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Stage */}
-            <div className="order-1 md:order-2 flex-1 relative bg-[var(--surface-light)] rounded-[16px] overflow-hidden group">
+            <div className="order-1 md:order-2 flex-1 relative bg-[var(--color-surface-page)] rounded-[16px] overflow-hidden group">
                <AnimatePresence mode="wait">
                   <motion.img
                     key={activeImage}
@@ -232,11 +232,11 @@ const ProductDetail = () => {
                <div className="absolute top-6 right-6 flex flex-col gap-3">
                   <button 
                     onClick={() => setIsFavorite(!isFavorite)}
-                    className="size-10 bg-white rounded-full flex items-center justify-center shadow-md border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-[var(--red-sale)] transition-colors"
+                    className="size-10 bg-white rounded-full flex items-center justify-center shadow-md border border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:text-[var(--red-sale)] transition-colors"
                   >
                     <Heart size={20} className={isFavorite ? 'fill-current text-[var(--red-sale)]' : ''} />
                   </button>
-                  <button className="size-10 bg-white rounded-full flex items-center justify-center shadow-md border border-[var(--border-default)] text-[var(--text-secondary)] hover:text-[var(--blue-primary)] transition-colors">
+                  <button className="size-10 bg-white rounded-full flex items-center justify-center shadow-md border border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors">
                     <Share2 size={20} />
                   </button>
                </div>
@@ -246,32 +246,32 @@ const ProductDetail = () => {
           {/* Info Section */}
           <div className="lg:col-span-5 flex flex-col gap-8">
             <div className="space-y-4">
-               <div className="inline-flex items-center gap-2 bg-[var(--blue-light)] text-[var(--blue-primary)] px-3 py-1 rounded-full">
+               <div className="inline-flex items-center gap-2 bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)] px-3 py-1 rounded-full">
                   <span className="text-[11px] font-[600] uppercase tracking-wider">{product.categories?.name || 'New Collection'}</span>
                </div>
-               <h1 className="text-[32px] md:text-[44px] font-[600] text-[var(--text-primary)] leading-[1.1] tracking-tight">
+               <h1 className="text-[32px] md:text-[44px] font-[600] text-[var(--color-text-primary)] leading-[1.1] tracking-tight">
                   {product.name}
                </h1>
                
                {/* Rating Summary */}
                <div className="flex items-center gap-3">
-                  <div className="flex items-center text-[var(--yellow-accent)]">
+                  <div className="flex items-center text-[var(--color-brand-yellow)]">
                      {[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} fill={s <= 4 ? "currentColor" : "none"} />)}
                   </div>
-                  <span className="text-[14px] text-[var(--text-secondary)] font-[500]">(4.8 • 120 Reviews)</span>
-                  <div className="h-4 w-px bg-[var(--border-default)]"></div>
+                  <span className="text-[14px] text-[var(--color-text-secondary)] font-[500]">(4.8 • 120 Reviews)</span>
+                  <div className="h-4 w-px bg-[var(--color-border-default)]"></div>
                   <span className="text-[14px] text-[var(--green-fresh)] font-[600]">In Stock</span>
                </div>
             </div>
 
-            <div className="space-y-1 py-4 border-y border-[var(--border-default)]/50">
+            <div className="space-y-1 py-4 border-y border-[var(--color-border-default)]/50">
                <div className="flex items-baseline gap-3">
-                  <span className="text-[32px] font-[600] text-[var(--text-primary)]">{formatPrice(product.price)}</span>
+                  <span className="text-[32px] font-[600] text-[var(--color-text-primary)]">{formatPrice(product.price)}</span>
                   {product.original_price > product.price && (
-                    <span className="text-[17px] text-[var(--text-muted)] line-through">{formatPrice(product.original_price)}</span>
+                    <span className="text-[17px] text-[var(--color-text-muted)] line-through">{formatPrice(product.original_price)}</span>
                   )}
                </div>
-               <p className="text-[14px] text-[var(--text-secondary)]">
+               <p className="text-[14px] text-[var(--color-text-secondary)]">
                   Prices include all applicable taxes.
                </p>
             </div>
@@ -279,8 +279,8 @@ const ProductDetail = () => {
             {/* Size Selector */}
             <div className="space-y-4">
                <div className="flex justify-between items-center">
-                  <span className="text-[14px] font-[600] text-[var(--text-primary)]">Select Size</span>
-                  <button className="text-[13px] font-[500] text-[var(--blue-primary)] hover:underline flex items-center gap-1.5">
+                  <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Size</span>
+                  <button className="text-[13px] font-[500] text-[var(--color-brand-red)] hover:underline flex items-center gap-1.5">
                      <Ruler size={16} />
                      Size Guide
                   </button>
@@ -292,8 +292,8 @@ const ProductDetail = () => {
                       onClick={() => setSelectedSize(size)}
                       className={`h-12 min-w-[64px] px-4 rounded-[8px] font-[600] text-[14px] transition-all border-[1.5px] ${
                         selectedSize === size
-                          ? 'border-[var(--blue-primary)] bg-[var(--blue-light)] text-[var(--blue-primary)]'
-                          : 'border-[var(--border-default)] hover:border-[var(--text-muted)] text-[var(--text-secondary)]'
+                          ? 'border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]'
+                          : 'border-[var(--color-border-default)] hover:border-[var(--color-text-muted)] text-[var(--color-text-secondary)]'
                       }`}
                     >
                       {size}
@@ -304,84 +304,84 @@ const ProductDetail = () => {
 
             {/* Quantity & CTA */}
             <div className="flex flex-col sm:flex-row gap-4">
-               <div className="flex items-center border-[1.5px] border-[var(--border-default)] rounded-[8px] h-12">
+               <div className="flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-[8px] h-12">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="size-12 flex items-center justify-center hover:bg-[var(--surface-light)] transition-colors"
+                    className="size-12 flex items-center justify-center hover:bg-[var(--color-surface-page)] transition-colors"
                   >
                     <Minus size={16} />
                   </button>
                   <span className="w-12 text-center font-[600]">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(quantity + 1)}
-                    className="size-12 flex items-center justify-center hover:bg-[var(--surface-light)] transition-colors"
+                    className="size-12 flex items-center justify-center hover:bg-[var(--color-surface-page)] transition-colors"
                   >
                     <Plus size={16} />
                   </button>
                </div>
                <button 
                  onClick={handleAddToCart}
-                 className="flex-1 bg-[var(--yellow-accent)] hover:bg-[var(--yellow-hover)] text-[var(--text-primary)] h-12 rounded-[8px] font-[600] text-[15px] transition-all active:scale-[0.98] shadow-sm"
+                 className="flex-1 bg-[var(--color-brand-yellow)] hover:bg-[var(--color-brand-yellow-hover)] text-[var(--color-text-primary)] h-12 rounded-[8px] font-[600] text-[15px] transition-all active:scale-[0.98] shadow-sm"
                >
                  Add to Cart
                </button>
             </div>
 
             {/* Secondary CTA */}
-            <button className="w-full h-12 border-[1.5px] border-[var(--blue-primary)] text-[var(--blue-primary)] rounded-[8px] font-[600] text-[15px] hover:bg-[var(--blue-light)] transition-all">
+            <button className="w-full h-12 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] font-[600] text-[15px] hover:bg-[var(--color-brand-red-light)] transition-all">
                Buy with Megadiscountstore Pay
             </button>
 
             {/* Delivery / Trust Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-6 border-t border-[var(--border-default)]/50 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-6 border-t border-[var(--color-border-default)]/50 mt-4">
                <div className="flex items-center gap-4 group">
-                  <div className="size-[48px] bg-[var(--surface-light)] rounded-[12px] flex items-center justify-center text-[var(--blue-primary)]">
+                  <div className="size-[48px] bg-[var(--color-surface-page)] rounded-[12px] flex items-center justify-center text-[var(--color-brand-red)]">
                      <Truck size={24} />
                   </div>
                   <div className="space-y-0.5">
-                     <p className="text-[13px] font-[600] text-[var(--text-primary)]">Fast Delivery</p>
-                     <p className="text-[12px] text-[var(--text-secondary)]">2-4 business days</p>
+                     <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">Fast Delivery</p>
+                     <p className="text-[12px] text-[var(--color-text-secondary)]">2-4 business days</p>
                   </div>
                </div>
                <div className="flex items-center gap-4 group">
-                  <div className="size-[48px] bg-[var(--surface-light)] rounded-[12px] flex items-center justify-center text-[var(--green-fresh)]">
+                  <div className="size-[48px] bg-[var(--color-surface-page)] rounded-[12px] flex items-center justify-center text-[var(--green-fresh)]">
                      <ShieldCheck size={24} />
                   </div>
                   <div className="space-y-0.5">
-                     <p className="text-[13px] font-[600] text-[var(--text-primary)]">Secure Warranty</p>
-                     <p className="text-[12px] text-[var(--text-secondary)]">1 year protection</p>
+                     <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">Secure Warranty</p>
+                     <p className="text-[12px] text-[var(--color-text-secondary)]">1 year protection</p>
                   </div>
                </div>
             </div>
 
             {/* Accordion List */}
-            <div className="divide-y divide-[var(--border-default)]/50 border-t border-[var(--border-default)]/50">
+            <div className="divide-y divide-[var(--color-border-default)]/50 border-t border-[var(--color-border-default)]/50">
                <details className="group py-6" open>
                   <summary className="flex items-center justify-between cursor-pointer list-none">
-                     <span className="text-[15px] font-[600] text-[var(--text-primary)]">Product Description</span>
+                     <span className="text-[15px] font-[600] text-[var(--color-text-primary)]">Product Description</span>
                      <ChevronDown size={20} className="group-open:rotate-180 transition-transform" />
                   </summary>
-                  <div className="pt-4 text-[15px] text-[var(--text-secondary)] leading-[1.65]">
+                  <div className="pt-4 text-[15px] text-[var(--color-text-secondary)] leading-[1.65]">
                     {product.description || "Premium quality apparel designed for modern lifestyle. Comfort meeting style."}
                   </div>
                </details>
                <details className="group py-6">
                   <summary className="flex items-center justify-between cursor-pointer list-none">
-                     <span className="text-[15px] font-[600] text-[var(--text-primary)]">Specifications & Fit</span>
+                     <span className="text-[15px] font-[600] text-[var(--color-text-primary)]">Specifications & Fit</span>
                      <ChevronDown size={20} className="group-open:rotate-180 transition-transform" />
                   </summary>
                   <div className="pt-4 space-y-3">
                      <div className="grid grid-cols-3 gap-4">
-                        <span className="text-[13px] text-[var(--text-secondary)]">Fabric</span>
-                        <span className="col-span-2 text-[13px] font-[500] text-[var(--text-primary)]">{product.product_specs?.fabric || "Cotton Blend"}</span>
+                        <span className="text-[13px] text-[var(--color-text-secondary)]">Fabric</span>
+                        <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">{product.product_specs?.fabric || "Cotton Blend"}</span>
                      </div>
                      <div className="grid grid-cols-3 gap-4">
-                        <span className="text-[13px] text-[var(--text-secondary)]">Weight</span>
-                        <span className="col-span-2 text-[13px] font-[500] text-[var(--text-primary)]">240 GSM Heavyweight</span>
+                        <span className="text-[13px] text-[var(--color-text-secondary)]">Weight</span>
+                        <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">240 GSM Heavyweight</span>
                      </div>
                      <div className="grid grid-cols-3 gap-4">
-                        <span className="text-[13px] text-[var(--text-secondary)]">Fit</span>
-                        <span className="col-span-2 text-[13px] font-[500] text-[var(--text-primary)]">Oversized / Boxy</span>
+                        <span className="text-[13px] text-[var(--color-text-secondary)]">Fit</span>
+                        <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">Oversized / Boxy</span>
                      </div>
                   </div>
                </details>
@@ -394,10 +394,10 @@ const ProductDetail = () => {
           <section className="mt-32">
              <div className="flex justify-between items-end mb-10">
                 <div>
-                   <h2 className="text-[28px] font-[600] text-[var(--text-primary)] mb-2">You May Also Like</h2>
-                   <p className="text-[15px] text-[var(--text-secondary)]">Complete the look with these curated pieces.</p>
+                   <h2 className="text-[28px] font-[600] text-[var(--color-text-primary)] mb-2">You May Also Like</h2>
+                   <p className="text-[15px] text-[var(--color-text-secondary)]">Complete the look with these curated pieces.</p>
                 </div>
-                <Link to="/products" className="text-[14px] font-[600] text-[var(--blue-primary)] hover:underline flex items-center gap-1">
+                <Link to="/products" className="text-[14px] font-[600] text-[var(--color-brand-red)] hover:underline flex items-center gap-1">
                    View More <ChevronRight size={18} />
                 </Link>
              </div>

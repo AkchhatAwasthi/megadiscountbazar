@@ -151,9 +151,9 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         );
     }
 
-    const CardStyle = "bg-[#FFFFFF] border-[0.5px] border-[#E0E3E7] rounded-[12px] shadow-sm hover:border-[#0071DC] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)] transition-all duration-220";
-    const InputStyle = "h-[40px] px-3 bg-[#FFFFFF] border-[1.5px] border-[#E0E3E7] rounded-[8px] text-[14px] text-[#1A1A1A] focus:border-[#0071DC] focus:outline-none transition-colors w-full";
-    const LabelStyle = "text-[#5F6368] text-[12px] font-[500] mb-1.5 block tracking-wide";
+    const CardStyle = "bg-[var(--color-surface-card)] border-[0.5px] border-[var(--color-border-default)] rounded-[12px] shadow-sm hover:border-[var(--color-brand-red)] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)] transition-all duration-220";
+    const InputStyle = "h-[40px] px-3 bg-[var(--color-surface-card)] border-[1.5px] border-[var(--color-border-default)] rounded-[8px] text-[14px] text-[var(--color-text-primary)] focus:border-[var(--color-brand-red)] focus:outline-none transition-colors w-full";
+    const LabelStyle = "text-[var(--color-text-secondary)] text-[12px] font-[500] mb-1.5 block tracking-wide";
 
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
@@ -167,7 +167,7 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         <span className="uppercase tracking-widest text-xs">Back to List</span>
                     </Button>
-                    <h1 className="text-[28px] font-[500] text-[#1A1A1A] tracking-[-0.02em]">
+                    <h1 className="text-[28px] font-[500] text-[var(--color-text-primary)] tracking-[-0.02em]">
                         {isEdit ? 'Edit Slide' : 'Add New Slide'}
                     </h1>
                 </div>
@@ -175,8 +175,8 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <Card className={CardStyle}>
-                    <CardHeader className="border-b border-[#E0E3E7] pb-4 px-5">
-                        <CardTitle className="text-[17px] font-[500] text-[#1A1A1A]">Slide Details</CardTitle>
+                    <CardHeader className="border-b border-[var(--color-border-default)] pb-4 px-5">
+                        <CardTitle className="text-[17px] font-[500] text-[var(--color-text-primary)]">Slide Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6 pt-6">
 
@@ -272,15 +272,15 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                                             </Button>
                                         </div>
                                     ) : (
-                                            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-[#E0E3E7] hover:border-[#0071DC] bg-[#F6F7F8] rounded-[8px] cursor-pointer hover:bg-[#E6F1FB] transition-colors">
+                                            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-[var(--color-border-default)] hover:border-[var(--color-brand-red)] bg-[var(--color-surface-page)] rounded-[8px] cursor-pointer hover:bg-[var(--color-brand-red-light)] transition-colors">
                                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                                     {uploading ? (
-                                                        <Loader2 className="h-8 w-8 animate-spin text-[#0071DC]" />
+                                                        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand-red)]" />
                                                     ) : (
                                                         <>
-                                                            <Upload className="w-8 h-8 mb-3 text-[#0071DC]" />
-                                                            <p className="text-sm text-[#1A1A1A] font-medium tracking-wide">Click to upload image</p>
-                                                            <p className="text-xs text-[#5F6368] mt-1">SVG, PNG, JPG or WEBP</p>
+                                                            <Upload className="w-8 h-8 mb-3 text-[var(--color-brand-red)]" />
+                                                            <p className="text-sm text-[var(--color-text-primary)] font-medium tracking-wide">Click to upload image</p>
+                                                            <p className="text-xs text-[var(--color-text-secondary)] mt-1">SVG, PNG, JPG or WEBP</p>
                                                         </>
                                                     )}
                                                 </div>
@@ -317,7 +317,7 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                                 id="is_active"
                                 checked={formData.is_active}
                                 onCheckedChange={handleCheckboxChange}
-                                className="data-[state=checked]:bg-[#0071DC] border-[#E0E3E7] rounded-[4px]"
+                                className="data-[state=checked]:bg-[var(--color-brand-red)] border-[var(--color-border-default)] rounded-[4px]"
                             />
                             <Label htmlFor="is_active" className={LabelStyle}>Active</Label>
                         </div>
@@ -330,14 +330,14 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                         type="button"
                         variant="outline"
                         onClick={() => navigate('/admin/hero')}
-                        className="h-[40px] px-6 bg-transparent border-[1.5px] border-[#0071DC] text-[#0071DC] hover:bg-[#E6F1FB] rounded-[8px] font-[500] text-[14px] transition-all"
+                        className="h-[40px] px-6 bg-transparent border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-light)] rounded-[8px] font-[500] text-[14px] transition-all"
                     >
                         Cancel
                     </Button>
                     <Button
                         type="submit"
                         disabled={loading || uploading}
-                        className="h-[40px] px-8 bg-[#0071DC] hover:bg-[#0055A6] text-white rounded-[8px] font-[500] text-[14px] transition-all duration-200 hover:-translate-y-[1px] min-w-[120px]"
+                        className="h-[40px] px-8 bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white rounded-[8px] font-[500] text-[14px] transition-all duration-200 hover:-translate-y-[1px] min-w-[120px]"
                     >
                         {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : (isEdit ? 'Update Slide' : 'Create Slide')}
                     </Button>
@@ -348,3 +348,4 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
 };
 
 export default HeroSlideForm;
+

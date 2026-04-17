@@ -187,25 +187,25 @@ const Products = () => {
   }, [loading, isLoadingMore, hasMore, loadMore]);
 
   return (
-    <div className="bg-[#F6F7F8] min-h-screen font-inter selection:bg-[var(--blue-primary)]/10">
+    <div className="bg-[var(--color-surface-page)] min-h-screen font-inter selection:bg-[var(--color-brand-red)]/10">
       
       {/* Search & Breadcrumb Bar */}
-      <div className="bg-white border-b border-[var(--border-default)] py-4 px-6 md:px-10 lg:px-20">
+      <div className="bg-white border-b border-[var(--color-border-default)] py-4 px-6 md:px-10 lg:px-20">
          <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
-               <Link to="/" className="hover:text-[var(--blue-primary)] hover:underline">Home</Link>
+            <div className="flex items-center gap-2 text-[13px] text-[var(--color-text-secondary)]">
+               <Link to="/" className="hover:text-[var(--color-brand-red)] hover:underline">Home</Link>
                <ChevronDown size={14} className="-rotate-90" />
-               <span className="text-[var(--text-primary)] font-[600]">Shop All</span>
+               <span className="text-[var(--color-text-primary)] font-[600]">Shop All</span>
             </div>
             
             <div className="relative flex-1 max-w-md">
-               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={18} />
+               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" size={18} />
                <input 
                  type="text" 
                  placeholder="Search products..."
                  value={searchTerm}
                  onChange={(e) => setSearchTerm(e.target.value)}
-                 className="w-full bg-[var(--surface-light)] border border-[var(--border-default)] rounded-[8px] h-11 pl-12 pr-4 text-[14px] focus:outline-none focus:ring-1 focus:ring-[var(--blue-primary)] focus:border-[var(--blue-primary)] transition-all"
+                 className="w-full bg-[var(--color-surface-page)] border border-[var(--color-border-default)] rounded-[8px] h-11 pl-12 pr-4 text-[14px] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand-red)] focus:border-[var(--color-brand-red)] transition-all"
                />
             </div>
          </div>
@@ -215,37 +215,37 @@ const Products = () => {
          
          {/* Page Header */}
          <div className="mb-10 text-center md:text-left">
-            <h1 className="text-[32px] md:text-[44px] font-[600] text-[var(--text-primary)] leading-tight tracking-tight">
+            <h1 className="text-[32px] md:text-[44px] font-[600] text-[var(--color-text-primary)] leading-tight tracking-tight">
                {selectedCategory !== 'All' ? selectedCategory : 'Collection Archive'}
             </h1>
-            <p className="text-[17px] text-[var(--text-secondary)] mt-2">
+            <p className="text-[17px] text-[var(--color-text-secondary)] mt-2">
                Discover our range of premium hypermarket products.
             </p>
          </div>
 
          {/* Grid Tools */}
-         <div className="bg-white border border-[var(--border-default)] rounded-[12px] p-4 mb-10 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+         <div className="bg-white border border-[var(--color-border-default)] rounded-[12px] p-4 mb-10 flex flex-wrap items-center justify-between gap-4 shadow-sm">
             <div className="flex items-center gap-3">
                <button 
                  onClick={() => setShowFilters(true)}
-                 className="flex items-center gap-2 px-5 py-2.5 bg-[var(--blue-primary)] text-white rounded-[8px] text-[14px] font-[500] hover:bg-[var(--blue-deep)] transition-all shadow-md active:scale-[0.98]"
+                 className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-brand-red)] text-white rounded-[8px] text-[14px] font-[500] hover:bg-[var(--color-brand-red-deep)] transition-all shadow-md active:scale-[0.98]"
                >
                  <Filter size={18} />
                  Filters
                </button>
-               <div className="h-6 w-px bg-[var(--border-default)] hidden sm:block"></div>
-               <span className="text-[14px] text-[var(--text-secondary)] font-[500] hidden sm:block">
+               <div className="h-6 w-px bg-[var(--color-border-default)] hidden sm:block"></div>
+               <span className="text-[14px] text-[var(--color-text-secondary)] font-[500] hidden sm:block">
                   Showing {products.length} of {totalProducts} items
                </span>
             </div>
 
             <div className="flex items-center gap-6">
                <div className="flex items-center gap-2">
-                  <span className="text-[14px] text-[var(--text-secondary)] font-[500] hidden sm:block">Sort by:</span>
+                  <span className="text-[14px] text-[var(--color-text-secondary)] font-[500] hidden sm:block">Sort by:</span>
                   <select 
                     value={filters.sortBy}
                     onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-                    className="bg-[var(--surface-light)] border border-[var(--border-default)] rounded-[8px] h-10 px-3 text-[14px] font-[500] focus:outline-none"
+                    className="bg-[var(--color-surface-page)] border border-[var(--color-border-default)] rounded-[8px] h-10 px-3 text-[14px] font-[500] focus:outline-none"
                   >
                      <option value="newest">Newest Arrivals</option>
                      <option value="price-low">Price: Low to High</option>
@@ -254,9 +254,9 @@ const Products = () => {
                   </select>
                </div>
                
-               <div className="flex items-center border border-[var(--border-default)] rounded-[8px] overflow-hidden">
-                  <button className="p-2.5 text-[var(--blue-primary)] bg-[var(--blue-light)] transition-colors"><Grid size={20} /></button>
-                  <button className="p-2.5 text-[var(--text-muted)] hover:bg-[var(--surface-light)] transition-colors border-l border-[var(--border-default)]"><List size={20} /></button>
+               <div className="flex items-center border border-[var(--color-border-default)] rounded-[8px] overflow-hidden">
+                  <button className="p-2.5 text-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] transition-colors"><Grid size={20} /></button>
+                  <button className="p-2.5 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-page)] transition-colors border-l border-[var(--color-border-default)]"><List size={20} /></button>
                </div>
             </div>
          </div>
@@ -265,10 +265,10 @@ const Products = () => {
             {loading ? (
                Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="animate-pulse flex flex-col gap-4">
-                     <div className="bg-white border border-[var(--border-default)] aspect-[4/5] rounded-[12px]"></div>
+                     <div className="bg-white border border-[var(--color-border-default)] aspect-[4/5] rounded-[12px]"></div>
                      <div className="space-y-2 px-2">
-                        <div className="h-4 bg-[var(--border-default)] w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-[var(--border-default)] w-1/2 animate-pulse"></div>
+                        <div className="h-4 bg-[var(--color-border-default)] w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-[var(--color-border-default)] w-1/2 animate-pulse"></div>
                      </div>
                   </div>
                ))
@@ -295,15 +295,15 @@ const Products = () => {
 
          {isLoadingMore && (
            <div className="flex flex-col items-center py-16 gap-3">
-              <div className="size-8 border-[2.5px] border-[var(--blue-primary)] border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-[13px] font-[600] text-[var(--blue-primary)] uppercase tracking-wide">Loading more items</span>
+              <div className="size-8 border-[2.5px] border-[var(--color-brand-red)] border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-[13px] font-[600] text-[var(--color-brand-red)] uppercase tracking-wide">Loading more items</span>
            </div>
          )}
          
          {!hasMore && products.length > 0 && (
             <div className="text-center py-20">
-               <div className="h-px bg-gradient-to-r from-transparent via-[var(--border-default)] to-transparent max-w-sm mx-auto mb-8"></div>
-               <p className="text-[15px] text-[var(--text-muted)] italic">You've reached the end of the collection.</p>
+               <div className="h-px bg-gradient-to-r from-transparent via-[var(--color-border-default)] to-transparent max-w-sm mx-auto mb-8"></div>
+               <p className="text-[15px] text-[var(--color-text-muted)] italic">You've reached the end of the collection.</p>
             </div>
          )}
       </main>
@@ -326,9 +326,9 @@ const Products = () => {
                transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.8 }}
                className="fixed top-0 right-0 h-full w-full max-w-[400px] bg-white shadow-[-16px_0_48px_rgba(0,0,0,0.15)] z-[110] flex flex-col overflow-hidden"
              >
-               <div className="p-8 border-b border-[var(--border-default)] flex justify-between items-center">
-                  <h3 className="text-[22px] font-[600] text-[var(--text-primary)]">Filter & Sort</h3>
-                  <button onClick={() => setShowFilters(false)} className="size-10 flex items-center justify-center rounded-full hover:bg-[var(--surface-light)] text-[var(--text-secondary)]">
+               <div className="p-8 border-b border-[var(--color-border-default)] flex justify-between items-center">
+                  <h3 className="text-[22px] font-[600] text-[var(--color-text-primary)]">Filter & Sort</h3>
+                  <button onClick={() => setShowFilters(false)} className="size-10 flex items-center justify-center rounded-full hover:bg-[var(--color-surface-page)] text-[var(--color-text-secondary)]">
                      <X size={24} />
                   </button>
                </div>
@@ -339,10 +339,10 @@ const Products = () => {
                     className="w-full"
                   />
                </div>
-               <div className="p-8 bg-[var(--surface-light)] border-t border-[var(--border-default)] flex gap-4">
+               <div className="p-8 bg-[var(--color-surface-page)] border-t border-[var(--color-border-default)] flex gap-4">
                   <button 
                     onClick={() => setShowFilters(false)}
-                    className="flex-1 bg-[var(--blue-primary)] text-white h-12 rounded-[8px] font-[600] text-[15px] shadow-md active:scale-[0.98]"
+                    className="flex-1 bg-[var(--color-brand-red)] text-white h-12 rounded-[8px] font-[600] text-[15px] shadow-md active:scale-[0.98]"
                   >
                     Apply Changes
                   </button>
@@ -351,7 +351,7 @@ const Products = () => {
                         setFilters({ categories: [], priceRange: [0, 50000], inStock: false, isBestseller: false, sortBy: 'newest' });
                         setShowFilters(false);
                     }}
-                    className="px-6 border border-[var(--border-default)] text-[var(--text-secondary)] h-12 rounded-[8px] font-[600] text-[15px] hover:bg-white"
+                    className="px-6 border border-[var(--color-border-default)] text-[var(--color-text-secondary)] h-12 rounded-[8px] font-[600] text-[15px] hover:bg-white"
                   >
                      Reset
                   </button>

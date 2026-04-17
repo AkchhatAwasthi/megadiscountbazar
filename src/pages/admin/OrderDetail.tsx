@@ -278,8 +278,8 @@ const AdminOrderDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-[var(--surface-light)]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--blue-primary)]"></div>
+      <div className="flex items-center justify-center min-h-[60vh] bg-[var(--color-surface-page)]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-brand-red)]"></div>
       </div>
     );
   }
@@ -287,29 +287,29 @@ const AdminOrderDetail = () => {
   if (!order) {
     return (
       <div className="container mx-auto px-4 py-8 text-center animate-in fade-in duration-500">
-        <h1 className="text-[24px] font-[600] text-[#1A1A1A] mb-4">Order not found</h1>
-        <Button onClick={() => navigate('/admin/orders')} className="bg-[var(--blue-primary)] hover:bg-[var(--blue-deep)] text-white uppercase tracking-wider text-[12px] font-[600] rounded-[6px] px-6">
+        <h1 className="text-[24px] font-[600] text-[var(--color-text-primary)] mb-4">Order not found</h1>
+        <Button onClick={() => navigate('/admin/orders')} className="bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white uppercase tracking-wider text-[12px] font-[600] rounded-[6px] px-6">
           Back to Orders
         </Button>
       </div>
     );
   }
 
-  const CardStyle = "border border-[#E0E3E7] shadow-sm bg-white hover:border-[var(--blue-primary)] hover:-translate-y-[2px] transition-all duration-220 rounded-[12px]";
-  const LabelStyle = "text-[#5F6368] text-[12px] uppercase tracking-wider font-[600]";
+  const CardStyle = "border border-[var(--color-border-default)] shadow-sm bg-white hover:border-[var(--color-brand-red)] hover:-translate-y-[2px] transition-all duration-220 rounded-[12px]";
+  const LabelStyle = "text-[var(--color-text-secondary)] text-[12px] uppercase tracking-wider font-[600]";
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 max-w-[1280px] mx-auto bg-[var(--surface-light)] min-h-screen pb-12">
+    <div className="space-y-6 animate-in fade-in duration-500 max-w-[1280px] mx-auto bg-[var(--color-surface-page)] min-h-screen pb-12">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" onClick={() => navigate('/admin/orders')} className="text-[#5F6368] hover:bg-[#E6F1FB] hover:text-[#1A1A1A] rounded-[8px]">
+          <Button variant="ghost" onClick={() => navigate('/admin/orders')} className="text-[var(--color-text-secondary)] hover:bg-[var(--color-brand-red-light)] hover:text-[var(--color-text-primary)] rounded-[8px]">
             <ArrowLeft className="h-4 w-4 mr-2" />
             <span className="uppercase tracking-wider text-[12px] font-[600]">Back</span>
           </Button>
           <div>
-            <h1 className="text-[28px] md:text-[32px] font-[600] text-[#1A1A1A] tracking-tight">Order #{order.id}</h1>
-            <p className="text-[#5F6368] text-[14px]">
-              Placed on <span className="font-[500] text-[#1A1A1A]">{formatDate(order.orderDate)}</span>
+            <h1 className="text-[28px] md:text-[32px] font-[600] text-[var(--color-text-primary)] tracking-tight">Order #{order.id}</h1>
+            <p className="text-[var(--color-text-secondary)] text-[14px]">
+              Placed on <span className="font-[500] text-[var(--color-text-primary)]">{formatDate(order.orderDate)}</span>
             </p>
           </div>
         </div>
@@ -319,7 +319,7 @@ const AdminOrderDetail = () => {
             onClick={handleDownloadInvoice}
             variant="outline"
             size="sm"
-            className="flex items-center gap-2 border-[var(--blue-primary)] text-[var(--blue-primary)] hover:bg-[#E6F1FB] text-[12px] uppercase tracking-wider font-[600] rounded-[6px] h-9 px-4 transition-colors"
+            className="flex items-center gap-2 border-[var(--color-brand-red)] text-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-light)] text-[12px] uppercase tracking-wider font-[600] rounded-[6px] h-9 px-4 transition-colors"
           >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">Download Invoice</span>
@@ -339,14 +339,14 @@ const AdminOrderDetail = () => {
         {/* Order Items */}
         <div className="lg:col-span-2 space-y-6">
           <Card className={CardStyle}>
-            <CardHeader className="border-b border-[#E0E3E7] pb-4">
-              <CardTitle className="font-[600] text-[20px] text-[#1A1A1A]">Order Items ({order.items.length})</CardTitle>
+            <CardHeader className="border-b border-[var(--color-border-default)] pb-4">
+              <CardTitle className="font-[600] text-[20px] text-[var(--color-text-primary)]">Order Items ({order.items.length})</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-4">
                 {order.items.map((item) => (
-                  <div key={item.id} className="flex items-center space-x-4 p-4 border border-[#E0E3E7] rounded-[10px] bg-white hover:border-[var(--blue-primary)]/50 transition-colors">
-                    <div className="w-[72px] h-[72px] rounded-[8px] border border-[#E0E3E7] overflow-hidden bg-[#F6F7F8] shrink-0 p-1">
+                  <div key={item.id} className="flex items-center space-x-4 p-4 border border-[var(--color-border-default)] rounded-[10px] bg-white hover:border-[var(--color-brand-red)]/50 transition-colors">
+                    <div className="w-[72px] h-[72px] rounded-[8px] border border-[var(--color-border-default)] overflow-hidden bg-[var(--color-surface-page)] shrink-0 p-1">
                       <img
                         src={item.image}
                         alt={item.name}
@@ -354,15 +354,15 @@ const AdminOrderDetail = () => {
                       />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-[600] text-[#1A1A1A] text-[15px]">{item.name}</h3>
-                      <p className="text-[13px] text-[#5F6368]">{item.weight}</p>
+                      <h3 className="font-[600] text-[var(--color-text-primary)] text-[15px]">{item.name}</h3>
+                      <p className="text-[13px] text-[var(--color-text-secondary)]">{item.weight}</p>
                       {order.selectedSize && (
-                        <p className="text-[12px] text-[var(--blue-primary)] font-[500] mt-1">Size: {order.selectedSize}</p>
+                        <p className="text-[12px] text-[var(--color-brand-red)] font-[500] mt-1">Size: {order.selectedSize}</p>
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="font-[600] text-[#1A1A1A]">₹{item.price} × {item.quantity}</p>
-                      <p className="text-[14px] text-[var(--blue-primary)] font-[600]">
+                      <p className="font-[600] text-[var(--color-text-primary)]">₹{item.price} × {item.quantity}</p>
+                      <p className="text-[14px] text-[var(--color-brand-red)] font-[600]">
                         ₹{item.price * item.quantity}
                       </p>
                     </div>
@@ -370,38 +370,38 @@ const AdminOrderDetail = () => {
                 ))}
               </div>
 
-              <Separator className="my-6 bg-[#E0E3E7]" />
+              <Separator className="my-6 bg-[var(--color-border-default)]" />
 
               <div className="space-y-6">
-                <div className="bg-[#F6F7F8] p-6 rounded-[12px] border border-[#E0E3E7]">
-                  <h4 className="font-[600] text-[#1A1A1A] text-[16px] mb-4">Pricing Breakdown</h4>
+                <div className="bg-[var(--color-surface-page)] p-6 rounded-[12px] border border-[var(--color-border-default)]">
+                  <h4 className="font-[600] text-[var(--color-text-primary)] text-[16px] mb-4">Pricing Breakdown</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between text-[14px]">
-                      <span className="text-[#5F6368]">Item Total ({order.items.length} items)</span>
-                      <span className="text-[#1A1A1A] font-[500]">₹{order.subtotal.toLocaleString('en-IN')}</span>
+                      <span className="text-[var(--color-text-secondary)]">Item Total ({order.items.length} items)</span>
+                      <span className="text-[var(--color-text-primary)] font-[500]">₹{order.subtotal.toLocaleString('en-IN')}</span>
                     </div>
 
                     <div className="flex justify-between text-[14px]">
-                      <span className="text-[#5F6368]">Delivery Fee</span>
+                      <span className="text-[var(--color-text-secondary)]">Delivery Fee</span>
                       <span>
                         {order.deliveryFee === 0 ? (
                           <span className="text-[#008A00] font-[600]">FREE</span>
                         ) : (
-                          <span className="text-[#1A1A1A] font-[500]">₹{order.deliveryFee.toLocaleString('en-IN')}</span>
+                          <span className="text-[var(--color-text-primary)] font-[500]">₹{order.deliveryFee.toLocaleString('en-IN')}</span>
                         )}
                       </span>
                     </div>
 
                     {order.codFee > 0 && (
                       <div className="flex justify-between text-[14px]">
-                        <span className="text-[#5F6368]">COD Fee</span>
-                        <span className="text-[#1A1A1A] font-[500]">₹{order.codFee.toLocaleString('en-IN')}</span>
+                        <span className="text-[var(--color-text-secondary)]">COD Fee</span>
+                        <span className="text-[var(--color-text-primary)] font-[500]">₹{order.codFee.toLocaleString('en-IN')}</span>
                       </div>
                     )}
 
                     <div className="flex justify-between text-[14px]">
-                      <span className="text-[#5F6368]">Tax & Charges</span>
-                      <span className="text-[#1A1A1A] font-[500]">₹{order.tax.toLocaleString('en-IN')}</span>
+                      <span className="text-[var(--color-text-secondary)]">Tax & Charges</span>
+                      <span className="text-[var(--color-text-primary)] font-[500]">₹{order.tax.toLocaleString('en-IN')}</span>
                     </div>
 
                     {order.discount > 0 && (
@@ -415,44 +415,44 @@ const AdminOrderDetail = () => {
                       </div>
                     )}
 
-                    <Separator className="my-3 bg-[#E0E3E7]" />
+                    <Separator className="my-3 bg-[var(--color-border-default)]" />
 
-                    <div className="flex justify-between text-[18px] font-[600] text-[#1A1A1A]">
+                    <div className="flex justify-between text-[18px] font-[600] text-[var(--color-text-primary)]">
                       <span>Total Amount</span>
-                      <span className="text-[var(--blue-primary)] text-[22px] font-[700]">₹{order.total.toLocaleString('en-IN')}</span>
+                      <span className="text-[var(--color-brand-red)] text-[22px] font-[700]">₹{order.total.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Payment Details */}
-                <div className="bg-[#E6F1FB]/40 p-6 rounded-[12px] border border-[#0071DC]/20">
-                  <h4 className="font-[600] text-[#1A1A1A] text-[16px] mb-4">Payment Information</h4>
+                <div className="bg-[var(--color-brand-red-light)]/40 p-6 rounded-[12px] border border-[var(--color-brand-red)]/20">
+                  <h4 className="font-[600] text-[var(--color-text-primary)] text-[16px] mb-4">Payment Information</h4>
                   <div className="space-y-4">
                     <div className="flex justify-between text-[14px]">
-                      <span className="text-[#5F6368]">Payment Method</span>
-                      <span className="text-[#1A1A1A] font-[600] uppercase tracking-wider text-[12px]">
+                      <span className="text-[var(--color-text-secondary)]">Payment Method</span>
+                      <span className="text-[var(--color-text-primary)] font-[600] uppercase tracking-wider text-[12px]">
                         {order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}
                       </span>
                     </div>
 
                     <div className="flex justify-between text-[14px] items-center">
-                      <span className="text-[#5F6368]">Payment Status</span>
+                      <span className="text-[var(--color-text-secondary)]">Payment Status</span>
                       <Badge className={`rounded-[6px] px-2.5 py-1 text-[11px] uppercase font-[600] tracking-wider border-0 ${getPaymentStatusColor(order.paymentStatus)}`}>
                         {order.paymentStatus}
                       </Badge>
                     </div>
 
                     {order.razorpayPaymentId && (
-                      <div className="pt-4 border-t border-[#0071DC]/20">
+                      <div className="pt-4 border-t border-[var(--color-brand-red)]/20">
                         <div className="space-y-3">
                           <div className="flex justify-between text-[13px] items-center">
-                            <span className="text-[#5F6368]">Payment ID</span>
-                            <span className="font-mono text-[#1A1A1A] font-[600] bg-white px-2.5 py-1 border border-[#E0E3E7] rounded-[4px]">{order.razorpayPaymentId}</span>
+                            <span className="text-[var(--color-text-secondary)]">Payment ID</span>
+                            <span className="font-mono text-[var(--color-text-primary)] font-[600] bg-white px-2.5 py-1 border border-[var(--color-border-default)] rounded-[4px]">{order.razorpayPaymentId}</span>
                           </div>
                           {order.razorpayOrderId && (
                             <div className="flex justify-between text-[13px] items-center">
-                              <span className="text-[#5F6368]">Order ID</span>
-                              <span className="font-mono text-[#1A1A1A] font-[600] bg-white px-2.5 py-1 border border-[#E0E3E7] rounded-[4px]">{order.razorpayOrderId}</span>
+                              <span className="text-[var(--color-text-secondary)]">Order ID</span>
+                              <span className="font-mono text-[var(--color-text-primary)] font-[600] bg-white px-2.5 py-1 border border-[var(--color-border-default)] rounded-[4px]">{order.razorpayOrderId}</span>
                             </div>
                           )}
                         </div>
@@ -460,9 +460,9 @@ const AdminOrderDetail = () => {
                     )}
 
                     {order.paymentMethod === 'cod' && order.paymentStatus === 'pending' && (
-                      <div className="pt-3 border-t border-[#0071DC]/20">
-                        <p className="text-[13px] text-[#5F6368] font-[500]">
-                          Customer will pay <span className="font-[700] text-[#1A1A1A]">₹{order.total.toLocaleString('en-IN')}</span> on delivery
+                      <div className="pt-3 border-t border-[var(--color-brand-red)]/20">
+                        <p className="text-[13px] text-[var(--color-text-secondary)] font-[500]">
+                          Customer will pay <span className="font-[700] text-[var(--color-text-primary)]">₹{order.total.toLocaleString('en-IN')}</span> on delivery
                         </p>
                       </div>
                     )}
@@ -474,18 +474,18 @@ const AdminOrderDetail = () => {
 
           {/* Order Timeline */}
           <Card className={CardStyle}>
-            <CardHeader className="border-b border-[#E0E3E7] pb-4">
-              <CardTitle className="font-[600] text-[18px] text-[#1A1A1A]">Order Timeline</CardTitle>
+            <CardHeader className="border-b border-[var(--color-border-default)] pb-4">
+              <CardTitle className="font-[600] text-[18px] text-[var(--color-text-primary)]">Order Timeline</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="space-y-6 relative before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E0E3E7]">
+              <div className="space-y-6 relative before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[var(--color-border-default)]">
                 <div className="flex items-start space-x-4 relative z-10">
                   <div className="w-5 h-5 rounded-full bg-green-100 border-2 border-green-500 flex items-center justify-center mt-0.5">
                     <CheckCircle className="w-3 h-3 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-[600] text-[#1A1A1A]">Order Placed</p>
-                    <p className="text-[13px] text-[#5F6368]">{formatDate(order.orderDate)}</p>
+                    <p className="font-[600] text-[var(--color-text-primary)]">Order Placed</p>
+                    <p className="text-[13px] text-[var(--color-text-secondary)]">{formatDate(order.orderDate)}</p>
                   </div>
                 </div>
 
@@ -495,8 +495,8 @@ const AdminOrderDetail = () => {
                       <Package className="w-3 h-3 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-[600] text-[#1A1A1A]">Order Confirmed</p>
-                      <p className="text-[13px] text-[#5F6368]">Processing your order</p>
+                      <p className="font-[600] text-[var(--color-text-primary)]">Order Confirmed</p>
+                      <p className="text-[13px] text-[var(--color-text-secondary)]">Processing your order</p>
                     </div>
                   </div>
                 )}
@@ -507,8 +507,8 @@ const AdminOrderDetail = () => {
                       <Truck className="w-3 h-3 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-[600] text-[#1A1A1A]">Order Shipped</p>
-                      <p className="text-[13px] text-[#5F6368]">
+                      <p className="font-[600] text-[var(--color-text-primary)]">Order Shipped</p>
+                      <p className="text-[13px] text-[var(--color-text-secondary)]">
                         Tracking: {order.trackingNumber || 'Not available'}
                       </p>
                     </div>
@@ -521,8 +521,8 @@ const AdminOrderDetail = () => {
                       <CheckCircle className="w-3 h-3 text-green-600" />
                     </div>
                     <div>
-                      <p className="font-[600] text-[#1A1A1A]">Order Delivered</p>
-                      <p className="text-[13px] text-[#5F6368]">
+                      <p className="font-[600] text-[var(--color-text-primary)]">Order Delivered</p>
+                      <p className="text-[13px] text-[var(--color-text-secondary)]">
                         {order.deliveryDate ? formatDate(order.deliveryDate) : 'Delivered'}
                       </p>
                     </div>
@@ -537,20 +537,20 @@ const AdminOrderDetail = () => {
         <div className="space-y-6">
           {/* Update Status */}
           <Card className={CardStyle}>
-            <CardHeader className="border-b border-[#E0E3E7] pb-4">
-              <CardTitle className="font-[600] text-[18px] text-[#1A1A1A]">Update Order Status</CardTitle>
+            <CardHeader className="border-b border-[var(--color-border-default)] pb-4">
+              <CardTitle className="font-[600] text-[18px] text-[var(--color-text-primary)]">Update Order Status</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <Select value={currentStatus} onValueChange={updateOrderStatus}>
-                <SelectTrigger className="w-full border-[#E0E3E7] focus:border-[var(--blue-primary)] focus-visible:ring-1 focus-visible:ring-[var(--blue-primary)] bg-white text-[#1A1A1A] rounded-[8px] h-12 text-[14px]">
+                <SelectTrigger className="w-full border-[var(--color-border-default)] focus:border-[var(--color-brand-red)] focus-visible:ring-1 focus-visible:ring-[var(--color-brand-red)] bg-white text-[var(--color-text-primary)] rounded-[8px] h-12 text-[14px]">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-[#E0E3E7] rounded-[8px]">
-                  <SelectItem value="pending" className="cursor-pointer hover:bg-[#F6F7F8] text-[#1A1A1A]">Pending</SelectItem>
-                  <SelectItem value="processing" className="cursor-pointer hover:bg-[#F6F7F8] text-[#1A1A1A]">Processing</SelectItem>
-                  <SelectItem value="shipped" className="cursor-pointer hover:bg-[#F6F7F8] text-[#1A1A1A]">Shipped</SelectItem>
-                  <SelectItem value="delivered" className="cursor-pointer hover:bg-[#F6F7F8] text-[#1A1A1A]">Delivered</SelectItem>
-                  <SelectItem value="cancelled" className="cursor-pointer hover:bg-[#FCEBEB] text-[#E74040]">Cancelled</SelectItem>
+                <SelectContent className="bg-white border-[var(--color-border-default)] rounded-[8px]">
+                  <SelectItem value="pending" className="cursor-pointer hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)]">Pending</SelectItem>
+                  <SelectItem value="processing" className="cursor-pointer hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)]">Processing</SelectItem>
+                  <SelectItem value="shipped" className="cursor-pointer hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)]">Shipped</SelectItem>
+                  <SelectItem value="delivered" className="cursor-pointer hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)]">Delivered</SelectItem>
+                  <SelectItem value="cancelled" className="cursor-pointer hover:bg-[#FCEBEB] text-[var(--color-brand-red-bright)]">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
             </CardContent>
@@ -558,37 +558,37 @@ const AdminOrderDetail = () => {
 
           {/* Customer Information */}
           <Card className={CardStyle}>
-            <CardHeader className="border-b border-[#E0E3E7] pb-4">
-              <CardTitle className="font-[600] text-[18px] text-[#1A1A1A]">Customer Information</CardTitle>
+            <CardHeader className="border-b border-[var(--color-border-default)] pb-4">
+              <CardTitle className="font-[600] text-[18px] text-[var(--color-text-primary)]">Customer Information</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--blue-light)] flex items-center justify-center text-[var(--blue-primary)]">
+                <div className="w-10 h-10 rounded-full bg-[var(--color-brand-red-light)] flex items-center justify-center text-[var(--color-brand-red)]">
                   <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-[600] text-[#1A1A1A] text-[15px]">{order.customerName}</p>
-                  <p className="text-[12px] text-[#5F6368] uppercase tracking-wider font-[500]">Customer</p>
+                  <p className="font-[600] text-[var(--color-text-primary)] text-[15px]">{order.customerName}</p>
+                  <p className="text-[12px] text-[var(--color-text-secondary)] uppercase tracking-wider font-[500]">Customer</p>
                 </div>
               </div>
 
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--blue-light)] flex items-center justify-center text-[var(--blue-primary)]">
+                <div className="w-10 h-10 rounded-full bg-[var(--color-brand-red-light)] flex items-center justify-center text-[var(--color-brand-red)]">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-[600] text-[#1A1A1A] text-[14px] break-all">{order.customerEmail}</p>
-                  <p className="text-[12px] text-[#5F6368] uppercase tracking-wider font-[500]">Email</p>
+                  <p className="font-[600] text-[var(--color-text-primary)] text-[14px] break-all">{order.customerEmail}</p>
+                  <p className="text-[12px] text-[var(--color-text-secondary)] uppercase tracking-wider font-[500]">Email</p>
                 </div>
               </div>
 
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--blue-light)] flex items-center justify-center text-[var(--blue-primary)]">
+                <div className="w-10 h-10 rounded-full bg-[var(--color-brand-red-light)] flex items-center justify-center text-[var(--color-brand-red)]">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-[600] text-[#1A1A1A] text-[14px]">{order.customerPhone}</p>
-                  <p className="text-[12px] text-[#5F6368] uppercase tracking-wider font-[500]">Phone</p>
+                  <p className="font-[600] text-[var(--color-text-primary)] text-[14px]">{order.customerPhone}</p>
+                  <p className="text-[12px] text-[var(--color-text-secondary)] uppercase tracking-wider font-[500]">Phone</p>
                 </div>
               </div>
             </CardContent>
@@ -596,20 +596,20 @@ const AdminOrderDetail = () => {
 
           {/* Shipping Address */}
           <Card className={CardStyle}>
-            <CardHeader className="border-b border-[#E0E3E7] pb-4">
-              <CardTitle className="font-[600] text-[18px] text-[#1A1A1A]">Shipping Address</CardTitle>
+            <CardHeader className="border-b border-[var(--color-border-default)] pb-4">
+              <CardTitle className="font-[600] text-[18px] text-[var(--color-text-primary)]">Shipping Address</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <div className="flex items-start space-x-3">
-                <MapPin className="w-5 h-5 text-[var(--blue-primary)] mt-0.5 shrink-0" />
+                <MapPin className="w-5 h-5 text-[var(--color-brand-red)] mt-0.5 shrink-0" />
                 <div className="space-y-1">
-                  <p className="font-[600] text-[#1A1A1A]">{order.customerName}</p>
-                  <p className="text-[14px] text-[#5F6368] leading-relaxed">
+                  <p className="font-[600] text-[var(--color-text-primary)]">{order.customerName}</p>
+                  <p className="text-[14px] text-[var(--color-text-secondary)] leading-relaxed">
                     {order.shippingAddress.street}<br />
                     {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
                   </p>
                   {order.shippingAddress.landmark && (
-                    <p className="text-[13px] text-[#1A1A1A] font-[500] mt-1 bg-[#F6F7F8] p-2 rounded-[8px]">
+                    <p className="text-[13px] text-[var(--color-text-primary)] font-[500] mt-1 bg-[var(--color-surface-page)] p-2 rounded-[8px]">
                       Landmark: {order.shippingAddress.landmark}
                     </p>
                   )}
@@ -618,19 +618,19 @@ const AdminOrderDetail = () => {
 
               {/* Map Address Section */}
               {order.shippingAddress.mapAddress && (
-                <div className="border-t border-[#E0E3E7] pt-4 mt-2">
-                  <h4 className="text-[12px] text-[#5F6368] uppercase tracking-wider font-[600] mb-2">Map Location</h4>
-                  <div className="bg-[#E6F1FB]/30 p-3 rounded-[8px] border border-[var(--blue-primary)]/20">
-                    <p className="text-[13px] text-[#1A1A1A] leading-relaxed">{order.shippingAddress.mapAddress}</p>
+                <div className="border-t border-[var(--color-border-default)] pt-4 mt-2">
+                  <h4 className="text-[12px] text-[var(--color-text-secondary)] uppercase tracking-wider font-[600] mb-2">Map Location</h4>
+                  <div className="bg-[var(--color-brand-red-light)]/30 p-3 rounded-[8px] border border-[var(--color-brand-red)]/20">
+                    <p className="text-[13px] text-[var(--color-text-primary)] leading-relaxed">{order.shippingAddress.mapAddress}</p>
                     {order.shippingAddress.latitude && order.shippingAddress.longitude && (
-                      <div className="mt-2 flex items-center space-x-4 text-[11px] text-[#5F6368]">
+                      <div className="mt-2 flex items-center space-x-4 text-[11px] text-[var(--color-text-secondary)]">
                         <span>Lat: {order.shippingAddress.latitude.toFixed(6)}</span>
                         <span>Lng: {order.shippingAddress.longitude.toFixed(6)}</span>
                         <a
                           href={`https://www.google.com/maps?q=${order.shippingAddress.latitude},${order.shippingAddress.longitude}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[var(--blue-primary)] hover:text-[#0055A6] underline ml-auto font-[600]"
+                          className="text-[var(--color-brand-red)] hover:text-[var(--color-brand-red-deep)] underline ml-auto font-[600]"
                         >
                           View Map
                         </a>
@@ -645,12 +645,12 @@ const AdminOrderDetail = () => {
           {/* Notes */}
           {order.notes && (
             <Card className={CardStyle}>
-              <CardHeader className="border-b border-[#E0E3E7] pb-4">
-                <CardTitle className="font-[600] text-[18px] text-[#1A1A1A]">Special Instructions</CardTitle>
+              <CardHeader className="border-b border-[var(--color-border-default)] pb-4">
+                <CardTitle className="font-[600] text-[18px] text-[var(--color-text-primary)]">Special Instructions</CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="bg-[#FFF8E6] p-4 rounded-[8px] border border-[#FFC220]/30">
-                  <p className="text-[14px] text-[#1A1A1A] italic">"{order.notes}"</p>
+                <div className="bg-[#FFF8E6] p-4 rounded-[8px] border border-[var(--color-brand-yellow)]/30">
+                  <p className="text-[14px] text-[var(--color-text-primary)] italic">"{order.notes}"</p>
                 </div>
               </CardContent>
             </Card>

@@ -226,19 +226,19 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             background: 'transparent', border: 'none', cursor: 'pointer',
-            fontSize: 13, color: '#5F6368', padding: 0, marginBottom: 8,
+            fontSize: 13, color: 'var(--color-text-secondary)', padding: 0, marginBottom: 8,
             transition: 'color 0.15s ease',
           }}
-          onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#1A1A1A'}
-          onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#5F6368'}
+          onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'var(--color-text-primary)'}
+          onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--color-text-secondary)'}
         >
           <ArrowLeft style={{ width: 16, height: 16 }} />
           Back to Categories
         </button>
-        <h1 style={{ fontSize: 22, fontWeight: 500, color: '#1A1A1A', margin: 0 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 500, color: 'var(--color-text-primary)', margin: 0 }}>
           {isEdit ? 'Edit Category' : 'Add New Category'}
         </h1>
-        <p style={{ fontSize: 13, color: '#9AA0A6', margin: '4px 0 0' }}>
+        <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '4px 0 0' }}>
           {isEdit ? 'Update category details and manage products' : 'Create a new product category'}
         </p>
       </div>
@@ -251,15 +251,15 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
             {/* Basic Information */}
-            <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
-              <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0E3E7' }}>
-                <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Basic Information</span>
+            <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border-default)' }}>
+                <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Basic Information</span>
               </div>
               <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <label htmlFor="name" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>
-                    Category Name <span style={{ color: '#E74040' }}>*</span>
+                  <label htmlFor="name" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                    Category Name <span style={{ color: 'var(--color-brand-red-bright)' }}>*</span>
                   </label>
                   <Input
                     id="name"
@@ -269,15 +269,15 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                     required
                     style={{
                       height: 40, padding: '0 12px',
-                      border: '1.5px solid #E0E3E7', borderRadius: 8,
-                      fontSize: 14, color: '#1A1A1A', background: '#FFFFFF', outline: 'none',
+                      border: '1.5px solid var(--color-border-default)', borderRadius: 8,
+                      fontSize: 14, color: 'var(--color-text-primary)', background: 'var(--color-surface-card)', outline: 'none',
                     }}
                   />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <label htmlFor="description" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>
-                    Description <span style={{ color: '#E74040' }}>*</span>
+                  <label htmlFor="description" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                    Description <span style={{ color: 'var(--color-brand-red-bright)' }}>*</span>
                   </label>
                   <Textarea
                     id="description"
@@ -288,27 +288,27 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                     required
                     style={{
                       padding: '10px 12px',
-                      border: '1.5px solid #E0E3E7', borderRadius: 8,
-                      fontSize: 14, color: '#1A1A1A', background: '#FFFFFF', outline: 'none',
+                      border: '1.5px solid var(--color-border-default)', borderRadius: 8,
+                      fontSize: 14, color: 'var(--color-text-primary)', background: 'var(--color-surface-card)', outline: 'none',
                       resize: 'vertical', minHeight: 100,
                     }}
                   />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <label htmlFor="status" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Status</label>
+                  <label htmlFor="status" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>Status</label>
                   <Select
                     value={formData.is_active ? 'active' : 'inactive'}
                     onValueChange={(value) => handleInputChange('is_active', value === 'active')}
                   >
                     <SelectTrigger style={{
                       height: 40, padding: '0 12px',
-                      border: '1.5px solid #E0E3E7', borderRadius: 8,
-                      fontSize: 14, color: '#1A1A1A', background: '#FFFFFF',
+                      border: '1.5px solid var(--color-border-default)', borderRadius: 8,
+                      fontSize: 14, color: 'var(--color-text-primary)', background: 'var(--color-surface-card)',
                     }}>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-[#E0E3E7] rounded-lg">
+                    <SelectContent className="bg-white border-[var(--color-border-default)] rounded-lg">
                       <SelectItem value="active" className="text-green-700">Active</SelectItem>
                       <SelectItem value="inactive" className="text-gray-500">Inactive</SelectItem>
                     </SelectContent>
@@ -319,7 +319,7 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
 
             {/* Product Management — Only in edit mode */}
             {isEdit && id && (
-              <div style={{ border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{ border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
                 <CategoryProductManager
                   categoryId={id}
                   categoryName={formData.name || 'Category'}
@@ -333,12 +333,12 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             {/* Category Image */}
-            <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
-              <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0E3E7' }}>
-                <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Category Image</span>
+            <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border-default)' }}>
+                <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Category Image</span>
               </div>
               <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Upload Image</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>Upload Image</label>
                 <input
                   id="imageFile"
                   type="file"
@@ -352,11 +352,11 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                   disabled={uploadingImage}
                   style={{
                     width: '100%', height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    border: '1.5px solid #0071DC', borderRadius: 8, background: 'transparent',
-                    color: '#0071DC', fontSize: 13, fontWeight: 500, cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                    border: '1.5px solid var(--color-brand-red)', borderRadius: 8, background: 'transparent',
+                    color: 'var(--color-brand-red)', fontSize: 13, fontWeight: 500, cursor: uploadingImage ? 'not-allowed' : 'pointer',
                     transition: 'background 0.15s ease', opacity: uploadingImage ? 0.6 : 1,
                   }}
-                  onMouseEnter={e => { if (!uploadingImage) (e.currentTarget as HTMLElement).style.background = '#E6F1FB'; }}
+                  onMouseEnter={e => { if (!uploadingImage) (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-light)'; }}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                 >
                   <Upload style={{ width: 16, height: 16 }} />
@@ -365,12 +365,12 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
 
                 {!formData.image_url && (
                   <div style={{
-                    border: '2px dashed #E0E3E7', borderRadius: 10,
+                    border: '2px dashed var(--color-border-default)', borderRadius: 10,
                     padding: 32, textAlign: 'center', background: '#FAFBFC',
                   }}>
                     <Upload style={{ width: 32, height: 32, color: '#CBD5E1', margin: '0 auto 8px' }} />
-                    <p style={{ fontSize: 13, color: '#9AA0A6', margin: 0 }}>Upload category image</p>
-                    <p style={{ fontSize: 11, color: '#9AA0A6', margin: '4px 0 0' }}>PNG, JPG up to 10MB</p>
+                    <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>Upload category image</p>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '4px 0 0' }}>PNG, JPG up to 10MB</p>
                   </div>
                 )}
 
@@ -395,7 +395,7 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                         disabled={uploadingImage}
                         style={{
                           display: 'inline-flex', alignItems: 'center', gap: 6,
-                          background: '#E74040', color: '#FFFFFF', border: 'none',
+                          background: 'var(--color-brand-red-bright)', color: 'var(--color-surface-card)', border: 'none',
                           borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer',
                           opacity: uploadingImage ? 0.6 : 1,
                         }}
@@ -410,17 +410,17 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
 
             {/* Category Stats — edit mode only */}
             {isEdit && (
-              <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden' }}>
-                <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0E3E7' }}>
-                  <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Category Stats</span>
+              <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
+                <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border-default)' }}>
+                  <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Category Stats</span>
                 </div>
                 <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 12, borderBottom: '1px solid #F0F4F8' }}>
-                    <span style={{ fontSize: 12, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Products</span>
-                    <span style={{ fontSize: 20, fontWeight: 600, color: '#1A1A1A' }}>{productCount}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 12, borderBottom: '1px solid var(--color-admin-table-head)' }}>
+                    <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Products</span>
+                    <span style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-text-primary)' }}>{productCount}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 12, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</span>
+                    <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</span>
                     <span style={{
                       display: 'inline-flex', alignItems: 'center',
                       padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 500,
@@ -435,20 +435,20 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
             )}
 
             {/* Actions */}
-            <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
               <button
                 type="submit"
                 disabled={loading || uploadingImage}
                 style={{
                   width: '100%', height: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  background: loading || uploadingImage ? '#5A8FFF' : '#0071DC',
-                  color: '#FFFFFF', border: 'none', borderRadius: 8,
+                  background: loading || uploadingImage ? '#5A8FFF' : 'var(--color-brand-red)',
+                  color: 'var(--color-surface-card)', border: 'none', borderRadius: 8,
                   fontSize: 14, fontWeight: 500, cursor: loading || uploadingImage ? 'not-allowed' : 'pointer',
                   transition: 'background 0.15s ease',
                   opacity: loading || uploadingImage ? 0.7 : 1,
                 }}
-                onMouseEnter={e => { if (!loading && !uploadingImage) (e.currentTarget as HTMLElement).style.background = '#0055A6'; }}
-                onMouseLeave={e => { if (!loading && !uploadingImage) (e.currentTarget as HTMLElement).style.background = '#0071DC'; }}
+                onMouseEnter={e => { if (!loading && !uploadingImage) (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-deep)'; }}
+                onMouseLeave={e => { if (!loading && !uploadingImage) (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red)'; }}
               >
                 {loading ? 'Saving...' : isEdit ? 'Update Category' : 'Create Category'}
               </button>
@@ -458,18 +458,18 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                 disabled={loading}
                 style={{
                   width: '100%', height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'transparent', color: '#5F6368',
-                  border: '1.5px solid #E0E3E7', borderRadius: 8,
+                  background: 'transparent', color: 'var(--color-text-secondary)',
+                  border: '1.5px solid var(--color-border-default)', borderRadius: 8,
                   fontSize: 13, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.15s ease',
                 }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = '#F6F7F8';
-                  (e.currentTarget as HTMLElement).style.color = '#1A1A1A';
+                  (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-page)';
+                  (e.currentTarget as HTMLElement).style.color = 'var(--color-text-primary)';
                 }}
                 onMouseLeave={e => {
                   (e.currentTarget as HTMLElement).style.background = 'transparent';
-                  (e.currentTarget as HTMLElement).style.color = '#5F6368';
+                  (e.currentTarget as HTMLElement).style.color = 'var(--color-text-secondary)';
                 }}
               >
                 Cancel

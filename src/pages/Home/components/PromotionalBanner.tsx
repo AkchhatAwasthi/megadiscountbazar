@@ -25,9 +25,9 @@ const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
   const navigate = useNavigate();
 
   return (
-    <section className="py-[64px] md:py-[96px] bg-[var(--surface-white)]">
+    <section className="py-[64px] md:py-[96px] bg-[var(--color-surface-card)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className={`relative overflow-hidden rounded-[16px] bg-[var(--blue-primary)] flex flex-col md:flex-row ${align === 'right' ? 'md:flex-row-reverse' : ''}`}>
+        <div className={`relative overflow-hidden rounded-[16px] bg-[var(--color-brand-red)] flex flex-col md:flex-row ${align === 'right' ? 'md:flex-row-reverse' : ''}`}>
           
           {/* Content side */}
           <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center items-start text-left z-10">
@@ -44,7 +44,7 @@ const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
             )}
             <button
               onClick={() => navigate(link)}
-              className="px-10 py-4 bg-[var(--yellow-accent)] text-[#1A1A1A] rounded-[8px] text-[15px] font-[600] transition-all hover:bg-[var(--yellow-hover)] hover:shadow-lg active:scale-95 flex items-center gap-2 group"
+              className="px-10 py-4 bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] rounded-[8px] text-[15px] font-[600] transition-all hover:bg-[var(--color-brand-yellow-hover)] hover:shadow-lg active:scale-95 flex items-center gap-2 group"
             >
               {ctaText}
               <ArrowRight className="size-[18px] group-hover:translate-x-1 transition-transform" />

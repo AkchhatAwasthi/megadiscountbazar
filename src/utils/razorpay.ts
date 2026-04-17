@@ -232,7 +232,7 @@ export const initiateRazorpayPayment = async (
         items_count: orderData.items.length.toString()
       },
       theme: {
-        color: '#1a1a1a', // Luxury Charcoal
+        color: 'var(--color-text-primary)', // Luxury Charcoal
       },
       modal: {
         ondismiss: () => {
@@ -265,3 +265,4 @@ export const generateOrderReceipt = (orderData: OrderData): string => {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   return `OBITO_${timestamp}_${orderData.orderId.substring(orderData.orderId.length - 6)}`;
 };
+

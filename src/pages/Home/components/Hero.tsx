@@ -20,7 +20,7 @@ const HERO_SLIDES = [
     description: "The next generation of workspace tech has arrived. Save up to ₹15,000 on our newest pro-series laptops and accessories.",
     image: "https://images.unsplash.com/photo-1593360011559-a86836339999?q=80&w=2400&auto=format&fit=crop",
     cta: "Explore Tech Deals",
-    accent: "var(--blue-primary)",
+    accent: "var(--color-brand-red)",
     theme: "dark"
   },
   {
@@ -82,7 +82,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative w-full h-[85vh] md:h-[90vh] min-h-[500px] overflow-hidden bg-[var(--surface-light)]">
+    <div className="relative w-full h-[85vh] md:h-[90vh] min-h-[500px] overflow-hidden bg-[var(--color-surface-page)]">
       <AnimatePresence initial={false} custom={direction} mode="popLayout">
         <motion.div
            key={page}
@@ -101,8 +101,8 @@ const Hero = () => {
               className="w-full h-full object-cover"
             />
             {/* Optimized Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--surface-white)] via-[var(--surface-white)]/70 to-transparent lg:block hidden"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-[var(--surface-white)]/80 via-transparent to-black/30 lg:hidden"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-surface-card)] via-[var(--color-surface-card)]/70 to-transparent lg:block hidden"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-surface-card)]/80 via-transparent to-black/30 lg:hidden"></div>
             <div className="absolute inset-0 bg-white/5 backdrop-blur-[1px] lg:hidden"></div>
           </div>
 
@@ -116,7 +116,7 @@ const Hero = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="px-4 py-1.5 border border-[var(--blue-primary)] text-[var(--blue-primary)] rounded-full"
+                  className="px-4 py-1.5 border border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-full"
                 >
                    <span className="text-[11px] font-[600] tracking-[0.1em] uppercase">{current.tag}</span>
                 </motion.div>
@@ -127,19 +127,19 @@ const Hero = () => {
                      initial={{ y: 30, opacity: 0 }}
                      animate={{ y: 0, opacity: 1 }}
                      transition={{ delay: 0.3, duration: 0.7 }}
-                     className="text-[36px] sm:text-[48px] md:text-[64px] lg:text-[72px] font-[600] text-[var(--text-primary)] leading-[1.05] tracking-[-0.03em]"
+                     className="text-[36px] sm:text-[48px] md:text-[64px] lg:text-[72px] font-[600] text-[var(--color-text-primary)] leading-[1.05] tracking-[-0.03em]"
                    >
                      {current.title}
                    </motion.h1>
                    {/* Minimalist Geometry instead of Icons */}
-                   <div className="absolute -left-4 top-0 w-1 h-full bg-[var(--blue-primary)] rounded-full lg:block hidden opacity-40"></div>
+                   <div className="absolute -left-4 top-0 w-1 h-full bg-[var(--color-brand-red)] rounded-full lg:block hidden opacity-40"></div>
                 </div>
 
                 <motion.p
                    initial={{ y: 20, opacity: 0 }}
                    animate={{ y: 0, opacity: 1 }}
                    transition={{ delay: 0.4, duration: 0.6 }}
-                   className="text-[15px] sm:text-[17px] md:text-[19px] text-[var(--text-secondary)] max-w-[550px] leading-[1.6]"
+                   className="text-[15px] sm:text-[17px] md:text-[19px] text-[var(--color-text-secondary)] max-w-[550px] leading-[1.6]"
                 >
                    {current.description}
                 </motion.p>
@@ -153,7 +153,7 @@ const Hero = () => {
                 >
                    <button
                      onClick={() => navigate('/products')}
-                     className="w-full sm:w-auto px-[22px] py-[10px] bg-[var(--blue-primary)] hover:bg-[#0055A6] text-white rounded-[8px] text-[14px] font-[500] transition-all duration-200 hover:-translate-y-[1px] active:scale-95 flex items-center justify-center group border-none"
+                     className="w-full sm:w-auto px-[22px] py-[10px] bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white rounded-[8px] text-[14px] font-[500] transition-all duration-200 hover:-translate-y-[1px] active:scale-95 flex items-center justify-center group border-none"
                    >
                       <span>{current.cta}</span>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-2 group-hover:translate-x-1 transition-transform">
@@ -171,22 +171,22 @@ const Hero = () => {
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.8 }}
-                  className="bg-white/95 backdrop-blur-md p-6 rounded-[16px] border-[0.5px] border-[#E0E3E7] shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex flex-col gap-4"
+                  className="bg-white/95 backdrop-blur-md p-6 rounded-[16px] border-[0.5px] border-[var(--color-border-default)] shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex flex-col gap-4"
                 >
                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-[12px] bg-[var(--blue-light)] flex items-center justify-center text-[20px]">📦</div>
+                      <div className="w-12 h-12 rounded-[12px] bg-[var(--color-brand-red-light)] flex items-center justify-center text-[20px]">📦</div>
                       <div>
-                         <h4 className="text-[15px] font-[600] text-[var(--text-primary)]">Ready for Shipping</h4>
-                         <p className="text-[12px] text-[var(--text-secondary)]">Items processed in real-time</p>
+                         <h4 className="text-[15px] font-[600] text-[var(--color-text-primary)]">Ready for Shipping</h4>
+                         <p className="text-[12px] text-[var(--color-text-secondary)]">Items processed in real-time</p>
                       </div>
                    </div>
                    <div className="h-[1px] w-full bg-black/5"></div>
                    <div className="flex items-center justify-between gap-12">
                       <div>
-                         <p className="text-[10px] font-[600] text-[var(--text-muted)] uppercase tracking-widest mb-1">Estimated Delivery</p>
-                         <p className="text-[14px] font-[600] text-[var(--blue-primary)]">Tonight @ 8:00 PM</p>
+                         <p className="text-[10px] font-[600] text-[var(--color-text-muted)] uppercase tracking-widest mb-1">Estimated Delivery</p>
+                         <p className="text-[14px] font-[600] text-[var(--color-brand-red)]">Tonight @ 8:00 PM</p>
                       </div>
-                      <div className="w-10 h-10 rounded-full border-2 border-[var(--blue-primary)] border-t-transparent animate-spin"></div>
+                      <div className="w-10 h-10 rounded-full border-2 border-[var(--color-brand-red)] border-t-transparent animate-spin"></div>
                    </div>
                 </motion.div>
              </div>
@@ -200,10 +200,10 @@ const Hero = () => {
                    onClick={() => setPage([i, i > index ? 1 : -1])}
                    className="h-10 px-2 flex flex-col justify-center gap-1 group"
                 >
-                   <span className={`text-[10px] font-bold transition-colors ${index === i ? 'text-[var(--blue-primary)]' : 'text-black/20 group-hover:text-black/40'}`}>
+                   <span className={`text-[10px] font-bold transition-colors ${index === i ? 'text-[var(--color-brand-red)]' : 'text-black/20 group-hover:text-black/40'}`}>
                       0{i + 1}
                    </span>
-                   <div className={`h-0.5 rounded-full transition-all duration-500 ease-in-out ${index === i ? 'w-10 bg-[var(--blue-primary)]' : 'w-6 bg-black/10'}`} />
+                   <div className={`h-0.5 rounded-full transition-all duration-500 ease-in-out ${index === i ? 'w-10 bg-[var(--color-brand-red)]' : 'w-6 bg-black/10'}`} />
                 </button>
              ))}
           </div>
@@ -215,3 +215,4 @@ const Hero = () => {
 };
 
 export default Hero;
+

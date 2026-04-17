@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Filter, RotateCcw, Check, ChevronRight, ShoppingBag, Star, Zap } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 
 export interface ProductFilters {
   categories: string[];
@@ -47,7 +52,6 @@ const ProductFiltersComponent = ({ onFiltersChange, categories, className = "" }
       setAvailableFeatures(data?.map(f => f.name) || []);
     } catch (error) {
       console.error('Error fetching features:', error);
-      // Fallback defaults
       setAvailableFeatures([
         'Cotton', 'Silk', 'Zari', 'Embroidered', 'Festive',
         'Casual', 'Bridal', 'Sustainable', 'Designer', 'Limited'
@@ -105,150 +109,205 @@ const ProductFiltersComponent = ({ onFiltersChange, categories, className = "" }
   const activeFiltersCount = getActiveFiltersCount();
 
   return (
-    <div className={`${className} font-display`}>
-      <div className="space-y-10">
-
-        {/* Header Section */}
-        <div className="flex items-center justify-between border-b-2 border-[#F97316]/20 pb-4 relative">
-          <div className="absolute bottom-[-2px] left-0 w-1/3 h-[2px] bg-[#F97316]"></div>
-          <h3 className="font-bebas text-2xl text-[#0B0B0F] dark:text-white tracking-wider flex items-center gap-2 italic">
-            <span className="material-symbols-outlined text-[#F97316]">filter_alt</span>
-            REFINE GEAR
+    <div className={cn("space-y-8", className)}>
+      
+      {/* Header */}
+      <div className="flex items-center justify-between pb-4 border-b border-[var(--color-border-default)]">
+        <div className="flex items-center gap-2">
+          <Filter className="w-5 h-5 text-[var(--color-brand-red)]" />
+          <h3 className="text-lg font-semibold text-[var(--color-text-primary)] uppercase tracking-tight">
+            Refine Selection
           </h3>
-          {activeFiltersCount > 0 && (
-            <button
-              onClick={clearAllFilters}
-              className="text-[10px] font-bold uppercase tracking-widest text-[#EF4444] hover:text-[#F97316] transition-colors flex items-center gap-1 group"
-            >
-              <span className="material-symbols-outlined text-sm group-hover:rotate-180 transition-transform">restart_alt</span>
-              RESET
-            </button>
+        </div>
+        {activeFiltersCount > 0 && (
+          <button
+            onClick={clearAllFilters}
+            className="group flex items-center gap-1.5 text-xs font-medium text-[var(--color-brand-red)] hover:text-[var(--color-brand-red-deep)] transition-colors"
+          >
+            <RotateCcw className="w-3.5 h-3.5 group-hover:rotate-[-45deg] transition-transform" />
+            Reset All
+          </button>
+        )}
+      </div>
+
+      {/* Categories */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h4 className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">
+            Category
+          </h4>
+          {filters.categories.length > 0 && (
+            <Badge variant="secondary" className="bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)] border-none">
+              {filters.categories.length}
+            </Badge>
           )}
         </div>
-
-        {/* Categories - GenZ Tag Style */}
-        <div className="space-y-4">
-          <h4 className="font-bebas text-lg text-gray-400 tracking-widest uppercase flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]"></span>
-            CATEGORIES
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {categories.filter(c => c !== 'All').map((category) => {
-              const isActive = filters.categories.includes(category);
-              return (
-                <button
-                  key={category}
-                  onClick={() => toggleCategory(category)}
-                  className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider skew-x-[-10deg] transition-all duration-300 border ${isActive
-                      ? 'bg-[#F97316] text-white border-[#F97316] shadow-[4px_4px_0px_#000000] dark:shadow-[4px_4px_0px_#FFFFFF]'
-                      : 'bg-transparent text-gray-500 border-gray-300 dark:border-gray-700 hover:border-[#F97316] hover:text-[#F97316]'
-                    }`}
-                >
-                  <div className="skew-x-[10deg]">{category}</div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Price Range - Cyberpunk Slider */}
-        <div className="space-y-6">
-          <h4 className="font-bebas text-lg text-gray-400 tracking-widest uppercase flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]"></span>
-            BOUNTY RANGE (₹)
-          </h4>
-          <div className="px-2">
-            <input
-              type="range"
-              min="0"
-              max="50000"
-              step="1000"
-              value={filters.priceRange[1]}
-              onChange={(e) => updateFilters({ priceRange: [filters.priceRange[0], parseInt(e.target.value)] })}
-              className="w-full h-1 bg-gray-200 dark:bg-gray-800 rounded-lg appearance-none cursor-pointer accent-[#F97316]"
-            />
-            <div className="flex justify-between mt-3 font-mono text-xs font-bold text-[#F97316]">
-              <span>₹0</span>
-              <span className="bg-[#F97316]/10 px-2 py-1 rounded border border-[#F97316]/20">
-                UP TO ₹{filters.priceRange[1].toLocaleString()}
-              </span>
-              <span>₹50k+</span>
-            </div>
-          </div>
-
-          {/* Quick Action Chips */}
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { label: 'Under ₹2k', max: 2000 },
-              { label: 'Under ₹5k', max: 5000 },
-              { label: 'Under ₹10k', max: 10000 },
-              { label: 'Premium', max: 50000 }
-            ].map((pf, i) => (
+        <div className="grid grid-cols-1 gap-1">
+          {categories.filter(c => c !== 'All').map((category) => {
+            const isActive = filters.categories.includes(category);
+            return (
               <button
-                key={i}
-                onClick={() => updateFilters({ priceRange: [0, pf.max] })}
-                className="text-[10px] font-bold uppercase tracking-wide py-2 border border-dashed border-gray-300 dark:border-gray-700 hover:border-[#F97316] hover:text-[#F97316] transition-colors rounded-sm"
+                key={category}
+                onClick={() => toggleCategory(category)}
+                className={cn(
+                  "flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all duration-200 group",
+                  isActive 
+                    ? "bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)] font-semibold" 
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-page)] hover:text-[var(--color-text-primary)]"
+                )}
               >
-                {pf.label}
+                <span className="capitalize">{category}</span>
+                {isActive ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-40 transition-opacity" />
+                )}
               </button>
-            ))}
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Price Range */}
+      <div className="space-y-6">
+        <h4 className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">
+          Price Point
+        </h4>
+        <div className="px-1 pt-2">
+          <Slider
+            defaultValue={[filters.priceRange[1]]}
+            max={50000}
+            step={500}
+            onValueChange={(value) => updateFilters({ priceRange: [0, value[0]] })}
+            className="py-1"
+          />
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-xs font-bold">₹0</span>
+            <span className="text-sm font-bold text-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] px-2 py-0.5 rounded">
+              Up to ₹{filters.priceRange[1].toLocaleString()}
+            </span>
           </div>
         </div>
-
-        {/* Features - Custom Checkbox List */}
-        <div className="space-y-4">
-          <h4 className="font-bebas text-lg text-gray-400 tracking-widest uppercase flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]"></span>
-            ATTRIBUTES
-          </h4>
-          <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-            {loadingFeatures ? (
-              <div className="animate-pulse space-y-2">
-                <div className="h-6 bg-gray-100 dark:bg-gray-800 rounded w-3/4"></div>
-                <div className="h-6 bg-gray-100 dark:bg-gray-800 rounded w-1/2"></div>
-              </div>
-            ) : availableFeatures.map((feature) => {
-              const isChecked = filters.features.includes(feature);
-              return (
-                <label key={feature} className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-[#F97316]/5 transition-colors rounded">
-                  <div className={`relative w-4 h-4 border-2 transition-colors duration-300 ${isChecked ? 'border-[#F97316] bg-[#F97316]' : 'border-gray-300 dark:border-gray-600 group-hover:border-[#F97316]'}`}>
-                    {isChecked && (
-                      <span className="absolute inset-0 flex items-center justify-center text-white text-[10px] material-symbols-outlined font-bold">check</span>
-                    )}
-                  </div>
-                  <input
-                    type="checkbox"
-                    className="hidden"
-                    checked={isChecked}
-                    onChange={() => toggleFeature(feature)}
-                  />
-                  <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${isChecked ? 'text-[#F97316]' : 'text-gray-500 dark:text-gray-400 group-hover:text-[#F97316]'}`}>
-                    {feature}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Status Toggles - Switch Style */}
-        <div className="space-y-3 pt-4 border-t border-dashed border-gray-200 dark:border-gray-800">
+        
+        <div className="grid grid-cols-2 gap-2">
           {[
-            { id: 'inStock', label: 'IN STOCK ONLY', checked: filters.inStock },
-            { id: 'isBestseller', label: 'BESTSELLERS', checked: filters.isBestseller }
-          ].map((toggle) => (
-            <div key={toggle.id} className="flex items-center justify-between group cursor-pointer" onClick={() => updateFilters({ [toggle.id]: !toggle.checked })}>
-              <span className={`text-xs font-bold uppercase tracking-widest group-hover:text-[#F97316] transition-colors ${toggle.checked ? 'text-[#0B0B0F] dark:text-white' : 'text-gray-400'}`}>
-                {toggle.label}
-              </span>
-              <div className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${toggle.checked ? 'bg-[#F97316]' : 'bg-gray-200 dark:bg-gray-700'}`}>
-                <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${toggle.checked ? 'left-6 shadow-sm' : 'left-1'}`}></div>
-              </div>
-            </div>
+            { label: 'Under ₹2k', max: 2000 },
+            { label: 'Under ₹5k', max: 5000 },
+            { label: 'Under ₹10k', max: 10000 },
+            { label: 'Premium', max: 50000 }
+          ].map((pf, i) => (
+            <button
+              key={i}
+              onClick={() => updateFilters({ priceRange: [0, pf.max] })}
+              className="text-[10px] font-bold uppercase py-2 rounded-lg border border-[var(--color-border-default)] hover:border-[var(--color-brand-red)] hover:text-[var(--color-brand-red)] bg-white dark:bg-transparent transition-all"
+            >
+              {pf.label}
+            </button>
           ))}
         </div>
-
       </div>
+
+      {/* Attributes */}
+      <div className="space-y-4">
+        <h4 className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">
+          Product Attributes
+        </h4>
+        <div className="space-y-3 max-h-56 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[var(--color-border-default)]">
+          {loadingFeatures ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-5 bg-[var(--color-surface-page)] rounded animate-pulse w-full"></div>
+              ))}
+            </div>
+          ) : availableFeatures.map((feature) => {
+            const isChecked = filters.features.includes(feature);
+            return (
+              <div 
+                key={feature} 
+                className="flex items-center space-x-3 cursor-pointer group"
+                onClick={() => toggleFeature(feature)}
+              >
+                <Checkbox 
+                  id={`feature-${feature}`} 
+                  checked={isChecked} 
+                  className="rounded-md border-[var(--color-border-default)] data-[state=checked]:bg-[var(--color-brand-red)] data-[state=checked]:border-[var(--color-brand-red)]"
+                />
+                <label
+                  htmlFor={`feature-${feature}`}
+                  className={cn(
+                    "text-sm font-medium leading-none cursor-pointer transition-colors",
+                    isChecked ? "text-[var(--color-brand-red)] font-semibold" : "text-[var(--color-text-secondary)] group-hover:text-[var(--color-text-primary)]"
+                  )}
+                >
+                  {feature}
+                </label>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Rating Filter */}
+      <div className="space-y-4">
+        <h4 className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">
+          Customer Rating
+        </h4>
+        <div className="space-y-2">
+          {[4, 3, 2].map((star) => (
+            <button
+              key={star}
+              onClick={() => updateFilters({ rating: star })}
+              className={cn(
+                "flex items-center gap-2 w-full text-sm py-1.5 px-2 rounded-lg transition-colors",
+                filters.rating === star ? "bg-[var(--color-brand-yellow)]/10 text-[var(--color-brand-red)] font-semibold" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-page)]"
+              )}
+            >
+              <div className="flex items-center">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} size={14} className={cn(i < star ? "fill-[var(--color-brand-gold)] text-[var(--color-brand-gold)]" : "text-[var(--color-border-default)]")} />
+                ))}
+              </div>
+              <span>& Up</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Special Tags */}
+      <div className="pt-6 border-t border-[var(--color-border-default)] space-y-3">
+        {[
+          { id: 'inStock', label: 'In Stock Only', icon: ShoppingBag, checked: filters.inStock },
+          { id: 'isBestseller', label: 'Bestsellers', icon: Zap, checked: filters.isBestseller }
+        ].map((toggle) => (
+          <div 
+            key={toggle.id} 
+            className={cn(
+              "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
+              toggle.checked 
+                ? "border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] shadow-sm" 
+                : "border-[var(--color-border-default)] hover:border-[var(--color-brand-red)]/30 hover:bg-[var(--color-surface-page)]"
+            )}
+            onClick={() => updateFilters({ [toggle.id]: !toggle.checked })}
+          >
+            <div className="flex items-center gap-2.5">
+              <toggle.icon className={cn("w-4 h-4", toggle.checked ? "text-[var(--color-brand-red)]" : "text-[var(--color-text-muted)]")} />
+              <span className={cn("text-sm font-medium", toggle.checked ? "text-[var(--color-brand-red)]" : "text-[var(--color-text-primary)]")}>
+                {toggle.label}
+              </span>
+            </div>
+            <div className={cn(
+              "w-7 h-3.5 rounded-full relative transition-colors duration-200",
+              toggle.checked ? "bg-[var(--color-brand-red)]" : "bg-gray-200 dark:bg-gray-700"
+            )}>
+              <div className={cn(
+                "absolute top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-all duration-200",
+                toggle.checked ? "left-4" : "left-0.5"
+              )}></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 };

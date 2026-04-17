@@ -70,7 +70,7 @@ export default function Preloader() {
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ duration: 1, ease: [0.2, 0.8, 0.2, 1] }}
-                                className="relative size-[100px] bg-gradient-to-br from-[#0071DC] to-[#0055A6] rounded-2xl flex items-center justify-center shadow-[0_20px_40px_rgba(0,113,222,0.25)] border border-white/10"
+                                className="relative size-[100px] bg-gradient-to-br from-[var(--color-brand-red)] to-[var(--color-brand-red-deep)] rounded-2xl flex items-center justify-center shadow-[0_20px_40px_rgba(0,113,222,0.25)] border border-white/10"
                             >
                                 <span className="text-white text-[48px] font-[700] tracking-tighter select-none">M</span>
                                 
@@ -87,7 +87,7 @@ export default function Preloader() {
                                     transition={{ delay: 0.3, duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
                                     className="text-[28px] md:text-[32px] font-[600] text-white tracking-[-0.03em]"
                                 >
-                                    Megadiscount<span className="text-[#0071DC]">store</span>
+                                    Megadiscount<span className="text-[var(--color-brand-red)]">store</span>
                                 </motion.h1>
                             </div>
 
@@ -129,3 +129,4 @@ export default function Preloader() {
         </AnimatePresence>
     );
 }
+

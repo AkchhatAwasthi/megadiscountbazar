@@ -221,8 +221,8 @@ const InstagramPosts = () => {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
         <div style={{
-          width: 36, height: 36, border: '3px solid #E6F1FB',
-          borderTopColor: '#0071DC', borderRadius: '50%',
+          width: 36, height: 36, border: '3px solid var(--color-brand-red-light)',
+          borderTopColor: 'var(--color-brand-red)', borderRadius: '50%',
           animation: 'spin 0.8s linear infinite',
         }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -231,8 +231,8 @@ const InstagramPosts = () => {
   }
 
   const inputStyle: React.CSSProperties = {
-    border: '1.5px solid #E0E3E7', borderRadius: 8,
-    fontSize: 14, color: '#1A1A1A', background: '#FFFFFF', outline: 'none',
+    border: '1.5px solid var(--color-border-default)', borderRadius: 8,
+    fontSize: 14, color: 'var(--color-text-primary)', background: 'var(--color-surface-card)', outline: 'none',
   };
 
   return (
@@ -240,23 +240,23 @@ const InstagramPosts = () => {
 
       {/* Page Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 500, color: '#1A1A1A', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 500, color: 'var(--color-text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
           <Instagram style={{ width: 22, height: 22, color: '#E1306C' }} />
           Instagram Feed
         </h1>
-        <p style={{ fontSize: 13, color: '#9AA0A6', margin: '4px 0 0' }}>Manage your social media presence</p>
+        <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '4px 0 0' }}>Manage your social media presence</p>
       </div>
 
       {/* Add New Post Card */}
-      <div style={{ background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden', marginBottom: 24 }}>
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid #E0E3E7', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden', marginBottom: 24 }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border-default)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Instagram style={{ width: 18, height: 18, color: '#E1306C' }} />
-          <span style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A' }}>Add New Instagram Post</span>
+          <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Add New Instagram Post</span>
         </div>
         <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }} className="max-sm:grid-cols-1">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label htmlFor="embed_html" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Embed HTML</label>
+              <label htmlFor="embed_html" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>Embed HTML</label>
               <Textarea
                 id="embed_html"
                 placeholder="Paste Instagram embed HTML here"
@@ -267,7 +267,7 @@ const InstagramPosts = () => {
               />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label htmlFor="caption" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Caption</label>
+              <label htmlFor="caption" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>Caption</label>
               <Textarea
                 id="caption"
                 placeholder="Enter caption for the post"
@@ -281,19 +281,19 @@ const InstagramPosts = () => {
 
           <div style={{
             display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 20,
-            background: '#F8FBFF', border: '1px solid #E6F1FB', borderRadius: 8, padding: '12px 16px',
+            background: 'var(--color-surface-page)', border: '1px solid var(--color-brand-red-light)', borderRadius: 8, padding: '12px 16px',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Switch
                 id="is_active"
                 checked={newPost.is_active}
                 onCheckedChange={(checked) => setNewPost({ ...newPost, is_active: checked })}
-                className="data-[state=checked]:bg-[#0071DC]"
+                className="data-[state=checked]:bg-[var(--color-brand-red)]"
               />
-              <label htmlFor="is_active" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}>Active</label>
+              <label htmlFor="is_active" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)', cursor: 'pointer' }}>Active</label>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <label htmlFor="sort_order" style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A' }}>Sort Order:</label>
+              <label htmlFor="sort_order" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>Sort Order:</label>
               <Input
                 id="sort_order"
                 type="number"
@@ -312,13 +312,13 @@ const InstagramPosts = () => {
               disabled={saving}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
-                background: saving ? '#5A8FFF' : '#0071DC', color: '#FFFFFF',
+                background: saving ? '#5A8FFF' : 'var(--color-brand-red)', color: 'var(--color-surface-card)',
                 border: 'none', borderRadius: 8, padding: '8px 18px',
                 fontSize: 13, fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.7 : 1, transition: 'background 0.15s ease',
               }}
-              onMouseEnter={e => { if (!saving) (e.currentTarget as HTMLElement).style.background = '#0055A6'; }}
-              onMouseLeave={e => { if (!saving) (e.currentTarget as HTMLElement).style.background = '#0071DC'; }}
+              onMouseEnter={e => { if (!saving) (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-deep)'; }}
+              onMouseLeave={e => { if (!saving) (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red)'; }}
             >
               <PlusCircle style={{ width: 16, height: 16 }} />
               {saving ? 'Adding...' : 'Add Post'}
@@ -329,24 +329,24 @@ const InstagramPosts = () => {
 
       {/* Existing Posts */}
       <div>
-        <h2 style={{ fontSize: 17, fontWeight: 500, color: '#1A1A1A', margin: '0 0 16px' }}>
-          Existing Posts <span style={{ fontSize: 13, color: '#9AA0A6', fontWeight: 400 }}>({posts.length})</span>
+        <h2 style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)', margin: '0 0 16px' }}>
+          Existing Posts <span style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 400 }}>({posts.length})</span>
         </h2>
 
         {posts.length === 0 ? (
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            padding: 48, background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12,
+            padding: 48, background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12,
           }}>
             <AlertCircle style={{ width: 40, height: 40, color: '#CBD5E1', marginBottom: 12 }} />
-            <p style={{ fontSize: 14, color: '#9AA0A6', margin: 0 }}>No Instagram posts found</p>
+            <p style={{ fontSize: 14, color: 'var(--color-text-muted)', margin: 0 }}>No Instagram posts found</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}
             className="max-lg:grid-cols-2 max-sm:grid-cols-1">
             {posts.map((post) => (
               <div key={post.id} style={{
-                background: '#FFFFFF', border: '0.5px solid #E0E3E7', borderRadius: 12, overflow: 'hidden',
+                background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden',
                 transition: 'box-shadow 0.2s ease',
               }}
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'}
@@ -356,7 +356,7 @@ const InstagramPosts = () => {
                   {editingId === post.id && editData ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <label style={{ fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Embed HTML</label>
+                        <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Embed HTML</label>
                         <Textarea
                           value={editData.embed_html}
                           onChange={(e) => setEditData({ ...editData, embed_html: e.target.value })}
@@ -365,7 +365,7 @@ const InstagramPosts = () => {
                         />
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <label style={{ fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Caption</label>
+                        <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Caption</label>
                         <Textarea
                           value={editData.caption}
                           onChange={(e) => setEditData({ ...editData, caption: e.target.value })}
@@ -377,12 +377,12 @@ const InstagramPosts = () => {
                         <Switch
                           checked={editData.is_active}
                           onCheckedChange={(checked) => setEditData({ ...editData, is_active: checked })}
-                          className="data-[state=checked]:bg-[#0071DC]"
+                          className="data-[state=checked]:bg-[var(--color-brand-red)]"
                         />
-                        <Label style={{ fontSize: 13, color: '#1A1A1A' }}>Active</Label>
+                        <Label style={{ fontSize: 13, color: 'var(--color-text-primary)' }}>Active</Label>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <label style={{ fontSize: 12, fontWeight: 500, color: '#5F6368', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sort Order</label>
+                        <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Sort Order</label>
                         <Input
                           type="number"
                           min="0"
@@ -398,7 +398,7 @@ const InstagramPosts = () => {
                           disabled={saving}
                           style={{
                             flex: 1, height: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                            background: '#0071DC', color: '#FFFFFF', border: 'none', borderRadius: 8,
+                            background: 'var(--color-brand-red)', color: 'var(--color-surface-card)', border: 'none', borderRadius: 8,
                             fontSize: 13, fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
                           }}
                         >
@@ -410,8 +410,8 @@ const InstagramPosts = () => {
                           onClick={cancelEditing}
                           style={{
                             flex: 1, height: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                            background: 'transparent', color: '#5F6368',
-                            border: '1.5px solid #E0E3E7', borderRadius: 8,
+                            background: 'transparent', color: 'var(--color-text-secondary)',
+                            border: '1.5px solid var(--color-border-default)', borderRadius: 8,
                             fontSize: 13, fontWeight: 500, cursor: 'pointer',
                           }}
                         >
@@ -424,7 +424,7 @@ const InstagramPosts = () => {
                       {/* Embed preview */}
                       <div style={{
                         aspectRatio: '1 / 1', overflow: 'hidden', borderRadius: 8,
-                        background: '#F0F4F8', border: '1px solid #E0E3E7',
+                        background: 'var(--color-admin-table-head)', border: '1px solid var(--color-border-default)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         <div
@@ -434,12 +434,12 @@ const InstagramPosts = () => {
                       </div>
 
                       {/* Caption */}
-                      <p style={{ fontSize: 13, color: '#5F6368', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {post.caption}
                       </p>
 
                       {/* Status + order */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #F0F4F8' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid var(--color-admin-table-head)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{
                             display: 'inline-flex', alignItems: 'center',
@@ -449,7 +449,7 @@ const InstagramPosts = () => {
                           }}>
                             {post.is_active ? 'Active' : 'Inactive'}
                           </span>
-                          <span style={{ fontSize: 11, color: '#9AA0A6' }}>#{post.sort_order}</span>
+                          <span style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>#{post.sort_order}</span>
                         </div>
                         <div style={{ display: 'flex', gap: 4 }}>
                           <button
@@ -457,10 +457,10 @@ const InstagramPosts = () => {
                             onClick={() => startEditing(post)}
                             style={{
                               width: 32, height: 32, border: 'none', background: 'transparent', borderRadius: 6,
-                              color: '#5F6368', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              color: 'var(--color-text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                               transition: 'background 0.15s ease',
                             }}
-                            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F0F4F8'}
+                            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--color-admin-table-head)'}
                             onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                           >
                             <Eye style={{ width: 16, height: 16 }} />
@@ -470,7 +470,7 @@ const InstagramPosts = () => {
                             onClick={() => handleDeletePost(post.id)}
                             style={{
                               width: 32, height: 32, border: 'none', background: 'transparent', borderRadius: 6,
-                              color: '#9AA0A6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              color: 'var(--color-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                               transition: 'all 0.15s ease',
                             }}
                             onMouseEnter={e => {
@@ -479,7 +479,7 @@ const InstagramPosts = () => {
                             }}
                             onMouseLeave={e => {
                               (e.currentTarget as HTMLElement).style.background = 'transparent';
-                              (e.currentTarget as HTMLElement).style.color = '#9AA0A6';
+                              (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)';
                             }}
                           >
                             <Trash2 style={{ width: 16, height: 16 }} />
@@ -494,8 +494,8 @@ const InstagramPosts = () => {
                           onClick={() => movePost(post.id, 'up')}
                           disabled={posts.findIndex(p => p.id === post.id) === 0}
                           style={{
-                            flex: 1, height: 30, border: '1px solid #E0E3E7', borderRadius: 6,
-                            background: '#FFFFFF', fontSize: 13, color: '#5F6368',
+                            flex: 1, height: 30, border: '1px solid var(--color-border-default)', borderRadius: 6,
+                            background: 'var(--color-surface-card)', fontSize: 13, color: 'var(--color-text-secondary)',
                             cursor: posts.findIndex(p => p.id === post.id) === 0 ? 'not-allowed' : 'pointer',
                             opacity: posts.findIndex(p => p.id === post.id) === 0 ? 0.4 : 1,
                             transition: 'all 0.15s ease', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -508,8 +508,8 @@ const InstagramPosts = () => {
                           onClick={() => movePost(post.id, 'down')}
                           disabled={posts.findIndex(p => p.id === post.id) === posts.length - 1}
                           style={{
-                            flex: 1, height: 30, border: '1px solid #E0E3E7', borderRadius: 6,
-                            background: '#FFFFFF', fontSize: 13, color: '#5F6368',
+                            flex: 1, height: 30, border: '1px solid var(--color-border-default)', borderRadius: 6,
+                            background: 'var(--color-surface-card)', fontSize: 13, color: 'var(--color-text-secondary)',
                             cursor: posts.findIndex(p => p.id === post.id) === posts.length - 1 ? 'not-allowed' : 'pointer',
                             opacity: posts.findIndex(p => p.id === post.id) === posts.length - 1 ? 0.4 : 1,
                             transition: 'all 0.15s ease', display: 'flex', alignItems: 'center', justifyContent: 'center',

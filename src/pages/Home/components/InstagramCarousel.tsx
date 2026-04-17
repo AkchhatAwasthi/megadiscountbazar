@@ -72,19 +72,19 @@ const InstagramCarousel = () => {
   if (loading || instagramPosts.length === 0) return null;
 
   return (
-    <section className="py-[64px] md:py-[96px] bg-[var(--surface-white)] overflow-hidden">
+    <section className="py-[64px] md:py-[96px] bg-[var(--color-surface-card)] overflow-hidden">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div className="flex flex-col">
-            <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--blue-primary)] uppercase mb-2">
+            <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--color-brand-red)] uppercase mb-2">
               Follow Us
             </span>
-            <h2 className="text-[28px] md:text-[32px] font-[500] text-[#1A1A1A] leading-[1.2] tracking-[-0.02em]">
+            <h2 className="text-[28px] md:text-[32px] font-[500] text-[var(--color-text-primary)] leading-[1.2] tracking-[-0.02em]">
               Stay Connected on Instagram
             </h2>
-            <p className="text-[15px] text-[#5F6368] mt-3 max-w-2xl leading-[1.6]">
+            <p className="text-[15px] text-[var(--color-text-secondary)] mt-3 max-w-2xl leading-[1.6]">
               Follow @paridhanhaat for the latest updates, drops, and customer highlights.
             </p>
           </div>
@@ -92,7 +92,7 @@ const InstagramCarousel = () => {
           <div className="flex items-center gap-3">
              <button
                 onClick={() => window.open('https://instagram.com/paridhanhaat', '_blank')}
-                className="hidden md:flex items-center justify-center px-6 py-2.5 bg-[var(--blue-primary)] text-white rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--blue-deep)] hover:-translate-y-[1px]"
+                className="hidden md:flex items-center justify-center px-6 py-2.5 bg-[var(--color-brand-red)] text-white rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--color-brand-red-deep)] hover:-translate-y-[1px]"
              >
                 <Instagram className="size-[16px] mr-2" />
                 Follow @paridhanhaat
@@ -100,17 +100,17 @@ const InstagramCarousel = () => {
              <div className="flex gap-2">
                 <button
                     onClick={scrollPrev}
-                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[#E0E3E7] rounded-[8px] transition-colors hover:bg-[#F6F7F8]"
+                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[var(--color-border-default)] rounded-[8px] transition-colors hover:bg-[var(--color-surface-page)]"
                     aria-label="Previous Slide"
                 >
-                    <ChevronLeft className="size-[20px] text-[#1A1A1A]" />
+                    <ChevronLeft className="size-[20px] text-[var(--color-text-primary)]" />
                 </button>
                 <button
                     onClick={scrollNext}
-                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[#E0E3E7] rounded-[8px] transition-colors hover:bg-[#F6F7F8]"
+                    className="size-[40px] flex items-center justify-center border-[1.5px] border-[var(--color-border-default)] rounded-[8px] transition-colors hover:bg-[var(--color-surface-page)]"
                     aria-label="Next Slide"
                 >
-                    <ChevronRight className="size-[20px] text-[#1A1A1A]" />
+                    <ChevronRight className="size-[20px] text-[var(--color-text-primary)]" />
                 </button>
              </div>
           </div>
@@ -125,10 +125,10 @@ const InstagramCarousel = () => {
             {instagramPosts.map((post) => (
               <motion.div 
                 key={post.id} 
-                className="min-w-[280px] md:min-w-[320px] snap-start bg-white rounded-[12px] border border-[var(--border-default)] overflow-hidden transition-all duration-300 hover:border-[var(--blue-primary)] hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)] group"
+                className="min-w-[280px] md:min-w-[320px] snap-start bg-white rounded-[12px] border border-[var(--color-border-default)] overflow-hidden transition-all duration-300 hover:border-[var(--color-brand-red)] hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)] group"
               >
                 {/* Embed Side */}
-                <div className="relative aspect-[4/5] bg-[#F6F7F8]">
+                <div className="relative aspect-[4/5] bg-[var(--color-surface-page)]">
                    <div 
                       dangerouslySetInnerHTML={{ __html: post.embed_html }} 
                       className="w-full h-full [&_blockquote]:!m-0 [&_iframe]:!w-full [&_iframe]:!h-full [&_iframe]:!rounded-none" 
@@ -139,16 +139,16 @@ const InstagramCarousel = () => {
                 </div>
 
                 {/* Card Footer */}
-                <div className="p-5 border-t border-[var(--border-default)] flex flex-col gap-3">
+                <div className="p-5 border-t border-[var(--color-border-default)] flex flex-col gap-3">
                   <div className="flex items-center gap-2">
-                    <div className="size-[24px] bg-[var(--blue-light)] rounded-full flex items-center justify-center text-[var(--blue-primary)]">
+                    <div className="size-[24px] bg-[var(--color-brand-red-light)] rounded-full flex items-center justify-center text-[var(--color-brand-red)]">
                        <Instagram className="size-[12px]" />
                     </div>
-                    <span className="text-[13px] font-[600] text-[#1A1A1A]">@paridhanhaat</span>
+                    <span className="text-[13px] font-[600] text-[var(--color-text-primary)]">@paridhanhaat</span>
                   </div>
                   <button 
                     onClick={() => window.open('https://instagram.com/paridhanhaat', '_blank')}
-                    className="w-full py-2 border-[1.5px] border-[var(--blue-primary)] text-[var(--blue-primary)] rounded-[8px] text-[12px] font-[500] transition-all hover:bg-[var(--blue-light)]"
+                    className="w-full py-2 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] text-[12px] font-[500] transition-all hover:bg-[var(--color-brand-red-light)]"
                   >
                     View Post
                   </button>
@@ -158,15 +158,15 @@ const InstagramCarousel = () => {
           </div>
 
           {/* Masking Gradients */}
-          <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-[var(--surface-white)] to-transparent pointer-events-none hidden md:block"></div>
-          <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[var(--surface-white)] to-transparent pointer-events-none hidden md:block"></div>
+          <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-[var(--color-surface-card)] to-transparent pointer-events-none hidden md:block"></div>
+          <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[var(--color-surface-card)] to-transparent pointer-events-none hidden md:block"></div>
         </div>
 
         {/* Mobile Call to Action */}
         <div className="md:hidden mt-8">
             <button
                 onClick={() => window.open('https://instagram.com/paridhanhaat', '_blank')}
-                className="w-full py-4 bg-[var(--blue-primary)] text-white rounded-[8px] text-[14px] font-[600] flex items-center justify-center gap-2"
+                className="w-full py-4 bg-[var(--color-brand-red)] text-white rounded-[8px] text-[14px] font-[600] flex items-center justify-center gap-2"
             >
                 <Instagram className="size-[18px]" />
                 Follow us on Instagram

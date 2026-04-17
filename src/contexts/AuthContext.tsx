@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useStore } from '@/store/useStore';
 
 interface AuthContextType {
   user: User | null;
@@ -91,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    useStore.getState().triggerAnimation('bye-bye');
     await supabase.auth.signOut();
   };
 

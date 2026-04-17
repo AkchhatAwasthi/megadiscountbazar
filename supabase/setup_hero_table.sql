@@ -32,3 +32,30 @@ VALUES
   ('Opulence', 'Festive Edit', 'Shine brighter than the occasion itself.', 'Shop Festive', '/hero-images/hero_festive.png', 3, true),
   ('Legacy', 'Men''s Couture', 'Sophistication isn''t a choice. It''s a standard.', 'View Collection', '/hero-images/hero_mens.png', 4, true),
   ('Bespoke', 'Master Tailoring', 'Your fit. Your rules. Perfection guaranteed.', 'Consult', '/hero-images/hero_tailoring.png', 5, true);
+
+
+
+
+-- 1. Create the 'hero-images' bucket
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('hero-images', 'hero-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. Policy: Allow public access to view images
+-- (This is required for the hero images to show on the website)
+CREATE POLICY "Public Access"
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'hero-images' );
+
+-- 3. Policy: Allow authenticated users to upload images
+-- (This allows you to upload banners from the Admin panel)
+CREATE POLICY "Authenticated Upload"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK ( bucket_id = 'hero-images' );
+
+-- 4. Policy: Allow authenticated users to update/delete their images
+CREATE POLICY "Authenticated Update/Delete"
+ON storage.objects FOR ALL
+TO authenticated
+USING ( bucket_id = 'hero-images' );

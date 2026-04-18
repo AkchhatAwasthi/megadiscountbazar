@@ -86,35 +86,45 @@ const AdminProducts = () => {
   };
 
   const downloadTemplate = () => {
+    // ─── Simplified universal template (23 columns) ───────────────────────────
+    // variants format: Label:Price:OriginalPrice:Weight:Pieces:Stock separated by |
+    //   e.g.  "500g Pack:599:999:500g:1:50|1kg Pack:999:1799:1kg:1:30"
     const headers = [
-      'name', 'price', 'original_price', 'category_name', 'weight',
-      'stock_quantity', 'pieces', 'description', 'care_instructions',
-      'available_sizes', 'available_weights', 'is_active', 'is_bestseller',
-      'new_arrival', 'features', 'fabric', 'pattern', 'fit', 'occasion',
-      'sleeve_type', 'neck_type', 'origin', 'size_chart_url',
-      'is_tailored_available', 'custom_size_note', 'marketed_by', 'city', 'state'
+      'name', 'price', 'original_price', 'category_name',
+      'stock_quantity', 'weight', 'pieces',
+      'description', 'care_instructions',
+      'is_active', 'is_bestseller', 'new_arrival',
+      'features', 'fabric', 'pattern', 'fit', 'occasion', 'origin',
+      'marketed_by', 'city', 'state',
+      'available_weights',
+      'variants'
     ];
 
     const esc = (v: string) =>
       v.includes(',') || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v;
 
-    // Clothing example
+    // Row 1 — Clothing (no variants; weight options instead)
     const clothingRow = [
-      'Floral Silk Kurta Set', '2499', '4999', 'Ethnic Wear', '450g',
-      '30', '3 Piece Set', 'Elegant embroidered silk kurta set with palazzo and dupatta',
-      'Dry Clean Only', 'S,M,L,XL,XXL', '', 'true', 'false', 'true',
+      'Floral Silk Kurta Set', '2499', '4999', 'Ethnic Wear',
+      '30', '450g', '3 Piece Set',
+      'Elegant embroidered silk kurta with palazzo and dupatta', 'Dry clean only',
+      'true', 'false', 'true',
       'Hand Embroidered,Pure Silk,Designer Wear', 'Pure Silk', 'Floral Embroidery',
-      'Straight Fit', 'Festive/Wedding', 'Full Sleeve', 'Round Neck', 'India',
-      '', 'false', '', 'GenzClothing Pvt Ltd', 'Mumbai', 'Maharashtra'
+      'Straight Fit', 'Festive/Wedding', 'India',
+      'GenzClothing Pvt Ltd', 'Mumbai', 'Maharashtra',
+      '', ''
     ];
 
-    // Electronics example — "Electronics" category is auto-created if it doesn't exist
+    // Row 2 — Electronics with variants (category auto-created if absent)
     const electronicsRow = [
-      'Wireless Noise Cancelling Headphones', '3999', '7999', 'Electronics', '250g',
-      '20', '1', 'Premium wireless headphones with active noise cancellation and 30hr battery',
-      'Wipe with dry cloth only', 'Free Size', '', 'true', 'true', 'false',
-      'Bluetooth 5.3,30hr Battery,ANC Technology,USB-C Charging', '', '', '', '', '', '', 'Japan',
-      '', 'false', '', 'Sony India', 'Bengaluru', 'Karnataka'
+      'GenzPhone Pro Smartphone', '24990', '34990', 'Electronics',
+      '45', '180g', '1',
+      'Flagship smartphone with 6.7-inch OLED display and 50MP camera system', 'Keep away from moisture',
+      'true', 'true', 'false',
+      '5G Ready,OLED Display,50MP Camera,5000mAh Battery', 'Metal', '', '', '', 'India',
+      'GenzTech India', 'Bengaluru', 'Karnataka',
+      '',
+      '64GB:24990:34990::1:20|128GB:29990:39990::1:15|256GB:34990:44990::1:10'
     ];
 
     const csvContent = [
@@ -156,6 +166,7 @@ const AdminProducts = () => {
         const rows = results.data as any[];
         try {
           const productsToInsert = [];
+          const variantsByIndex: any[][] = [];
           const localCats = [...categoryObjects]; // mutable local copy for auto-created categories
 
           for (const row of rows) {
@@ -181,9 +192,9 @@ const AdminProducts = () => {
               }
             }
 
-            // Build product_specs from flat spec columns
+            // Build product_specs from spec columns
             const product_specs: Record<string, string> = {};
-            ['fabric', 'pattern', 'fit', 'occasion', 'sleeve_type', 'neck_type', 'origin'].forEach(key => {
+            ['fabric', 'pattern', 'fit', 'occasion', 'origin'].forEach(key => {
               if (row[key]?.trim()) product_specs[key] = row[key].trim();
             });
 
@@ -207,12 +218,8 @@ const AdminProducts = () => {
               sku: generateBulkSKU(row.name),
               pieces: row.pieces?.trim() || null,
               care_instructions: row.care_instructions?.trim() || null,
-              available_sizes: splitList(row.available_sizes),
               available_weights: splitList(row.available_weights),
               features: splitList(row.features),
-              size_chart_url: row.size_chart_url?.trim() || null,
-              is_tailored_available: boolField(row.is_tailored_available),
-              custom_size_note: row.custom_size_note?.trim() || null,
             };
 
             if (Object.keys(product_specs).length > 0) {
@@ -227,6 +234,27 @@ const AdminProducts = () => {
               };
             }
 
+            // Parse variants column: "Label:Price:OrgPrice:Weight:Pieces:Stock|..."
+            const rowVariants: any[] = [];
+            if (row.variants?.trim()) {
+              row.variants.split('|').forEach((seg: string, vi: number) => {
+                const parts = seg.split(':');
+                const vPrice = Number(parts[1]);
+                if (parts[0]?.trim() && vPrice > 0) {
+                  rowVariants.push({
+                    label: parts[0].trim(),
+                    price: vPrice,
+                    original_price: Number(parts[2]) || vPrice,
+                    weight: parts[3]?.trim() || null,
+                    pieces: parts[4]?.trim() || null,
+                    stock_quantity: Number(parts[5]) || 0,
+                    sort_order: vi,
+                    is_active: true,
+                  });
+                }
+              });
+            }
+
             // Strip nulls / empty arrays
             productsToInsert.push(
               Object.fromEntries(
@@ -235,11 +263,24 @@ const AdminProducts = () => {
                 )
               )
             );
+            variantsByIndex.push(rowVariants);
           }
 
           if (productsToInsert.length > 0) {
-            const { error } = await supabase.from('products').insert(productsToInsert);
+            const { data: insertedProducts, error } = await supabase
+              .from('products')
+              .insert(productsToInsert)
+              .select('id');
             if (error) throw error;
+
+            // Insert variants for products that have them
+            const allVariants: any[] = [];
+            (insertedProducts || []).forEach((p: any, i: number) => {
+              (variantsByIndex[i] || []).forEach(v => allVariants.push({ ...v, product_id: p.id }));
+            });
+            if (allVariants.length > 0) {
+              await (supabase as any).from('product_variants').insert(allVariants);
+            }
 
             toast({
               title: "Success",

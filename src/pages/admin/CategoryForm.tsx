@@ -408,6 +408,73 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
               </div>
             </div>
 
+            {/* Live Category Card Preview */}
+            <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border-default)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Card Preview</span>
+                <span style={{ fontSize: 11, color: 'var(--color-text-muted)', background: 'var(--color-surface-page)', padding: '3px 8px', borderRadius: 6 }}>Live</span>
+              </div>
+              <div style={{ padding: 20 }}>
+                {/* Category Card mock */}
+                <div style={{
+                  borderRadius: 12, overflow: 'hidden', border: '0.5px solid var(--color-border-default)',
+                  background: 'var(--color-surface-card)', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  transition: 'box-shadow 0.2s ease',
+                }}>
+                  {/* Image */}
+                  <div style={{ position: 'relative', aspectRatio: '4/3', background: 'var(--color-surface-page)', overflow: 'hidden' }}>
+                    {formData.image_url ? (
+                      <img
+                        src={formData.image_url}
+                        alt=""
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s ease' }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--color-text-muted)' }}>
+                        <span style={{ fontSize: 28 }}>🖼️</span>
+                        <span style={{ fontSize: 11 }}>No image uploaded</span>
+                      </div>
+                    )}
+                    {/* Status badge */}
+                    <span style={{
+                      position: 'absolute', top: 8, right: 8,
+                      padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600,
+                      background: formData.is_active ? '#EAF3DE' : '#F1EFE8',
+                      color: formData.is_active ? '#27500A' : '#444441',
+                    }}>
+                      {formData.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  {/* Content */}
+                  <div style={{ padding: '14px 16px' }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-primary)', margin: '0 0 4px', lineHeight: 1.3 }}>
+                      {formData.name || 'Category Name'}
+                    </h3>
+                    <p style={{
+                      fontSize: 12, color: 'var(--color-text-secondary)', margin: '0 0 12px',
+                      lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2 as any,
+                      WebkitBoxOrient: 'vertical' as any, overflow: 'hidden',
+                    }}>
+                      {formData.description || 'Category description will appear here'}
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
+                        {isEdit ? `${productCount} products` : '0 products'}
+                      </span>
+                      <span style={{
+                        fontSize: 12, fontWeight: 600, color: 'var(--color-brand-red)',
+                        display: 'inline-flex', alignItems: 'center', gap: 3,
+                        cursor: 'default',
+                      }}>
+                        Shop Now →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <p style={{ fontSize: 10, color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 8 }}>Updates as you type</p>
+              </div>
+            </div>
+
             {/* Category Stats — edit mode only */}
             {isEdit && (
               <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>

@@ -7,12 +7,9 @@ import {
   Truck,
   ShieldCheck,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   Star,
-  Share2,
-  Ruler,
-  Info
+  Share2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useStore } from '@/store/useStore';
@@ -30,10 +27,11 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<any>(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState<string>('');
   const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
+  const [variants, setVariants] = useState<any[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
 
   const { addToCart } = useStore();
   const { toast } = useToast();
@@ -66,6 +64,17 @@ const ProductDetail = () => {
       if (error) throw error;
       setProduct(data);
       if (data?.images?.length) setActiveImage(data.images[0]);
+
+      // Fetch product variants
+      const { data: variantData } = await (supabase as any)
+        .from('product_variants')
+        .select('*')
+        .eq('product_id', data.id)
+        .eq('is_active', true)
+        .order('sort_order');
+      const activeVariants = variantData || [];
+      setVariants(activeVariants);
+      if (activeVariants.length > 0) setSelectedVariant(activeVariants[0]);
 
       if (data?.category_id) {
         fetchRelatedProducts(data.category_id, data.id);
@@ -121,36 +130,43 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    // If sizes are available or we default to showing sizes, and none selected
-    // Note: To be safe, wait, sizes are always shown (defaulting to XS...XXL). 
-    // Let's require size if sizes are shown.
-    if (!selectedSize && sizes.length > 0) {
-      toast({ title: "Please select a size", variant: "destructive" });
+    if (variants.length > 0 && !selectedVariant) {
+      toast({ title: "Please select a variant", variant: "destructive" });
       return;
     }
 
-    // Require weight if weights are available
-    const weights = product?.available_weights || [];
-    if (weights.length > 0 && !selectedWeight) {
-      toast({ title: "Please select a weight category", variant: "destructive" });
-      return;
+    // Weight check only when no variants
+    if (variants.length === 0) {
+      const weights = product?.available_weights || [];
+      if (weights.length > 0 && !selectedWeight) {
+        toast({ title: "Please select a weight option", variant: "destructive" });
+        return;
+      }
     }
+
+    const effectivePrice = selectedVariant ? selectedVariant.price : product.price;
+    const effectiveOrigPrice = selectedVariant ? (selectedVariant.original_price || selectedVariant.price) : product.original_price;
 
     const productToAdd = {
       ...product,
+      price: effectivePrice,
+      originalPrice: effectiveOrigPrice,
+      original_price: effectiveOrigPrice,
       image: product.images?.[0] || '/placeholder.svg',
       slug: product.sku || product.id,
       category: product.categories?.name || 'Unknown',
-      inStock: product.stock_quantity > 0,
+      inStock: (selectedVariant ? selectedVariant.stock_quantity : product.stock_quantity) > 0,
     };
 
+    const variantLabel = selectedVariant?.label || selectedWeight || undefined;
+
     for (let i = 0; i < quantity; i++) {
-        addToCart(productToAdd, selectedSize || undefined, selectedWeight || undefined);
+      addToCart(productToAdd, undefined, variantLabel);
     }
 
     toast({
-      title: "Success",
-      description: `${product.name} has been added to your cart.`,
+      title: "Added to cart!",
+      description: `${product.name}${selectedVariant ? ` · ${selectedVariant.label}` : ''} added successfully.`,
     });
   };
 
@@ -173,8 +189,9 @@ const ProductDetail = () => {
     );
   }
 
-  const discountPercentage = product.original_price ? calculateDiscount(product.original_price, product.price) : 0;
-  const sizes = product?.available_sizes?.length > 0 ? product.available_sizes : ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const displayPrice = selectedVariant ? selectedVariant.price : product.price;
+  const displayOriginalPrice = selectedVariant ? (selectedVariant.original_price || selectedVariant.price) : product.original_price;
+  const discountPercentage = displayOriginalPrice ? calculateDiscount(displayOriginalPrice, displayPrice) : 0;
 
   return (
     <div className="bg-white min-h-screen font-inter selection:bg-[var(--color-brand-red)]/10">
@@ -277,9 +294,14 @@ const ProductDetail = () => {
 
             <div className="space-y-1 py-4 border-y border-[var(--color-border-default)]/50">
                <div className="flex items-baseline gap-3">
-                  <span className="text-[32px] font-[600] text-[var(--color-text-primary)]">{formatPrice(product.price)}</span>
-                  {product.original_price > product.price && (
-                    <span className="text-[17px] text-[var(--color-text-muted)] line-through">{formatPrice(product.original_price)}</span>
+                  <span className="text-[32px] font-[600] text-[var(--color-text-primary)] transition-all duration-200">{formatPrice(displayPrice)}</span>
+                  {displayOriginalPrice > displayPrice && (
+                    <span className="text-[17px] text-[var(--color-text-muted)] line-through">{formatPrice(displayOriginalPrice)}</span>
+                  )}
+                  {discountPercentage > 0 && (
+                    <span className="text-[13px] font-[600] text-[#2E8B57] bg-green-50 px-2 py-0.5 rounded-[6px]">
+                      {discountPercentage}% off
+                    </span>
                   )}
                </div>
                <p className="text-[14px] text-[var(--color-text-secondary)]">
@@ -287,34 +309,40 @@ const ProductDetail = () => {
                </p>
             </div>
 
-            {/* Size Selector */}
-            <div className="space-y-4">
-               <div className="flex justify-between items-center">
-                  <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Size</span>
-                  <button className="text-[13px] font-[500] text-[var(--color-brand-red)] hover:underline flex items-center gap-1.5">
-                     <Ruler size={16} />
-                     Size Guide
-                  </button>
-               </div>
-               <div className="flex flex-wrap gap-3">
-                  {sizes.map((size: string) => (
+            {/* Variant Selector */}
+            {variants.length > 0 && (
+              <div className="space-y-4">
+                <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Variant</span>
+                <div className="flex flex-wrap gap-3">
+                  {variants.map((v: any) => (
                     <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`h-12 min-w-[64px] px-4 rounded-[8px] font-[600] text-[14px] transition-all border-[1.5px] ${
-                        selectedSize === size
-                          ? 'border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]'
-                          : 'border-[var(--color-border-default)] hover:border-[var(--color-text-muted)] text-[var(--color-text-secondary)]'
+                      key={v.id}
+                      onClick={() => setSelectedVariant(v)}
+                      className={`flex flex-col items-start px-4 py-3 rounded-[10px] border-[1.5px] transition-all text-left min-w-[100px] ${
+                        selectedVariant?.id === v.id
+                          ? 'border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)]'
+                          : 'border-[var(--color-border-default)] hover:border-[var(--color-text-muted)] bg-white'
                       }`}
                     >
-                      {size}
+                      <span className={`text-[14px] font-[600] leading-tight ${selectedVariant?.id === v.id ? 'text-[var(--color-brand-red)]' : 'text-[var(--color-text-primary)]'}`}>
+                        {v.label}
+                      </span>
+                      <span className={`text-[13px] font-[500] mt-0.5 ${selectedVariant?.id === v.id ? 'text-[var(--color-brand-red)]' : 'text-[var(--color-text-secondary)]'}`}>
+                        {formatPrice(v.price)}
+                      </span>
+                      {v.original_price > v.price && (
+                        <span className="text-[11px] text-[#2E8B57] font-[500] mt-0.5">
+                          {Math.round(((v.original_price - v.price) / v.original_price) * 100)}% off
+                        </span>
+                      )}
                     </button>
                   ))}
-               </div>
-            </div>
+                </div>
+              </div>
+            )}
 
-            {/* Weight Selector */}
-            {product?.available_weights?.length > 0 && (
+            {/* Weight Selector — hidden when product has variants */}
+            {product?.available_weights?.length > 0 && variants.length === 0 && (
               <div className="space-y-4">
                  <div className="flex justify-between items-center">
                     <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Weight</span>
@@ -397,29 +425,70 @@ const ProductDetail = () => {
                      <ChevronDown size={20} className="group-open:rotate-180 transition-transform" />
                   </summary>
                   <div className="pt-4 text-[15px] text-[var(--color-text-secondary)] leading-[1.65]">
-                    {product.description || "Premium quality apparel designed for modern lifestyle. Comfort meeting style."}
+                    {product.description || "No description available for this product."}
                   </div>
                </details>
+               {/* Specifications — universal, driven by product_specs + weight/pieces */}
+               {(product.weight || product.pieces || selectedVariant?.weight || selectedVariant?.pieces ||
+                 (product.product_specs && Object.values(product.product_specs).some(Boolean)) ||
+                 (Array.isArray(product.features) && product.features.length > 0)) && (
                <details className="group py-6">
                   <summary className="flex items-center justify-between cursor-pointer list-none">
-                     <span className="text-[15px] font-[600] text-[var(--color-text-primary)]">Specifications & Fit</span>
+                     <span className="text-[15px] font-[600] text-[var(--color-text-primary)]">Specifications</span>
                      <ChevronDown size={20} className="group-open:rotate-180 transition-transform" />
                   </summary>
                   <div className="pt-4 space-y-3">
-                     <div className="grid grid-cols-3 gap-4">
-                        <span className="text-[13px] text-[var(--color-text-secondary)]">Fabric</span>
-                        <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">{product.product_specs?.fabric || "Cotton Blend"}</span>
-                     </div>
-                     <div className="grid grid-cols-3 gap-4">
-                        <span className="text-[13px] text-[var(--color-text-secondary)]">Weight</span>
-                        <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">240 GSM Heavyweight</span>
-                     </div>
-                     <div className="grid grid-cols-3 gap-4">
-                        <span className="text-[13px] text-[var(--color-text-secondary)]">Fit</span>
-                        <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">Oversized / Boxy</span>
-                     </div>
+                     {/* Weight — from variant or product */}
+                     {(selectedVariant?.weight || product.weight) && (
+                       <div className="grid grid-cols-3 gap-4">
+                         <span className="text-[13px] text-[var(--color-text-secondary)]">Weight</span>
+                         <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">{selectedVariant?.weight || product.weight}</span>
+                       </div>
+                     )}
+                     {/* Pieces — from variant or product */}
+                     {(selectedVariant?.pieces || product.pieces) && (
+                       <div className="grid grid-cols-3 gap-4">
+                         <span className="text-[13px] text-[var(--color-text-secondary)]">Pieces</span>
+                         <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">{selectedVariant?.pieces || product.pieces}</span>
+                       </div>
+                     )}
+                     {/* Dynamic product_specs key-value pairs */}
+                     {product.product_specs && typeof product.product_specs === 'object' &&
+                       Object.entries(product.product_specs as Record<string, string>)
+                         .filter(([, v]) => v)
+                         .map(([key, value]) => (
+                           <div key={key} className="grid grid-cols-3 gap-4">
+                             <span className="text-[13px] text-[var(--color-text-secondary)] capitalize">{key.replace(/_/g, ' ')}</span>
+                             <span className="col-span-2 text-[13px] font-[500] text-[var(--color-text-primary)]">{String(value)}</span>
+                           </div>
+                         ))
+                     }
+                     {/* Features as tags */}
+                     {Array.isArray(product.features) && product.features.length > 0 && (
+                       <div className="grid grid-cols-3 gap-4 items-start pt-1">
+                         <span className="text-[13px] text-[var(--color-text-secondary)]">Features</span>
+                         <div className="col-span-2 flex flex-wrap gap-2">
+                           {product.features.map((f: string) => (
+                             <span key={f} className="text-[12px] bg-[var(--color-surface-page)] text-[var(--color-text-secondary)] px-2.5 py-1 rounded-[6px] border border-[var(--color-border-default)]">{f}</span>
+                           ))}
+                         </div>
+                       </div>
+                     )}
                   </div>
                </details>
+               )}
+               {/* Care Instructions */}
+               {product.care_instructions && (
+               <details className="group py-6">
+                  <summary className="flex items-center justify-between cursor-pointer list-none">
+                     <span className="text-[15px] font-[600] text-[var(--color-text-primary)]">Care & Handling</span>
+                     <ChevronDown size={20} className="group-open:rotate-180 transition-transform" />
+                  </summary>
+                  <div className="pt-4 text-[15px] text-[var(--color-text-secondary)] leading-[1.65]">
+                     {product.care_instructions}
+                  </div>
+               </details>
+               )}
             </div>
           </div>
         </div>
@@ -430,7 +499,7 @@ const ProductDetail = () => {
              <div className="flex justify-between items-end mb-10">
                 <div>
                    <h2 className="text-[28px] font-[600] text-[var(--color-text-primary)] mb-2">You May Also Like</h2>
-                   <p className="text-[15px] text-[var(--color-text-secondary)]">Complete the look with these curated pieces.</p>
+                   <p className="text-[15px] text-[var(--color-text-secondary)]">More products from the same collection.</p>
                 </div>
                 <Link to="/products" className="text-[14px] font-[600] text-[var(--color-brand-red)] hover:underline flex items-center gap-1">
                    View More <ChevronRight size={18} />

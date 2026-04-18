@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Upload, X, ChevronUp, ChevronDown, Check, Info, Wand2 } from 'lucide-react';
+import { ArrowLeft, Upload, X, ChevronUp, ChevronDown, Check, Info, Wand2, Plus, Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,6 +44,16 @@ interface ProductFormProps {
   isEdit?: boolean;
 }
 
+interface Variant {
+  id?: string;
+  label: string;
+  price: number | string;
+  original_price: number | string;
+  weight: string;
+  pieces: string;
+  stock_quantity: number | string;
+}
+
 const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -77,6 +87,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [urlPreviewError, setUrlPreviewError] = useState(false);
   const [previewTab, setPreviewTab] = useState<'card' | 'detail'>('card');
+  const [variants, setVariants] = useState<Variant[]>([]);
 
   // Clothing specific specs
   const [productSpecs, setProductSpecs] = useState({
@@ -102,13 +113,13 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
     license: ''
   });
 
-  const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'Free Size'];
 
   useEffect(() => {
     fetchCategories();
     fetchAvailableFeatures();
     if (id && isEdit) {
       fetchProduct();
+      fetchVariants();
     } else if (propProduct) {
       setFormData(propProduct);
       setImages(propProduct.images || []);
@@ -339,6 +350,61 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
     setUrlPreviewError(false);
   };
 
+  const fetchVariants = async () => {
+    if (!id) return;
+    try {
+      const { data } = await (supabase as any)
+        .from('product_variants')
+        .select('*')
+        .eq('product_id', id)
+        .eq('is_active', true)
+        .order('sort_order');
+      setVariants((data || []).map((v: any) => ({
+        id: v.id,
+        label: v.label,
+        price: v.price,
+        original_price: v.original_price || v.price,
+        weight: v.weight || '',
+        pieces: v.pieces || '',
+        stock_quantity: v.stock_quantity || 0,
+      })));
+    } catch (err) {
+      console.error('Error fetching variants:', err);
+    }
+  };
+
+  const addVariant = () => {
+    setVariants(prev => [...prev, { label: '', price: '', original_price: '', weight: '', pieces: '', stock_quantity: '' }]);
+  };
+
+  const updateVariant = (index: number, field: keyof Variant, value: any) => {
+    setVariants(prev => prev.map((v, i) => i === index ? { ...v, [field]: value } : v));
+  };
+
+  const removeVariant = (index: number) => {
+    setVariants(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const saveVariants = async (productId: string) => {
+    await (supabase as any).from('product_variants').delete().eq('product_id', productId);
+    const valid = variants.filter(v => String(v.label).trim() && Number(v.price) > 0);
+    if (valid.length > 0) {
+      await (supabase as any).from('product_variants').insert(
+        valid.map((v, i) => ({
+          product_id: productId,
+          label: String(v.label).trim(),
+          price: Number(v.price),
+          original_price: Number(v.original_price) || Number(v.price),
+          weight: String(v.weight).trim() || null,
+          pieces: String(v.pieces).trim() || null,
+          stock_quantity: Number(v.stock_quantity) || 0,
+          sort_order: i,
+          is_active: true,
+        }))
+      );
+    }
+  };
+
   const addNewFeature = async () => {
     if (!newFeature.trim()) return;
 
@@ -441,19 +507,20 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
       if (isEdit && id) {
         const { error } = await supabase
           .from('products')
-          .update({
-            ...productData,
-            updated_at: new Date().toISOString()
-          })
+          .update({ ...productData, updated_at: new Date().toISOString() })
           .eq('id', id);
 
         if (error) throw error;
+        await saveVariants(id);
       } else {
-        const { error } = await supabase
+        const { data: newProduct, error } = await supabase
           .from('products')
-          .insert(productData);
+          .insert(productData)
+          .select('id')
+          .single();
 
         if (error) throw error;
+        if (newProduct) await saveVariants(newProduct.id);
       }
 
       toast({
@@ -823,38 +890,6 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className={LabelStyle}>Available Sizes</Label>
-                <div className="flex flex-wrap gap-2">
-                  {AVAILABLE_SIZES.map(size => (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => {
-                        const current = formData.available_sizes || [];
-                        handleInputChange('available_sizes',
-                          current.includes(size) ? current.filter(s => s !== size) : [...current, size]
-                        );
-                      }}
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: 6,
-                        border: '1.5px solid',
-                        borderColor: (formData.available_sizes || []).includes(size) ? 'var(--color-brand-red)' : 'var(--color-border-default)',
-                        background: (formData.available_sizes || []).includes(size) ? 'var(--color-brand-red-light)' : 'transparent',
-                        color: (formData.available_sizes || []).includes(size) ? 'var(--color-brand-red)' : 'var(--color-text-secondary)',
-                        fontSize: 13,
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                      }}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <div className="flex flex-wrap gap-6 pt-2">
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -964,6 +999,146 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                     ))}
                   </div>
                 </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Product Variants */}
+          <Card className={CardStyle}>
+            <CardHeader className="border-b border-[var(--color-border-default)] pb-4 px-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-[17px] font-[500] text-[var(--color-text-primary)]">Product Variants</CardTitle>
+                  <p className="text-[12px] text-[var(--color-text-muted)] mt-1">Different weights / packs / editions with individual pricing — price updates live on the product page when selected</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    background: 'var(--color-brand-red)', color: 'white', border: 'none',
+                    borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                    transition: 'background 0.15s ease', whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-deep)'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red)'}
+                >
+                  <Plus className="h-4 w-4" /> Add Variant
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              {variants.length === 0 ? (
+                <div style={{
+                  border: '2px dashed var(--color-border-default)', borderRadius: 10,
+                  padding: 32, textAlign: 'center', background: 'var(--color-surface-page)',
+                }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>🏷️</div>
+                  <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', margin: 0 }}>No variants yet</p>
+                  <p style={{ fontSize: 12, color: 'var(--color-text-muted)', margin: '6px 0 0' }}>
+                    Add variants like "500g Pack", "1kg Pack" or "64GB / 128GB" — each with its own price, stock, and details
+                  </p>
+                </div>
+              ) : (
+                variants.map((variant, index) => (
+                  <div key={index} style={{
+                    background: 'var(--color-surface-page)', border: '1px solid var(--color-border-default)',
+                    borderRadius: 10, padding: 16, position: 'relative',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                      <span style={{
+                        fontSize: 11, fontWeight: 600, color: 'var(--color-brand-red)',
+                        textTransform: 'uppercase', letterSpacing: '0.06em', background: 'var(--color-brand-red-light)',
+                        padding: '3px 10px', borderRadius: 20,
+                      }}>
+                        Variant {index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(index)}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                          background: 'transparent', border: '1px solid #FECACA', borderRadius: 6,
+                          padding: '4px 10px', fontSize: 12, color: '#DC2626', cursor: 'pointer',
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" /> Remove
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <Label className={LabelStyle}>Label *</Label>
+                        <Input
+                          value={variant.label}
+                          onChange={(e) => updateVariant(index, 'label', e.target.value)}
+                          placeholder="e.g. 500g Pack"
+                          className={InputStyle}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className={LabelStyle}>Price (₹) *</Label>
+                        <Input
+                          type="number"
+                          value={variant.price}
+                          onChange={(e) => updateVariant(index, 'price', e.target.value)}
+                          placeholder="0"
+                          min="0"
+                          className={InputStyle}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className={LabelStyle}>Original Price (₹)</Label>
+                        <Input
+                          type="number"
+                          value={variant.original_price}
+                          onChange={(e) => updateVariant(index, 'original_price', e.target.value)}
+                          placeholder="0"
+                          min="0"
+                          className={InputStyle}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className={LabelStyle}>Weight</Label>
+                        <Input
+                          value={variant.weight}
+                          onChange={(e) => updateVariant(index, 'weight', e.target.value)}
+                          placeholder="e.g. 500g"
+                          className={InputStyle}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className={LabelStyle}>Pieces</Label>
+                        <Input
+                          value={variant.pieces}
+                          onChange={(e) => updateVariant(index, 'pieces', e.target.value)}
+                          placeholder="e.g. 2 pieces"
+                          className={InputStyle}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className={LabelStyle}>Stock Qty</Label>
+                        <Input
+                          type="number"
+                          value={variant.stock_quantity}
+                          onChange={(e) => updateVariant(index, 'stock_quantity', e.target.value)}
+                          placeholder="0"
+                          min="0"
+                          className={InputStyle}
+                        />
+                      </div>
+                    </div>
+                    {Number(variant.original_price) > Number(variant.price) && Number(variant.price) > 0 && (
+                      <p style={{ fontSize: 11, color: '#2E8B57', fontWeight: 500, marginTop: 8 }}>
+                        {Math.round(((Number(variant.original_price) - Number(variant.price)) / Number(variant.original_price)) * 100)}% off · Customer saves ₹{Number(variant.original_price) - Number(variant.price)}
+                      </p>
+                    )}
+                  </div>
+                ))
+              )}
+              {variants.length > 0 && (
+                <p style={{ fontSize: 12, color: 'var(--color-text-muted)', paddingTop: 4 }}>
+                  💡 When variants are saved, the product detail page shows a variant picker — selecting one updates the price in real-time.
+                </p>
               )}
             </CardContent>
           </Card>

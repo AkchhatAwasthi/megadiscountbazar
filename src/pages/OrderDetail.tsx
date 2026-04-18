@@ -343,7 +343,7 @@ const UserOrderDetail = () => {
                                  <div>
                                     <h4 className="text-[17px] font-[600] text-[var(--color-text-primary)] leading-tight">{item.name}</h4>
                                     <div className="flex items-center gap-3 mt-2">
-                                       <span className="text-[13px] text-[var(--color-text-secondary)] bg-[var(--color-surface-page)] px-2.5 py-1 rounded-full font-[600] border border-[var(--color-border-default)]">Size: {item.selected_size || 'N/A'}</span>
+                                       <span className="text-[13px] text-[var(--color-text-secondary)] bg-[var(--color-surface-page)] px-2.5 py-1 rounded-full font-[600] border border-[var(--color-border-default)]">{[item.selected_size && item.selected_size !== 'Standard' && `Size: ${item.selected_size}`, item.weight && `Weight: ${item.weight}`].filter(Boolean).join(' | ') || 'Std'}</span>
                                        <span className="text-[13px] text-[var(--color-text-secondary)] font-[500]">Qty: {item.quantity}</span>
                                     </div>
                                  </div>

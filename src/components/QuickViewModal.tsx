@@ -23,6 +23,7 @@ interface Product {
   description?: string;
   category?: string;
   available_sizes?: string[];
+  available_weights?: string[];
   [key: string]: any;
 }
 
@@ -38,6 +39,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string>('M');
+  const [selectedWeight, setSelectedWeight] = useState<string>('');
 
   if (!product) return null;
 
@@ -54,7 +56,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
       addToCart({
         ...product,
         image: currentImage
-      } as any, selectedSize);
+      } as any, selectedSize || undefined, selectedWeight || undefined);
     }
     // Success feedback could be handled here or by listening to store changes
     onClose();
@@ -211,8 +213,37 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
                                </button>
                             );
                          })}
-                      </div>
-                   </div>
+                       </div>
+                    </div>
+
+                   {/* Weight Picker */}
+                   {product.available_weights && product.available_weights.length > 0 && (
+                     <div>
+                        <div className="flex justify-between items-center mb-3">
+                           <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Weight</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                           {product.available_weights.map((weight: string) => {
+                              const isSelected = selectedWeight === weight;
+                              
+                              return (
+                                 <button
+                                   key={weight}
+                                   onClick={() => setSelectedWeight(weight)}
+                                   className={cn(
+                                     "min-w-[56px] h-[48px] rounded-[10px] border-[1.5px] text-[14px] font-[600] transition-all flex items-center justify-center px-3",
+                                     isSelected 
+                                       ? "border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]" 
+                                       : "border-[var(--color-border-default)] text-[var(--color-text-primary)] hover:border-[var(--color-brand-red)]"
+                                   )}
+                                 >
+                                   {weight}
+                                 </button>
+                              );
+                           })}
+                        </div>
+                     </div>
+                   )}
 
                    {/* Quantity */}
                    <div>

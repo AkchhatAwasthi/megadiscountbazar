@@ -188,10 +188,10 @@ export const initiateRazorpayPayment = async (
       key: razorpayKey,
       amount: order.amount,
       currency: order.currency,
-      name: 'Paridhan Haat',
-      description: `Luxury Order from Paridhan Haat`,
+      name: 'Megadiscountstore',
+      description: `Premium Order from Megadiscountstore`,
       // Note: No order_id for direct payment integration
-      image: '/logo.png', // Uses the logo from public directory
+      image: '/logo/favicon icon.png', // Uses the logo from public directory
       handler: async (response: any) => {
         try {
           console.log('Payment successful:', response);

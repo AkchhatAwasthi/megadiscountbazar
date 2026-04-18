@@ -1,5 +1,5 @@
 /**
- * Invoice generation utilities for Dare To Diet
+ * Invoice generation utilities for Megadiscountstore
  * Generates beautiful PDF invoices for orders
  */
 

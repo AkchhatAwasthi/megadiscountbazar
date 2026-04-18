@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ShinobiToast from '@/components/ShinobiToast';
 
@@ -99,14 +100,24 @@ const AppContent = () => {
   const isAuthPage = location.pathname === '/auth';
   const isProfilePage = location.pathname === '/profile';
   const isOrderDetailPage = location.pathname.startsWith('/order-detail/');
-
-
+  
+  const [preloaderComplete, setPreloaderComplete] = useState(false);
+  const skipPreloader = sessionStorage.getItem('preloader_done') === 'true';
 
   return (
     <ErrorBoundary>
       <TooltipProvider>
-        <div className="min-h-screen bg-background">
-          <Preloader />
+        {!preloaderComplete && !skipPreloader && (
+          <Preloader onComplete={() => setPreloaderComplete(true)} />
+        )}
+        <div 
+          className="min-h-screen bg-background"
+          style={{
+            opacity: (preloaderComplete || skipPreloader) ? 1 : 0,
+            transition: 'opacity 0.5s ease-in-out',
+            visibility: (preloaderComplete || skipPreloader) ? 'visible' : 'hidden'
+          }}
+        >
           <ScrollToTop />
           {!isAuthPage && !isProfilePage && !isOrderDetailPage && <Header isAdminRoute={isAdminRoute} />}
           <Routes>

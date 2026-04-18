@@ -33,6 +33,7 @@ interface Product {
   marketing_info?: any;
   sku?: string;
   available_sizes?: string[];
+  available_weights?: string[];
   size_chart_url?: string;
   is_tailored_available?: boolean;
   custom_size_note?: string;
@@ -63,6 +64,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
     pieces: '',
     care_instructions: '',
     available_sizes: [],
+    available_weights: [],
     size_chart_url: '',
     is_tailored_available: false,
     custom_size_note: ''
@@ -72,6 +74,9 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [urlPreviewError, setUrlPreviewError] = useState(false);
+  const [previewTab, setPreviewTab] = useState<'card' | 'detail'>('card');
 
   // Clothing specific specs
   const [productSpecs, setProductSpecs] = useState({
@@ -161,6 +166,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
       setFormData({
         ...data,
         available_sizes: (data as any).available_sizes || [],
+        available_weights: (data as any).available_weights || [],
         size_chart_url: (data as any).size_chart_url || '',
         is_tailored_available: (data as any).is_tailored_available || false,
         custom_size_note: (data as any).custom_size_note || '',
@@ -325,6 +331,14 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
     });
   };
 
+  const addImageFromUrl = () => {
+    const url = imageUrlInput.trim();
+    if (!url || images.length >= 10) return;
+    setImages(prev => [...prev, url]);
+    setImageUrlInput('');
+    setUrlPreviewError(false);
+  };
+
   const addNewFeature = async () => {
     if (!newFeature.trim()) return;
 
@@ -418,6 +432,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
         care_instructions: formData.care_instructions,
         marketing_info: marketingInfo,
         available_sizes: formData.available_sizes,
+        available_weights: formData.available_weights,
         size_chart_url: formData.size_chart_url,
         is_tailored_available: formData.is_tailored_available,
         custom_size_note: formData.custom_size_note
@@ -470,6 +485,153 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
   const CardStyle = "bg-[var(--color-surface-card)] border-[0.5px] border-[var(--color-border-default)] rounded-[12px] shadow-sm hover:border-[var(--color-brand-red)] hover:shadow-[0_8px_24px_rgba(0,113,220,0.1)] transition-all duration-220";
   const LabelStyle = "text-[var(--color-text-secondary)] text-[12px] font-[500] mb-1.5 block tracking-wide";
   const InputStyle = "h-[40px] px-3 bg-[var(--color-surface-card)] border-[1.5px] border-[var(--color-border-default)] rounded-[8px] text-[14px] text-[var(--color-text-primary)] focus:border-[var(--color-brand-red)] focus:outline-none transition-colors w-full";
+
+  // Live Preview helpers
+  const previewImage = images[0] || '';
+  const previewCategoryName = categories.find(c => c.id === formData.category_id)?.name || '';
+  const previewDiscount =
+    Number(formData.original_price) > Number(formData.price) && Number(formData.price) > 0
+      ? Math.round(((Number(formData.original_price) - Number(formData.price)) / Number(formData.original_price)) * 100)
+      : 0;
+
+  const renderCardPreview = () => (
+    <div>
+      <div style={{ border: '0.5px solid var(--color-border-default)', borderRadius: 12, padding: 12, background: 'var(--color-surface-card)', maxWidth: 240, margin: '0 auto' }}>
+        <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 8, overflow: 'hidden', background: 'var(--color-surface-page)', marginBottom: 12 }}>
+          {previewImage ? (
+            <img src={previewImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', fontSize: 11, flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontSize: 24 }}>🖼️</span>
+              <span>No image yet</span>
+            </div>
+          )}
+          {previewDiscount > 0 ? (
+            <span style={{ position: 'absolute', top: 6, left: 6, background: '#FCEBEB', color: '#A32D2D', padding: '2px 7px', borderRadius: 6, fontSize: 10, fontWeight: 500 }}>{previewDiscount}% OFF</span>
+          ) : formData.is_bestseller ? (
+            <span style={{ position: 'absolute', top: 6, left: 6, background: '#FAEEDA', color: '#633806', padding: '2px 7px', borderRadius: 6, fontSize: 10, fontWeight: 500 }}>BEST SELLER</span>
+          ) : formData.new_arrival ? (
+            <span style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(220,0,0,0.08)', color: '#0C447C', padding: '2px 7px', borderRadius: 6, fontSize: 10, fontWeight: 500 }}>NEW</span>
+          ) : null}
+        </div>
+        <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)', margin: '0 0 6px', lineHeight: 1.35, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2 as any, WebkitBoxOrient: 'vertical' as any, minHeight: 34 }}>
+          {formData.name || 'Product Name'}
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 6 }}>
+          <span style={{ color: '#F5A623', fontSize: 11 }}>★★★★★</span>
+          <span style={{ color: 'var(--color-text-secondary)', fontSize: 11 }}>(124)</span>
+        </div>
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)' }}>₹{formData.price || 0}</span>
+            {Number(formData.original_price) > Number(formData.price) && (
+              <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', textDecoration: 'line-through' }}>₹{formData.original_price}</span>
+            )}
+          </div>
+          {previewDiscount > 0 && (
+            <span style={{ fontSize: 10, color: '#2E8B57', fontWeight: 500 }}>You save ₹{Number(formData.original_price) - Number(formData.price)}</span>
+          )}
+        </div>
+        <div style={{ width: '100%', padding: '8px', background: 'var(--color-brand-yellow)', borderRadius: 7, textAlign: 'center', fontSize: 12, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+          🛒 Add to Cart
+        </div>
+      </div>
+      <p style={{ fontSize: 10, color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 6 }}>Card view preview</p>
+    </div>
+  );
+
+  const renderDetailPreview = () => (
+    <div style={{ maxHeight: 500, overflowY: 'auto', paddingRight: 2 }}>
+      <div style={{ background: 'var(--color-surface-page)', borderRadius: 10, overflow: 'hidden', marginBottom: 8, position: 'relative', aspectRatio: '4/3' }}>
+        {previewImage ? (
+          <img src={previewImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)', fontSize: 11, flexDirection: 'column', gap: 4 }}>
+            <span style={{ fontSize: 20 }}>🖼️</span><span>No image yet</span>
+          </div>
+        )}
+        {previewDiscount > 0 && (
+          <span style={{ position: 'absolute', top: 6, left: 6, background: 'var(--color-brand-red)', color: 'white', padding: '2px 7px', borderRadius: 5, fontSize: 10, fontWeight: 600 }}>Save {previewDiscount}%</span>
+        )}
+      </div>
+      {images.length > 1 && (
+        <div style={{ display: 'flex', gap: 4, marginBottom: 8, overflowX: 'auto' }}>
+          {images.slice(0, 6).map((img, i) => (
+            <img key={i} src={img} alt="" style={{ width: 36, height: 36, borderRadius: 5, objectFit: 'cover', border: i === 0 ? '1.5px solid var(--color-brand-red)' : '1px solid var(--color-border-default)', flexShrink: 0 }} />
+          ))}
+        </div>
+      )}
+      {previewCategoryName && (
+        <span style={{ background: 'var(--color-brand-red-light)', color: 'var(--color-brand-red)', padding: '2px 10px', borderRadius: 100, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{previewCategoryName}</span>
+      )}
+      <h2 style={{ fontSize: 17, fontWeight: 600, color: 'var(--color-text-primary)', margin: '6px 0 4px', lineHeight: 1.2 }}>
+        {formData.name || 'Product Name'}
+      </h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6, fontSize: 11 }}>
+        <span style={{ color: '#F5A623' }}>★★★★★</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>4.8 · 120 Reviews</span>
+        <span style={{ color: '#2E8B57', fontWeight: 600, marginLeft: 4 }}>In Stock</span>
+      </div>
+      <div style={{ borderTop: '1px solid var(--color-border-default)', borderBottom: '1px solid var(--color-border-default)', padding: '8px 0', margin: '6px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
+          <span style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-text-primary)' }}>₹{formData.price || 0}</span>
+          {Number(formData.original_price) > Number(formData.price) && (
+            <span style={{ fontSize: 13, color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>₹{formData.original_price}</span>
+          )}
+        </div>
+      </div>
+      {(formData.available_sizes || []).length > 0 && (
+        <div style={{ marginBottom: 8 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 4 }}>Select Size</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {(formData.available_sizes || []).map(s => (
+              <span key={s} style={{ padding: '4px 10px', border: '1.5px solid var(--color-border-default)', borderRadius: 6, fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)' }}>{s}</span>
+            ))}
+          </div>
+        </div>
+      )}
+      {(formData.available_weights || []).length > 0 && (
+        <div style={{ marginBottom: 8 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 4 }}>Select Weight</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {(formData.available_weights || []).map(w => (
+              <span key={w} style={{ padding: '4px 10px', border: '1.5px solid var(--color-border-default)', borderRadius: 6, fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)' }}>{w}</span>
+            ))}
+          </div>
+        </div>
+      )}
+      <div style={{ width: '100%', padding: '9px', background: 'var(--color-brand-yellow)', borderRadius: 7, textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 6 }}>Add to Cart</div>
+      <div style={{ width: '100%', padding: '9px', background: 'transparent', border: '1.5px solid var(--color-brand-red)', color: 'var(--color-brand-red)', borderRadius: 7, textAlign: 'center', fontSize: 12, fontWeight: 600, marginBottom: 10 }}>Buy Now</div>
+      {formData.description && (
+        <div style={{ paddingTop: 8, borderTop: '1px solid var(--color-border-default)' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 3 }}>Description</p>
+          <p style={{ fontSize: 11, color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>{formData.description}</p>
+        </div>
+      )}
+      {(productSpecs.fabric || productSpecs.fit || productSpecs.occasion) && (
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--color-border-default)' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 5 }}>Specifications</p>
+          {([['Fabric', productSpecs.fabric], ['Fit', productSpecs.fit], ['Occasion', productSpecs.occasion], ['Pattern', productSpecs.pattern]] as [string, string][]).filter(([, v]) => v).map(([label, val]) => (
+            <div key={label} style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: 4, marginBottom: 3 }}>
+              <span style={{ fontSize: 10, color: 'var(--color-text-secondary)' }}>{label}</span>
+              <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-text-primary)' }}>{val}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {selectedFeatures.length > 0 && (
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--color-border-default)' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 5 }}>Features</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {selectedFeatures.map(f => (
+              <span key={f} style={{ background: '#F1F5F9', color: 'var(--color-text-secondary)', padding: '2px 8px', borderRadius: 4, fontSize: 10 }}>{f}</span>
+            ))}
+          </div>
+        </div>
+      )}
+      <p style={{ fontSize: 10, color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 8 }}>Detail page preview</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -633,7 +795,18 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                     id="weight"
                     value={formData.weight}
                     onChange={(e) => handleInputChange('weight', e.target.value)}
-                    placeholder="e.g., 500g, 1kg"
+                    placeholder="e.g., 500g (Default weight)"
+                    className={InputStyle}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="available_weights" className={LabelStyle}>Available Weight Options (Comma separated)</Label>
+                  <Input
+                    id="available_weights"
+                    value={formData.available_weights?.join(', ') || ''}
+                    onChange={(e) => handleInputChange('available_weights', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                    placeholder="e.g., 500g, 1kg, 2kg"
                     className={InputStyle}
                   />
                 </div>
@@ -647,6 +820,38 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                     placeholder="e.g., 3 Piece Set"
                     className={InputStyle}
                   />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className={LabelStyle}>Available Sizes</Label>
+                <div className="flex flex-wrap gap-2">
+                  {AVAILABLE_SIZES.map(size => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => {
+                        const current = formData.available_sizes || [];
+                        handleInputChange('available_sizes',
+                          current.includes(size) ? current.filter(s => s !== size) : [...current, size]
+                        );
+                      }}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: 6,
+                        border: '1.5px solid',
+                        borderColor: (formData.available_sizes || []).includes(size) ? 'var(--color-brand-red)' : 'var(--color-border-default)',
+                        background: (formData.available_sizes || []).includes(size) ? 'var(--color-brand-red-light)' : 'transparent',
+                        color: (formData.available_sizes || []).includes(size) ? 'var(--color-brand-red)' : 'var(--color-text-secondary)',
+                        fontSize: 13,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {size}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -766,6 +971,42 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
 
         {/* Sidebar */}
         <div className="space-y-6">
+
+          {/* Live Preview */}
+          <Card className={CardStyle}>
+            <CardHeader className="border-b border-[var(--color-border-default)] pb-4 px-5">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-[17px] font-[500] text-[var(--color-text-primary)]">Live Preview</CardTitle>
+                <div style={{ display: 'flex', background: 'var(--color-surface-page)', borderRadius: 8, padding: 3, gap: 2 }}>
+                  {(['card', 'detail'] as const).map(tab => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setPreviewTab(tab)}
+                      style={{
+                        padding: '4px 12px',
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        border: 'none',
+                        cursor: 'pointer',
+                        background: previewTab === tab ? 'var(--color-surface-card)' : 'transparent',
+                        color: previewTab === tab ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+                        boxShadow: previewTab === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {tab === 'card' ? 'Card View' : 'Detail Page'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {previewTab === 'card' ? renderCardPreview() : renderDetailPreview()}
+            </CardContent>
+          </Card>
+
           {/* Images */}
           <Card className={CardStyle}>
             <CardHeader className="border-b border-[var(--color-border-default)] pb-4 px-5">
@@ -792,6 +1033,43 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                   <Upload className="h-4 w-4 mr-2" />
                   {uploadingImage ? 'Uploading...' : `Upload Images (${images.length}/10)`}
                 </Button>
+              </div>
+
+              <div className="space-y-2">
+                <Label className={LabelStyle}>Or Paste Image URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={imageUrlInput}
+                    onChange={(e) => { setImageUrlInput(e.target.value); setUrlPreviewError(false); }}
+                    placeholder="https://example.com/image.jpg"
+                    className={InputStyle}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addImageFromUrl(); } }}
+                  />
+                  <Button
+                    type="button"
+                    onClick={addImageFromUrl}
+                    disabled={!imageUrlInput.trim() || images.length >= 10}
+                    className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white text-xs uppercase tracking-widest rounded-none h-10 px-3 shrink-0"
+                  >
+                    Add
+                  </Button>
+                </div>
+                {imageUrlInput && !urlPreviewError && (
+                  <div className="relative mt-1 rounded overflow-hidden border border-[#D4B6A2]/20">
+                    <img
+                      src={imageUrlInput}
+                      alt="URL preview"
+                      className="w-full h-28 object-cover"
+                      onError={() => setUrlPreviewError(true)}
+                    />
+                    <span className="absolute bottom-1 right-1 text-[10px] bg-black/50 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">
+                      Preview
+                    </span>
+                  </div>
+                )}
+                {urlPreviewError && imageUrlInput && (
+                  <p className="text-[11px] text-red-500">Cannot load image from this URL</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-2">

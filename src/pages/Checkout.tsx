@@ -358,7 +358,7 @@ const Checkout = () => {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          weight: item.weight,
+          weight: item.selectedWeight || item.weight,
           image: item.image,
           category: item.category || 'Product',
           selected_size: item.selectedSize || 'Standard'
@@ -371,7 +371,8 @@ const Checkout = () => {
         total: total,
         payment_method: paymentMethod,
         coupon_code: appliedCoupon?.code || null,
-        selected_size: cartItems.map(item => item.selectedSize || 'Standard').join(', ')
+        selected_size: cartItems.map(item => item.selectedSize || 'Standard').join(', '),
+        selected_weight: cartItems.map(item => item.selectedWeight).filter(Boolean).join(', ') || null
       };
 
       if (paymentMethod === 'cod') {
@@ -582,13 +583,13 @@ const Checkout = () => {
                
                <div className="space-y-4 mb-8 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
                   {cartItems.map((item) => (
-                     <div key={`${item.id}-${item.selectedSize}`} className="flex gap-4">
+                     <div key={`${item.id}-${item.selectedSize}-${item.selectedWeight}`} className="flex gap-4">
                         <div className="size-[64px] rounded-[10px] bg-[var(--color-surface-page)] border border-[var(--color-border-default)] shrink-0 flex items-center justify-center p-1">
                            <img src={item.image} alt="" className="w-full h-full object-contain" />
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-center">
                            <h4 className="text-[14px] font-[600] text-[var(--color-text-primary)] leading-tight truncate">{item.name}</h4>
-                           <p className="text-[12px] text-[var(--color-text-secondary)] mt-1">Qty: {item.quantity} • {item.selectedSize || 'Std'}</p>
+                           <p className="text-[12px] text-[var(--color-text-secondary)] mt-1">Qty: {item.quantity} • {[item.selectedSize, item.selectedWeight].filter(Boolean).join(' | ') || 'Std'}</p>
                         </div>
                         <div className="shrink-0 flex flex-col justify-center items-end">
                            <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">

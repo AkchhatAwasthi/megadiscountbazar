@@ -17,6 +17,7 @@ interface OrderItem {
   price: number;
   quantity: number;
   weight: string;
+  selected_size?: string;
 }
 
 interface OrderDetail {
@@ -222,10 +223,10 @@ const AdminOrderDetail = () => {
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
         order_date: formatDate(order.orderDate),
         store_info: {
-          store_name: storeSettings.store_name || 'Paridhan Haat',
+          store_name: storeSettings.store_name || 'Megadiscountstore',
           store_address: storeSettings.store_address || 'Shop number 5, Patel Nagar, Hansi road, Patiala chowk, JIND (Haryana) 126102',
           store_phone: storeSettings.store_phone || '+91 9996616153',
-          store_email: storeSettings.store_email || 'contact@paridhanhaat.com',
+          store_email: storeSettings.store_email || 'support@megadiscountstore.com',
           currency_symbol: storeSettings.currency_symbol || '₹'
         },
         customer_info: {
@@ -355,10 +356,14 @@ const AdminOrderDetail = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-[600] text-[var(--color-text-primary)] text-[15px]">{item.name}</h3>
-                      <p className="text-[13px] text-[var(--color-text-secondary)]">{item.weight}</p>
-                      {order.selectedSize && (
-                        <p className="text-[12px] text-[var(--color-brand-red)] font-[500] mt-1">Size: {order.selectedSize}</p>
-                      )}
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                         {item.weight && (
+                           <p className="text-[13px] text-[var(--color-text-secondary)]">Weight: <span className="font-[500] text-[var(--color-text-primary)]">{item.weight}</span></p>
+                         )}
+                         {(item.selected_size || order.selectedSize) && (
+                           <p className="text-[13px] text-[var(--color-text-secondary)]">Size: <span className="font-[500] text-[var(--color-text-primary)]">{item.selected_size || order.selectedSize}</span></p>
+                         )}
+                      </div>
                     </div>
                     <div className="text-right">
                       <p className="font-[600] text-[var(--color-text-primary)]">₹{item.price} × {item.quantity}</p>

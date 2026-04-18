@@ -16,6 +16,7 @@ interface OrderItem {
   quantity: number;
   weight: string;
   category: string;
+  selected_size?: string;
 }
 
 interface GuestOrderData {
@@ -86,7 +87,7 @@ const GuestOrderPopup: React.FC<GuestOrderPopupProps> = ({ isOpen, onClose, orde
     // Header
     doc.setFontSize(20);
     doc.setTextColor(40, 40, 40);
-    doc.text('Paridhan Haat', 20, 25);
+    doc.text('Megadiscountstore', 20, 25);
 
     doc.setFontSize(16);
     doc.text('Order Receipt', 20, 40);
@@ -120,7 +121,7 @@ const GuestOrderPopup: React.FC<GuestOrderPopupProps> = ({ isOpen, onClose, orde
 
     // Items Table
     const tableData = orderData.items.map(item => [
-      item.name,
+      item.selected_size ? `${item.name} (${item.selected_size})` : item.name,
       item.weight,
       item.quantity.toString(),
       `₹${item.price.toFixed(2)}`,
@@ -171,8 +172,8 @@ const GuestOrderPopup: React.FC<GuestOrderPopupProps> = ({ isOpen, onClose, orde
     // Footer
     doc.setFontSize(8);
     doc.setTextColor(120, 120, 120);
-    doc.text('Thank you for shopping with Paridhan Haat!', 20, doc.internal.pageSize.height - 20);
-    doc.text('For support, contact us at content@paridhanhaat.com', 20, doc.internal.pageSize.height - 10);
+    doc.text('Thank you for shopping with Megadiscountstore!', 20, doc.internal.pageSize.height - 20);
+    doc.text('For support, contact us at support@megadiscountstore.com', 20, doc.internal.pageSize.height - 10);
 
     // Save PDF
     doc.save(`Order_${orderData.orderNumber}.pdf`);
@@ -335,8 +336,11 @@ const GuestOrderPopup: React.FC<GuestOrderPopupProps> = ({ isOpen, onClose, orde
                     />
                     <div className="flex-1">
                       <h3 className="font-medium">{item.name}</h3>
-                      <p className="text-sm text-gray-600">{item.weight}</p>
-                      <p className="text-xs text-gray-500 capitalize">{item.category}</p>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {item.weight && <Badge variant="outline" className="text-[10px] py-0">{item.weight}</Badge>}
+                        {item.selected_size && item.selected_size !== 'Standard' && <Badge variant="outline" className="text-[10px] py-0">Size: {item.selected_size}</Badge>}
+                      </div>
+                      <p className="text-xs text-gray-500 capitalize mt-1">{item.category}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium">₹{item.price} × {item.quantity}</p>

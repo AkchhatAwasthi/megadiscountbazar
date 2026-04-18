@@ -21,20 +21,22 @@ export interface Product {
   product_specs?: any;
   care_instructions?: string;
   available_sizes?: string[];
+  available_weights?: string[];
 }
 
 export interface CartItem extends Product {
   quantity: number;
   selectedSize?: string;
+  selectedWeight?: string;
 }
 
 interface Store {
   // Cart
   cartItems: CartItem[];
   isCartOpen: boolean;
-  addToCart: (product: Product, size?: string) => void;
-  removeFromCart: (productId: string, size?: string) => void;
-  updateQuantity: (productId: string, quantity: number, size?: string) => void;
+  addToCart: (product: Product, size?: string, weight?: string) => void;
+  removeFromCart: (productId: string, size?: string, weight?: string) => void;
+  updateQuantity: (productId: string, quantity: number, size?: string, weight?: string) => void;
   clearCart: () => void;
   toggleCart: () => void;
 
@@ -117,11 +119,11 @@ export const useStore = create<Store>()(
       closeAnimation: () => set((state) => ({ animation: { ...state.animation, isOpen: false } })),
 
       // Cart actions
-      addToCart: (product, size) => {
+      addToCart: (product, size, weight) => {
         const { cartItems } = get();
-        // Check if item with same ID AND same size exists
+        // Check if item with same ID AND same size AND same weight exists
         const existingItem = cartItems.find(item =>
-          item.id === product.id && item.selectedSize === size
+          item.id === product.id && item.selectedSize === size && item.selectedWeight === weight
         );
 
         let updatedCartItems;
@@ -129,13 +131,13 @@ export const useStore = create<Store>()(
 
         if (existingItem) {
           updatedCartItems = cartItems.map(item =>
-            (item.id === product.id && item.selectedSize === size)
+            (item.id === product.id && item.selectedSize === size && item.selectedWeight === weight)
               ? { ...item, quantity: item.quantity + 1 }
               : item
           );
           itemToAdd = { ...existingItem, quantity: existingItem.quantity + 1 };
         } else {
-          itemToAdd = { ...product, quantity: 1, selectedSize: size };
+          itemToAdd = { ...product, quantity: 1, selectedSize: size, selectedWeight: weight };
           updatedCartItems = [...cartItems, itemToAdd];
         }
 
@@ -145,22 +147,22 @@ export const useStore = create<Store>()(
         saveCartToLocalStorage(updatedCartItems);
       },
 
-      removeFromCart: (productId, size) => {
+      removeFromCart: (productId, size, weight) => {
         const updatedCartItems = get().cartItems.filter(item =>
-          !(item.id === productId && item.selectedSize === size)
+          !(item.id === productId && item.selectedSize === size && item.selectedWeight === weight)
         );
         set({ cartItems: updatedCartItems });
         saveCartToLocalStorage(updatedCartItems);
       },
 
-      updateQuantity: (productId, quantity, size) => {
+      updateQuantity: (productId, quantity, size, weight) => {
         if (quantity <= 0) {
-          get().removeFromCart(productId, size);
+          get().removeFromCart(productId, size, weight);
           return;
         }
 
         const updatedCartItems = get().cartItems.map(item =>
-          (item.id === productId && item.selectedSize === size)
+          (item.id === productId && item.selectedSize === size && item.selectedWeight === weight)
             ? { ...item, quantity }
             : item
         );

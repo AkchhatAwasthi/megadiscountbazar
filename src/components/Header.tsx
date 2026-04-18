@@ -103,10 +103,11 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
-            <h1 className="text-[24px] font-[600] text-[var(--color-brand-red)] tracking-tight">
+          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+            <img src="/logo/favicon icon.png" alt="Megadiscountstore" className="h-[40px] w-auto object-contain" />
+            <span className="text-[24px] font-[600] text-[var(--color-brand-red)] tracking-tight hidden sm:inline-block">
               Megadiscount<span className="text-[var(--color-text-primary)]">store</span>
-            </h1>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -237,7 +238,10 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
               className="fixed top-0 left-0 bottom-0 w-full max-w-[320px] bg-[var(--color-surface-card)] z-50 shadow-2xl flex flex-col"
             >
               <div className="p-4 flex items-center justify-between border-b border-[var(--color-border-default)]">
-                <h2 className="text-[18px] font-[600] text-[var(--color-brand-red)]">Megadiscountstore</h2>
+                <div className="flex items-center gap-2">
+                  <img src="/logo/favicon icon.png" alt="Megadiscountstore" className="h-[32px] w-auto object-contain" />
+                  <h2 className="text-[18px] font-[600] text-[var(--color-brand-red)]">Megadiscountstore</h2>
+                </div>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-page)] rounded-full">
                   <X className="w-6 h-6" />
                 </button>

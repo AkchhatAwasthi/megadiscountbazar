@@ -87,16 +87,42 @@ const AdminProducts = () => {
 
   const downloadTemplate = () => {
     const headers = [
-      'name', 'price', 'original_price', 'category_name', 'weight', 
-      'stock_quantity', 'pieces', 'description', 'care_instructions', 'available_sizes', 'is_active'
+      'name', 'price', 'original_price', 'category_name', 'weight',
+      'stock_quantity', 'pieces', 'description', 'care_instructions',
+      'available_sizes', 'available_weights', 'is_active', 'is_bestseller',
+      'new_arrival', 'features', 'fabric', 'pattern', 'fit', 'occasion',
+      'sleeve_type', 'neck_type', 'origin', 'size_chart_url',
+      'is_tailored_available', 'custom_size_note', 'marketed_by', 'city', 'state'
     ];
-    // Example row
-    const example = [
-      'Red Cotton T-Shirt', '499', '999', 'T-Shirts', '200g', 
-      '50', '1', 'High quality cotton t-shirt', 'Machine wash cold', 'S,M,L,XL', 'true'
+
+    const esc = (v: string) =>
+      v.includes(',') || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v;
+
+    // Clothing example
+    const clothingRow = [
+      'Floral Silk Kurta Set', '2499', '4999', 'Ethnic Wear', '450g',
+      '30', '3 Piece Set', 'Elegant embroidered silk kurta set with palazzo and dupatta',
+      'Dry Clean Only', 'S,M,L,XL,XXL', '', 'true', 'false', 'true',
+      'Hand Embroidered,Pure Silk,Designer Wear', 'Pure Silk', 'Floral Embroidery',
+      'Straight Fit', 'Festive/Wedding', 'Full Sleeve', 'Round Neck', 'India',
+      '', 'false', '', 'GenzClothing Pvt Ltd', 'Mumbai', 'Maharashtra'
     ];
-    
-    const csvContent = [headers.join(','), example.join(',')].join('\n');
+
+    // Electronics example — "Electronics" category is auto-created if it doesn't exist
+    const electronicsRow = [
+      'Wireless Noise Cancelling Headphones', '3999', '7999', 'Electronics', '250g',
+      '20', '1', 'Premium wireless headphones with active noise cancellation and 30hr battery',
+      'Wipe with dry cloth only', 'Free Size', '', 'true', 'true', 'false',
+      'Bluetooth 5.3,30hr Battery,ANC Technology,USB-C Charging', '', '', '', '', '', '', 'Japan',
+      '', 'false', '', 'Sony India', 'Bengaluru', 'Karnataka'
+    ];
+
+    const csvContent = [
+      headers.join(','),
+      clothingRow.map(esc).join(','),
+      electronicsRow.map(esc).join(','),
+    ].join('\n');
+
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -130,44 +156,85 @@ const AdminProducts = () => {
         const rows = results.data as any[];
         try {
           const productsToInsert = [];
+          const localCats = [...categoryObjects]; // mutable local copy for auto-created categories
 
           for (const row of rows) {
-            if (!row.name || !row.price) {
-              continue; // Skip invalid rows
-            }
+            if (!row.name || !row.price) continue;
 
-            // Find category_id based on name
+            // Find or auto-create category
             let category_id = null;
-            if (row.category_name) {
-              const categoryMatch = categoryObjects.find(
-                (c) => c.name.toLowerCase() === row.category_name.toLowerCase().trim()
-              );
-              if (categoryMatch) {
-                category_id = categoryMatch.id;
+            if (row.category_name?.trim()) {
+              const trimmed = row.category_name.trim();
+              const match = localCats.find(c => c.name.toLowerCase() === trimmed.toLowerCase());
+              if (match) {
+                category_id = match.id;
+              } else {
+                const { data: newCat, error: catErr } = await supabase
+                  .from('categories')
+                  .insert({ name: trimmed, is_active: true })
+                  .select('id, name')
+                  .single();
+                if (!catErr && newCat) {
+                  category_id = newCat.id;
+                  localCats.push(newCat);
+                }
               }
             }
 
-            const product = {
+            // Build product_specs from flat spec columns
+            const product_specs: Record<string, string> = {};
+            ['fabric', 'pattern', 'fit', 'occasion', 'sleeve_type', 'neck_type', 'origin'].forEach(key => {
+              if (row[key]?.trim()) product_specs[key] = row[key].trim();
+            });
+
+            const boolField = (val: any) =>
+              ['true', '1', 'yes'].includes(String(val ?? '').toLowerCase().trim());
+
+            const splitList = (val: string) =>
+              val ? val.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+
+            const product: any = {
               name: row.name.trim(),
               price: Number(row.price) || 0,
               original_price: Number(row.original_price) || Number(row.price),
-              category_id: category_id,
+              category_id,
               weight: row.weight?.trim() || null,
               description: row.description?.trim() || null,
               stock_quantity: Number(row.stock_quantity) || 0,
-              is_active: row.is_active?.toLowerCase() === 'true' || row.is_active === '1' ? true : false,
+              is_active: boolField(row.is_active),
+              is_bestseller: boolField(row.is_bestseller),
+              new_arrival: boolField(row.new_arrival),
               sku: generateBulkSKU(row.name),
               pieces: row.pieces?.trim() || null,
               care_instructions: row.care_instructions?.trim() || null,
-              available_sizes: row.available_sizes ? row.available_sizes.split(',').map((s: string) => s.trim()) : [],
+              available_sizes: splitList(row.available_sizes),
+              available_weights: splitList(row.available_weights),
+              features: splitList(row.features),
+              size_chart_url: row.size_chart_url?.trim() || null,
+              is_tailored_available: boolField(row.is_tailored_available),
+              custom_size_note: row.custom_size_note?.trim() || null,
             };
 
-            // Remove null or empty values to "only upload the data which is there"
-            const cleanedProduct = Object.fromEntries(
-              Object.entries(product).filter(([_, v]) => v != null && v !== '')
-            );
+            if (Object.keys(product_specs).length > 0) {
+              product.product_specs = product_specs;
+            }
 
-            productsToInsert.push(cleanedProduct);
+            if (row.marketed_by?.trim() || row.city?.trim() || row.state?.trim()) {
+              product.marketing_info = {
+                marketedBy: row.marketed_by?.trim() || '',
+                city: row.city?.trim() || '',
+                state: row.state?.trim() || '',
+              };
+            }
+
+            // Strip nulls / empty arrays
+            productsToInsert.push(
+              Object.fromEntries(
+                Object.entries(product).filter(
+                  ([_, v]) => v != null && v !== '' && !(Array.isArray(v) && (v as any[]).length === 0)
+                )
+              )
+            );
           }
 
           if (productsToInsert.length > 0) {
@@ -179,8 +246,9 @@ const AdminProducts = () => {
               description: `${productsToInsert.length} products uploaded successfully`,
             });
             fetchProducts();
+            fetchCategories();
           } else {
-             toast({
+            toast({
               title: "Notice",
               description: "No valid products found to upload.",
               variant: "destructive",

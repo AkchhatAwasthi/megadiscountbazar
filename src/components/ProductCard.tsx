@@ -42,13 +42,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
       ? product.category.name
       : (typeof product.category === 'string' ? product.category : 'General');
 
-    const defaultSize = 'Standard';
+    const defaultSize = product.available_sizes?.[0] || 'Standard';
+    const defaultWeight = product.available_weights?.[0] || undefined;
 
     addToCart({
       ...product,
       category: categoryString,
       image: primaryImage,
-    } as any, defaultSize);
+    } as any, defaultSize, defaultWeight);
   };
 
   const handleQuickView = (e: React.MouseEvent) => {

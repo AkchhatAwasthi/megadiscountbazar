@@ -7,7 +7,7 @@ const Footer = () => {
 
   const contactInfo = {
     phone: settings?.store_phone || '+91 9996616153',
-    email: settings?.store_email || 'contact@supersweets.fit',
+    email: settings?.store_email || 'support@megadiscountstore.com',
     address: settings?.store_address || 'Shop number 5, Patel Nagar, Jind, Haryana',
     storeName: settings?.store_name || 'Megadiscountstore'
   };

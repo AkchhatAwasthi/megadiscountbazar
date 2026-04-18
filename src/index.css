@@ -263,3 +263,9 @@ a:hover { text-decoration: underline; }
   border-left-color: var(--color-admin-sidebar-active-border);
 }
 .admin-page-bg { background: var(--color-admin-page-bg); }
+
+/* ─── PRELOADER ANIMATIONS ─── */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}

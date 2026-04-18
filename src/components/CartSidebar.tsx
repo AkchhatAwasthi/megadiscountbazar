@@ -158,7 +158,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isAdminRoute = false }) => {
                 </div>
               ) : (
                 cartItems.map((item) => (
-                  <div key={`${item.id}-${item.selectedSize}`} className="flex gap-4 group">
+                  <div key={`${item.id}-${item.selectedSize}-${item.selectedWeight}`} className="flex gap-4 group">
                     {/* Item Image */}
                     <div className="size-[96px] bg-[var(--color-surface-page)] rounded-[12px] border border-[var(--color-border-default)] shrink-0 overflow-hidden flex items-center justify-center relative">
                       <img 
@@ -174,29 +174,29 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isAdminRoute = false }) => {
                         <div className="flex justify-between items-start gap-2">
                           <h3 className="text-[15px] font-[600] text-[var(--color-text-primary)] leading-tight line-clamp-2">{item.name}</h3>
                           <button 
-                             onClick={() => removeFromCart(item.id, item.selectedSize)}
+                             onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedWeight)}
                              className="text-[#BDC1C6] hover:text-[#E01E26] transition-colors shrink-0"
                           >
                              <Trash2 size={16} />
                           </button>
                         </div>
                         <p className="text-[12px] text-[var(--color-text-secondary)] mt-1 uppercase font-[600] tracking-wider">
-                           Size: {item.selectedSize || 'Std'}
+                           {[item.selectedSize && `Size: ${item.selectedSize}`, item.selectedWeight && `Weight: ${item.selectedWeight}`].filter(Boolean).join(' | ') || 'Std'}
                         </p>
                       </div>
 
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-[8px] h-[32px] bg-white overflow-hidden">
                           <button 
-                            onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize, item.selectedWeight)}
                             disabled={item.quantity <= 1}
                             className="size-[32px] flex items-center justify-center hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)] transition-colors disabled:opacity-30"
                           >
                             <Minus size={12} />
                           </button>
-                          <span className="w-[32px] text-center text-[13px] font-[700]">{item.quantity}</span>
+                           <span className="w-[32px] text-center text-[13px] font-[700]">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize, item.selectedWeight)}
                             className="size-[32px] flex items-center justify-center hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)] transition-colors"
                           >
                             <Plus size={12} />

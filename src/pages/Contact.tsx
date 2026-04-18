@@ -281,7 +281,7 @@ const Contact = () => {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Paridhan Haat Location"
+                title="Megadiscountstore Location"
               />
             </div>
           </CardContent>

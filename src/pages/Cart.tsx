@@ -125,7 +125,7 @@ const Cart = () => {
               <div className="bg-white rounded-[24px] border border-[var(--color-border-default)] shadow-sm overflow-hidden">
                 {cartItems.map((item, index) => (
                   <div 
-                    key={`${item.id}-${item.selectedSize}`} 
+                    key={`${item.id}-${item.selectedSize}-${item.selectedWeight}`} 
                     className={`flex flex-col md:flex-row gap-6 p-6 md:p-8 ${index !== cartItems.length - 1 ? 'border-bottom border-[var(--color-border-default)]' : ''}`}
                     style={index !== cartItems.length - 1 ? { borderBottom: '1px solid var(--color-border-default)' } : {}}
                   >
@@ -147,7 +147,7 @@ const Cart = () => {
                           </span>
                           <h3 className="text-[18px] md:text-[20px] font-[600] text-[var(--color-text-primary)] mt-1 leading-snug">{item.name}</h3>
                           <p className="text-[14px] text-[var(--color-text-secondary)] mt-2">
-                             Size: <span className="font-[600] text-[var(--color-text-primary)]">{item.selectedSize || 'Standard'}</span>
+                             {[item.selectedSize && `Size: ${item.selectedSize}`, item.selectedWeight && `Weight: ${item.selectedWeight}`].filter(Boolean).join(' • ') || 'Standard'}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
@@ -165,14 +165,14 @@ const Cart = () => {
                       <div className="flex items-center justify-between mt-6">
                         <div className="flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-full h-[40px] bg-white overflow-hidden">
                           <button 
-                            onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1), item.selectedSize)}
+                            onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1), item.selectedSize, item.selectedWeight)}
                             className="size-[40px] flex items-center justify-center hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)] transition-colors"
                           >
                             <Minus size={14} />
                           </button>
                           <span className="w-[40px] text-center text-[15px] font-[600]">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize, item.selectedWeight)}
                             className="size-[40px] flex items-center justify-center hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)] transition-colors"
                           >
                             <Plus size={14} />
@@ -180,7 +180,7 @@ const Cart = () => {
                         </div>
 
                         <button 
-                          onClick={() => removeFromCart(item.id, item.selectedSize)}
+                          onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedWeight)}
                           className="flex items-center gap-2 text-[#E01E26] font-[600] text-[13px] hover:underline"
                         >
                           <Trash2 size={16} />

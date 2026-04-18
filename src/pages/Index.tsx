@@ -1,4 +1,4 @@
-// Home page for Dare To Diet - Fitness Supplements & Health Products
+// Home page for Megadiscountstore - Your One-Stop Shop for Everything
 import Home from './Home/Home';
 
 const Index = () => {

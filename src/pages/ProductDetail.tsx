@@ -31,6 +31,7 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState<string>('');
   const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
 
@@ -120,8 +121,18 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
+    // If sizes are available or we default to showing sizes, and none selected
+    // Note: To be safe, wait, sizes are always shown (defaulting to XS...XXL). 
+    // Let's require size if sizes are shown.
+    if (!selectedSize && sizes.length > 0) {
       toast({ title: "Please select a size", variant: "destructive" });
+      return;
+    }
+
+    // Require weight if weights are available
+    const weights = product?.available_weights || [];
+    if (weights.length > 0 && !selectedWeight) {
+      toast({ title: "Please select a weight category", variant: "destructive" });
       return;
     }
 
@@ -134,7 +145,7 @@ const ProductDetail = () => {
     };
 
     for (let i = 0; i < quantity; i++) {
-        addToCart(productToAdd, selectedSize);
+        addToCart(productToAdd, selectedSize || undefined, selectedWeight || undefined);
     }
 
     toast({
@@ -301,6 +312,30 @@ const ProductDetail = () => {
                   ))}
                </div>
             </div>
+
+            {/* Weight Selector */}
+            {product?.available_weights?.length > 0 && (
+              <div className="space-y-4">
+                 <div className="flex justify-between items-center">
+                    <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Weight</span>
+                 </div>
+                 <div className="flex flex-wrap gap-3">
+                    {product.available_weights.map((weight: string) => (
+                      <button
+                        key={weight}
+                        onClick={() => setSelectedWeight(weight)}
+                        className={`h-12 min-w-[64px] px-4 rounded-[8px] font-[600] text-[14px] transition-all border-[1.5px] ${
+                          selectedWeight === weight
+                            ? 'border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]'
+                            : 'border-[var(--color-border-default)] hover:border-[var(--color-text-muted)] text-[var(--color-text-secondary)]'
+                        }`}
+                      >
+                        {weight}
+                      </button>
+                    ))}
+                 </div>
+              </div>
+            )}
 
             {/* Quantity & CTA */}
             <div className="flex flex-col sm:flex-row gap-4">

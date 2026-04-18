@@ -1,5 +1,5 @@
 {
-  "name": "paridhan-haat",
+  "name": "megadiscountstore",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,6 +13,7 @@
   "dependencies": {
     "@dotlottie/react-player": "^1.6.19",
     "@googlemaps/js-api-loader": "^1.16.10",
+    "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^3.9.0",
     "@lottiefiles/dotlottie-react": "^0.19.0",
     "@motionone/utils": "^10.18.0",
@@ -53,6 +54,7 @@
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.3.0",
     "framer-motion": "^12.23.9",
+    "gsap": "^3.15.0",
     "input-otp": "^1.2.4",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",

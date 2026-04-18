@@ -91,9 +91,12 @@ const AdminLayout = () => {
           justifyContent: 'space-between',
           flexShrink: 0,
         }}>
-          <span style={{ fontSize: 18, fontWeight: 500, color: 'var(--color-surface-card)', letterSpacing: '-0.01em' }}>
-            Megadiscountstore
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img src="/logo/favicon icon.png" alt="Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+            <span style={{ fontSize: 18, fontWeight: 500, color: 'var(--color-surface-card)', letterSpacing: '-0.01em' }}>
+              Megadiscountstore
+            </span>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden"

@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { formatPrice } from '../utils/currency';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { X, ShoppingCart, Heart, Plus, Minus, Check, Star } from 'lucide-react';
+import { X, ShoppingCart, Heart, Plus, Minus, Check, Star, ArrowRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { calculateDiscount } from '@/utils/currency';
 
 interface Product {
   id: string;
   name: string;
   price: number;
   originalPrice?: number;
+  original_price?: number;
   image?: string;
   images?: string[];
   weight?: string;
@@ -22,7 +25,6 @@ interface Product {
   sku?: string;
   description?: string;
   category?: string;
-  available_sizes?: string[];
   available_weights?: string[];
   [key: string]: any;
 }
@@ -38,41 +40,81 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
   const navigate = useNavigate();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<string>('M');
   const [selectedWeight, setSelectedWeight] = useState<string>('');
+  const [variants, setVariants] = useState<any[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && product?.id) {
+      setSelectedImageIndex(0);
+      setQuantity(1);
+      setSelectedWeight('');
+      setAdded(false);
+      fetchVariants(product.id);
+    }
+  }, [isOpen, product?.id]);
+
+  const fetchVariants = async (productId: string) => {
+    const { data } = await (supabase as any)
+      .from('product_variants')
+      .select('*')
+      .eq('product_id', productId)
+      .eq('is_active', true)
+      .order('sort_order');
+    const active = data || [];
+    setVariants(active);
+    setSelectedVariant(active.length > 0 ? active[0] : null);
+  };
 
   if (!product) return null;
 
-  const images = product.images || [product.image];
-  const currentImage = images[selectedImageIndex] || product.image || '';
+  const images = product.images?.filter(Boolean) || [product.image].filter(Boolean);
+  const currentImage = images[selectedImageIndex] || product.image || '/placeholder.svg';
+  const displayPrice = selectedVariant ? selectedVariant.price : product.price;
+  const rawOriginal = selectedVariant
+    ? (selectedVariant.original_price || selectedVariant.price)
+    : (product.originalPrice || product.original_price || product.price);
+  const displayOriginal = rawOriginal;
+  const discountPct = displayOriginal > displayPrice ? calculateDiscount(displayOriginal, displayPrice) : 0;
 
   const displaySku = product.sku || `SKU-${product.id.slice(0, 8).toUpperCase()}`;
-  const displayWeight = product.weight || '250g';
-  const displayStock = product.stock_quantity || 0;
+  const displayStock = selectedVariant ? selectedVariant.stock_quantity : (product.stock_quantity || 0);
   const isLowStock = displayStock > 0 && displayStock < 10;
+  const isOutOfStock = displayStock === 0;
 
   const handleAddToCart = () => {
+    if (variants.length > 0 && !selectedVariant) return;
+    if (variants.length === 0 && (product.available_weights || []).length > 0 && !selectedWeight) return;
+
+    const effectivePrice = selectedVariant ? selectedVariant.price : product.price;
+    const effectiveOrigPrice = selectedVariant
+      ? (selectedVariant.original_price || selectedVariant.price)
+      : (product.originalPrice || product.original_price || product.price);
+
     for (let i = 0; i < quantity; i++) {
       addToCart({
         ...product,
-        image: currentImage
-      } as any, selectedSize || undefined, selectedWeight || undefined);
+        price: effectivePrice,
+        originalPrice: effectiveOrigPrice,
+        original_price: effectiveOrigPrice,
+        image: currentImage,
+      } as any, undefined, selectedVariant?.label || selectedWeight || undefined);
     }
-    // Success feedback could be handled here or by listening to store changes
-    onClose();
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
   };
 
-  const handleQuantityChange = (change: number) => {
-    const newQuantity = quantity + change;
-    if (newQuantity >= 1 && newQuantity <= (displayStock || 100)) {
-      setQuantity(newQuantity);
-    }
+  const handleBuyNow = () => {
+    handleAddToCart();
+    onClose();
+    navigate('/checkout');
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
           {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -82,222 +124,226 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
             onClick={onClose}
           />
 
-          {/* Modal Container */}
+          {/* Modal */}
           <motion.div
-            className="relative w-full max-w-[1000px] max-h-[90vh] bg-white rounded-[16px] shadow-[0_24px_48px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col md:flex-row"
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 30 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full sm:max-w-[960px] max-h-[92vh] sm:max-h-[88vh] bg-white rounded-t-[24px] sm:rounded-[20px] shadow-2xl overflow-hidden flex flex-col md:flex-row"
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 60 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
           >
-            {/* Close Button Mobile */}
+            {/* Drag handle — mobile */}
+            <div className="sm:hidden w-10 h-1 bg-[var(--color-border-default)] rounded-full mx-auto mt-3 mb-1 shrink-0" />
+
+            {/* Close */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-50 md:hidden size-10 flex items-center justify-center bg-white border border-[var(--color-border-default)] rounded-full text-[var(--color-text-primary)] shadow-sm"
+              className="absolute top-4 right-4 z-50 size-9 flex items-center justify-center bg-white border border-[var(--color-border-default)] rounded-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:shadow-sm transition-all"
             >
-              <X className="size-5" />
+              <X size={18} />
             </button>
 
-            {/* Left: Image Gallery */}
-            <div className="w-full md:w-[450px] bg-[var(--color-surface-page)] flex flex-col p-4 md:p-8 shrink-0">
-               <div className="relative flex-1 bg-white rounded-[12px] border border-[var(--color-border-default)] overflow-hidden flex items-center justify-center mb-4">
-                  <img
-                    src={currentImage}
-                    alt={product.name}
-                    className="w-full h-full object-contain p-6"
-                  />
-                  {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    {product.isBestSeller && (
-                      <span className="bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] text-[11px] font-[600] px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                        Best Seller
-                      </span>
-                    )}
-                    {isLowStock && (
-                      <span className="bg-[#E01E26] text-white text-[11px] font-[600] px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                        Only {displayStock} Left
-                      </span>
-                    )}
-                  </div>
-               </div>
-
-               {/* Thumbnails */}
-               {images.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-                    {images.map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedImageIndex(idx)}
-                        className={cn(
-                          "size-16 rounded-[8px] border-2 transition-all p-1 bg-white shrink-0",
-                          selectedImageIndex === idx ? "border-[var(--color-brand-red)]" : "border-transparent hover:border-gray-300"
-                        )}
-                      >
-                        <img src={img} alt="" className="w-full h-full object-contain" />
-                      </button>
-                    ))}
-                  </div>
-               )}
+            {/* ── Left: Gallery ── */}
+            <div className="w-full md:w-[420px] bg-[var(--color-surface-page)] flex flex-col shrink-0 p-4 md:p-6">
+              <div className="relative aspect-square bg-white rounded-[14px] border border-[var(--color-border-default)] overflow-hidden flex items-center justify-center mb-3">
+                <motion.img
+                  key={currentImage}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.25 }}
+                  src={currentImage}
+                  alt={product.name}
+                  className="w-full h-full object-contain p-6"
+                />
+                {/* Badges */}
+                <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
+                  {discountPct > 0 && (
+                    <span className="bg-[var(--color-brand-red)] text-white text-[11px] font-[700] px-2.5 py-1 rounded-[6px] uppercase tracking-wide shadow-sm">
+                      -{discountPct}%
+                    </span>
+                  )}
+                  {product.isBestSeller && (
+                    <span className="bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] text-[11px] font-[600] px-2.5 py-1 rounded-[6px] uppercase tracking-wide shadow-sm">
+                      Best Seller
+                    </span>
+                  )}
+                  {isLowStock && (
+                    <span className="bg-[#FFF3CD] text-[#856404] text-[11px] font-[600] px-2.5 py-1 rounded-[6px] uppercase tracking-wide border border-[#FFE69C]">
+                      Only {displayStock} left
+                    </span>
+                  )}
+                </div>
+              </div>
+              {/* Thumbnails */}
+              {images.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImageIndex(idx)}
+                      className={cn(
+                        'size-14 rounded-[8px] border-[1.5px] p-1 bg-white shrink-0 transition-all',
+                        selectedImageIndex === idx
+                          ? 'border-[var(--color-brand-red)] shadow-sm'
+                          : 'border-transparent hover:border-[var(--color-border-default)]'
+                      )}
+                    >
+                      <img src={img} alt="" className="w-full h-full object-contain" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Right: Product Details */}
-            <div className="flex-1 flex flex-col bg-white overflow-y-auto">
-              {/* Header */}
-              <div className="p-6 md:p-10 pb-0">
+            {/* ── Right: Details ── */}
+            <div className="flex-1 flex flex-col overflow-y-auto">
+              <div className="p-5 md:p-8 flex-1">
+                {/* Category + SKU */}
                 <div className="flex items-center justify-between mb-2">
-                   <span className="text-[12px] font-[600] text-[var(--color-brand-red)] uppercase tracking-wider">
-                     {product.category || 'Category'}
-                   </span>
-                   {/* Close Button Desktop */}
-                   <button
-                    onClick={onClose}
-                    className="hidden md:flex size-10 items-center justify-center text-[var(--color-text-primary)]/40 hover:text-[var(--color-text-primary)] transition-colors"
-                  >
-                    <X className="size-6" />
-                  </button>
+                  <span className="text-[11px] font-[700] text-[var(--color-brand-red)] uppercase tracking-widest">
+                    {product.category || 'Product'}
+                  </span>
+                  <span className="text-[11px] text-[var(--color-text-muted)] font-[500]">{displaySku}</span>
                 </div>
-                
-                <h2 className="text-[24px] md:text-[32px] font-[600] text-[var(--color-text-primary)] leading-[1.2] mb-4">
-                   {product.name}
+
+                {/* Title */}
+                <h2 className="text-[20px] md:text-[26px] font-[600] text-[var(--color-text-primary)] leading-[1.2] mb-3 pr-8">
+                  {product.name}
                 </h2>
 
-                <div className="flex items-center gap-4 mb-6">
-                   <div className="flex items-center bg-[var(--color-surface-page)] px-3 py-1 rounded-[6px]">
-                      <Star className="size-3.5 text-[var(--color-brand-yellow)] fill-[var(--color-brand-yellow)] mr-1.5" />
-                      <span className="text-[13px] font-[600] text-[var(--color-text-primary)]">{product.rating || '4.8'}</span>
-                   </div>
-                   <span className="text-[14px] text-[var(--color-text-secondary)]">{displaySku}</span>
+                {/* Rating */}
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-0.5 text-[var(--color-brand-yellow)]">
+                    {[1,2,3,4,5].map(s => <Star key={s} size={13} fill={s <= Math.round(product.rating || 4.8) ? 'currentColor' : 'none'} />)}
+                  </div>
+                  <span className="text-[13px] text-[var(--color-text-secondary)]">{product.rating || '4.8'}</span>
+                  {displayStock > 0
+                    ? <span className="text-[12px] font-[600] text-[#008A00] flex items-center gap-1"><Check size={12} />In Stock</span>
+                    : <span className="text-[12px] font-[600] text-[var(--color-brand-red)]">Out of Stock</span>
+                  }
                 </div>
 
-                <div className="flex items-baseline gap-3 mb-8">
-                   <span className="text-[28px] md:text-[36px] font-[600] text-[var(--color-brand-red)]">
-                     {formatPrice(product.price)}
-                   </span>
-                   {product.originalPrice && (
-                      <span className="text-[18px] text-[var(--color-text-secondary)] line-through">
-                        {formatPrice(product.originalPrice)}
-                      </span>
-                   )}
+                {/* Price */}
+                <div className="flex items-baseline gap-3 mb-5 py-4 border-y border-[var(--color-border-default)]/50">
+                  <span className="text-[26px] md:text-[32px] font-[600] text-[var(--color-text-primary)] transition-all duration-200">
+                    {formatPrice(displayPrice)}
+                  </span>
+                  {displayOriginal > displayPrice && (
+                    <span className="text-[16px] text-[var(--color-text-muted)] line-through">
+                      {formatPrice(displayOriginal)}
+                    </span>
+                  )}
                 </div>
 
-                <div className="h-px bg-[var(--color-border-default)] w-full mb-8"></div>
-
-                {/* Options */}
-                <div className="space-y-8 mb-10">
-                   {/* Size Picker */}
-                   <div>
-                      <div className="flex justify-between items-center mb-3">
-                         <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Size</span>
-                         <button className="text-[13px] text-[var(--color-brand-red)] hover:underline font-[500]">Size Guide</button>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                         {['S', 'M', 'L', 'XL', 'XXL'].map((size) => {
-                            const isAvailable = product.available_sizes ? product.available_sizes.includes(size) : true;
-                            const isSelected = selectedSize === size;
-                            
-                            return (
-                               <button
-                                 key={size}
-                                 disabled={!isAvailable}
-                                 onClick={() => setSelectedSize(size)}
-                                 className={cn(
-                                   "min-w-[56px] h-[48px] rounded-[10px] border-[1.5px] text-[14px] font-[600] transition-all flex items-center justify-center",
-                                   isSelected 
-                                     ? "border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]" 
-                                     : isAvailable 
-                                       ? "border-[var(--color-border-default)] text-[var(--color-text-primary)] hover:border-[var(--color-brand-red)]" 
-                                       : "border-[#F1F3F4] text-[#BDC1C6] cursor-not-allowed bg-[#F8F9FA]"
-                                 )}
-                               >
-                                 {size}
-                               </button>
-                            );
-                         })}
-                       </div>
+                {/* Variant Selector */}
+                {variants.length > 0 && (
+                  <div className="mb-5">
+                    <p className="text-[13px] font-[600] text-[var(--color-text-primary)] mb-3">Select Variant</p>
+                    <div className="flex flex-wrap gap-2">
+                      {variants.map((v) => (
+                        <button
+                          key={v.id}
+                          onClick={() => setSelectedVariant(v)}
+                          className={cn(
+                            'flex flex-col items-start px-3.5 py-2.5 rounded-[10px] border-[1.5px] transition-all text-left min-w-[80px]',
+                            selectedVariant?.id === v.id
+                              ? 'border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)]'
+                              : 'border-[var(--color-border-default)] hover:border-[var(--color-text-muted)]'
+                          )}
+                        >
+                          <span className={cn('text-[13px] font-[600] leading-tight', selectedVariant?.id === v.id ? 'text-[var(--color-brand-red)]' : 'text-[var(--color-text-primary)]')}>
+                            {v.label}
+                          </span>
+                          <span className={cn('text-[12px] font-[500] mt-0.5', selectedVariant?.id === v.id ? 'text-[var(--color-brand-red)]' : 'text-[var(--color-text-secondary)]')}>
+                            {formatPrice(v.price)}
+                          </span>
+                        </button>
+                      ))}
                     </div>
+                  </div>
+                )}
 
-                   {/* Weight Picker */}
-                   {product.available_weights && product.available_weights.length > 0 && (
-                     <div>
-                        <div className="flex justify-between items-center mb-3">
-                           <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">Select Weight</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                           {product.available_weights.map((weight: string) => {
-                              const isSelected = selectedWeight === weight;
-                              
-                              return (
-                                 <button
-                                   key={weight}
-                                   onClick={() => setSelectedWeight(weight)}
-                                   className={cn(
-                                     "min-w-[56px] h-[48px] rounded-[10px] border-[1.5px] text-[14px] font-[600] transition-all flex items-center justify-center px-3",
-                                     isSelected 
-                                       ? "border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]" 
-                                       : "border-[var(--color-border-default)] text-[var(--color-text-primary)] hover:border-[var(--color-brand-red)]"
-                                   )}
-                                 >
-                                   {weight}
-                                 </button>
-                              );
-                           })}
-                        </div>
-                     </div>
-                   )}
+                {/* Weight Selector */}
+                {variants.length === 0 && (product.available_weights || []).length > 0 && (
+                  <div className="mb-5">
+                    <p className="text-[13px] font-[600] text-[var(--color-text-primary)] mb-3">Select Weight</p>
+                    <div className="flex flex-wrap gap-2">
+                      {(product.available_weights || []).map((w: string) => (
+                        <button
+                          key={w}
+                          onClick={() => setSelectedWeight(w)}
+                          className={cn(
+                            'h-10 px-4 rounded-[8px] border-[1.5px] text-[13px] font-[600] transition-all',
+                            selectedWeight === w
+                              ? 'border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]'
+                              : 'border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:border-[var(--color-text-muted)]'
+                          )}
+                        >
+                          {w}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                   {/* Quantity */}
-                   <div>
-                      <span className="text-[14px] font-[600] text-[var(--color-text-primary)] block mb-3">Quantity</span>
-                      <div className="flex items-center gap-4">
-                         <div className="flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-full h-[48px] px-2 bg-white">
-                            <button
-                              onClick={() => handleQuantityChange(-1)}
-                              className="size-10 flex items-center justify-center transition-colors hover:text-[var(--color-brand-red)]"
-                            >
-                               <Minus className="size-4" />
-                            </button>
-                            <span className="w-10 text-center text-[15px] font-[600]">{quantity}</span>
-                            <button
-                              onClick={() => handleQuantityChange(1)}
-                              className="size-10 flex items-center justify-center transition-colors hover:text-[var(--color-brand-red)]"
-                            >
-                               <Plus className="size-4" />
-                            </button>
-                         </div>
-                         {displayStock > 0 && (
-                            <span className="text-[13px] font-[500] text-[#008A00] flex items-center">
-                               <Check className="size-4 mr-1.5" /> 
-                               In Stock
-                            </span>
-                         )}
-                      </div>
-                   </div>
+                {/* Quantity */}
+                <div className="mb-6">
+                  <p className="text-[13px] font-[600] text-[var(--color-text-primary)] mb-3">Quantity</p>
+                  <div className="flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-[10px] h-11 w-fit bg-white">
+                    <button
+                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                      className="size-11 flex items-center justify-center hover:text-[var(--color-brand-red)] transition-colors"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="w-10 text-center text-[15px] font-[600]">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(q => Math.min(displayStock || 99, q + 1))}
+                      className="size-11 flex items-center justify-center hover:text-[var(--color-brand-red)] transition-colors"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-auto p-6 md:p-10 pt-0 flex gap-4">
-                 <button
+              <div className="p-5 md:p-8 pt-0 space-y-3 border-t border-[var(--color-border-default)]/50">
+                <div className="flex gap-3">
+                  <button
                     onClick={handleAddToCart}
-                    disabled={displayStock === 0}
-                    className="flex-1 bg-[var(--color-brand-yellow)] hover:bg-[#E5AF1C] text-[var(--color-text-primary)] h-[56px] rounded-full font-[600] text-[16px] flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] disabled:bg-[#F1F3F4] disabled:text-[#BDC1C6] disabled:shadow-none"
-                 >
-                    <ShoppingCart className="size-5" />
-                    {displayStock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                 </button>
-                 <button className="size-[56px] rounded-full border-[1.5px] border-[var(--color-border-default)] flex items-center justify-center transition-all hover:bg-[var(--color-surface-page)] hover:border-[#BDC1C6] active:scale-[0.95]">
-                    <Heart className="size-6 text-[var(--color-text-secondary)]" />
-                 </button>
-              </div>
-
-              {/* View Full Info */}
-              <div className="p-6 md:p-10 pt-0 pb-10">
-                 <button 
-                  onClick={() => navigate(`/product/${product.id}`)}
-                  className="w-full text-center text-[14px] font-[600] text-[var(--color-brand-red)] hover:underline"
-                 >
-                   View full details
-                 </button>
+                    disabled={isOutOfStock}
+                    className={cn(
+                      'flex-1 h-12 rounded-[10px] font-[600] text-[14px] flex items-center justify-center gap-2 transition-all active:scale-[0.98]',
+                      added
+                        ? 'bg-[#008A00] text-white'
+                        : isOutOfStock
+                          ? 'bg-[var(--color-surface-page)] text-[var(--color-text-muted)] cursor-not-allowed'
+                          : 'bg-[var(--color-brand-yellow)] hover:bg-[#E5AF1C] text-[var(--color-text-primary)] shadow-sm'
+                    )}
+                  >
+                    {added ? <><Check size={16} />Added!</> : <><ShoppingCart size={16} />{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</>}
+                  </button>
+                  <button
+                    onClick={() => {}}
+                    className="size-12 rounded-[10px] border-[1.5px] border-[var(--color-border-default)] flex items-center justify-center transition-all hover:bg-[var(--color-surface-page)] hover:border-[var(--color-brand-red)] group"
+                  >
+                    <Heart size={18} className="text-[var(--color-text-secondary)] group-hover:text-[var(--color-brand-red)] transition-colors" />
+                  </button>
+                </div>
+                <button
+                  onClick={handleBuyNow}
+                  disabled={isOutOfStock}
+                  className="w-full h-12 rounded-[10px] bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white font-[600] text-[14px] transition-all active:scale-[0.98] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Buy Now
+                </button>
+                <button
+                  onClick={() => { onClose(); navigate(`/product/${product.sku || product.id}`); }}
+                  className="w-full text-center text-[13px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] flex items-center justify-center gap-1.5 transition-colors py-1"
+                >
+                  View full details <ArrowRight size={14} />
+                </button>
               </div>
             </div>
           </motion.div>
@@ -308,4 +354,3 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
 };
 
 export default QuickViewModal;
-

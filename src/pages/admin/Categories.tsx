@@ -54,7 +54,7 @@ const AdminCategories = () => {
         .from('categories')
         .select(`
           *,
-          products(count)
+          products(id)
         `)
         .order('created_at', { ascending: false });
 
@@ -64,7 +64,7 @@ const AdminCategories = () => {
         id: category.id,
         name: category.name,
         description: category.description || '',
-        productCount: category.products?.length || 0,
+        productCount: Array.isArray(category.products) ? category.products.length : 0,
         status: category.is_active ? 'active' as const : 'inactive' as const,
         createdAt: new Date(category.created_at).toLocaleDateString(),
         image: category.image_url || '/placeholder.svg'
@@ -120,9 +120,9 @@ const AdminCategories = () => {
         </div>
         <Button
           onClick={() => navigate('/admin/categories/add')}
-          className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white uppercase tracking-widest text-xs h-10 px-6 rounded-none transition-all duration-300 shadow-md"
+          className="bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white text-[13px] font-[600] h-10 px-5 rounded-[8px] transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 mr-1.5" />
           Add Category
         </Button>
       </div>
@@ -226,23 +226,21 @@ const AdminCategories = () => {
                   </TableCell>
                   <TableCell className="text-sm text-[#5C4638] font-light">{category.createdAt}</TableCell>
                   <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                    <div className="flex items-center gap-2">
+                      <button
                         onClick={() => navigate(`/admin/categories/edit/${category.id}`)}
-                        className="text-[#7E5A34] hover:text-[#4A1C1F] hover:bg-[#F9F9F7]"
+                        className="size-8 rounded-[6px] bg-[var(--color-surface-page)] border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-[var(--color-brand-red-light)] hover:text-[var(--color-brand-red)] hover:border-[var(--color-brand-red)]/30 transition-all"
+                        title="Edit"
                       >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
                         onClick={() => handleDeleteClick(category.id, category.name)}
-                        className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                        className="size-8 rounded-[6px] bg-[var(--color-surface-page)] border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all"
+                        title="Delete"
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </TableCell>
                 </TableRow>

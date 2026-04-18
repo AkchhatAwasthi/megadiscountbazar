@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, X, ChevronDown, ChevronRight, LogOut, Search, Heart, ShoppingBag, Menu } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
+import { formatPrice } from '@/utils/currency';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DropdownMenu,
@@ -63,6 +64,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
   };
 
   const cartItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const cartTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   if (isAdminRoute) return null;
 
@@ -207,7 +209,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
               <ShoppingBag className="w-5 h-5" />
               <div className="hidden sm:flex flex-col items-start leading-none">
                 <span className="text-[10px] opacity-90 font-[400]">Cart</span>
-                <span className="text-[13px] font-[600]">₹0.00</span>
+                <span className="text-[13px] font-[600]">{formatPrice(cartTotal)}</span>
               </div>
               {cartItemsCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] text-[11px] font-[600] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-[var(--color-surface-card)] shadow-sm">

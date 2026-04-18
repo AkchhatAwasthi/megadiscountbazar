@@ -358,10 +358,10 @@ const Checkout = () => {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          weight: item.selectedWeight || item.weight,
+          weight: item.selectedWeight || item.weight || null,
+          variant: item.selectedWeight || item.selectedSize || null,
           image: item.image,
           category: item.category || 'Product',
-          selected_size: item.selectedSize || 'Standard'
         })) as any,
         subtotal: subtotal,
         tax: tax,
@@ -371,8 +371,6 @@ const Checkout = () => {
         total: total,
         payment_method: paymentMethod,
         coupon_code: appliedCoupon?.code || null,
-        selected_size: cartItems.map(item => item.selectedSize || 'Standard').join(', '),
-        selected_weight: cartItems.map(item => item.selectedWeight).filter(Boolean).join(', ') || null
       };
 
       if (paymentMethod === 'cod') {

@@ -1,140 +1,109 @@
 import { useState } from 'react';
-import { User, Phone, Mail, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { User, Phone, Mail, ChevronRight, AlertCircle } from 'lucide-react';
 import { validateContactInfo } from '@/utils/validation';
 import { cn } from '@/lib/utils';
 
-interface ContactInfo {
-  name: string;
-  email: string;
-  phone: string;
-}
-
-interface CheckoutContactInfoProps {
+interface ContactInfo { name: string; email: string; phone: string; }
+interface Props {
   customerInfo: ContactInfo;
   setCustomerInfo: (info: ContactInfo) => void;
   onNext: () => void;
   errors?: string[];
 }
 
-const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: CheckoutContactInfoProps) => {
-  const [contactErrors, setContactErrors] = useState<string[]>([]);
+const Field = ({
+  id, label, icon: Icon, type = 'text', placeholder, value, onChange, hasError,
+}: {
+  id: string; label: string; icon: React.ElementType; type?: string;
+  placeholder: string; value: string; onChange: (v: string) => void; hasError?: boolean;
+}) => (
+  <div className="space-y-1.5">
+    <label htmlFor={id} className="text-[13px] font-[600] text-[var(--color-text-primary)] block">{label}</label>
+    <div className="relative">
+      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
+        <Icon size={16} />
+      </div>
+      <input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className={cn(
+          'w-full h-12 pl-10 pr-4 rounded-[10px] border-[1.5px] text-[14px] font-[400] text-[var(--color-text-primary)] bg-white outline-none transition-all duration-200',
+          'placeholder:text-[var(--color-text-muted)]',
+          'hover:border-[var(--color-text-muted)] focus:border-[var(--color-brand-red)] focus:ring-2 focus:ring-[var(--color-brand-red)]/10',
+          hasError ? 'border-[#E01E26] focus:border-[#E01E26] focus:ring-[#E01E26]/10' : 'border-[var(--color-border-default)]',
+        )}
+      />
+    </div>
+  </div>
+);
+
+const CheckoutContactInfo = ({ customerInfo, setCustomerInfo, onNext, errors }: Props) => {
+  const [localErrors, setLocalErrors] = useState<string[]>([]);
 
   const handleNext = () => {
-    const validation = validateContactInfo(customerInfo);
-    if (!validation.isValid) {
-      setContactErrors(validation.errors);
-      return;
-    }
-    setContactErrors([]);
+    const v = validateContactInfo(customerInfo);
+    if (!v.isValid) { setLocalErrors(v.errors); return; }
+    setLocalErrors([]);
     onNext();
   };
 
+  const allErrors = [...localErrors, ...(errors || [])];
+
   return (
-    <div className="animate-in fade-in duration-500">
+    <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+      {/* Step title */}
       <div className="flex items-center gap-3 mb-8">
-        <div className="size-10 bg-[var(--color-brand-red-light)] rounded-full flex items-center justify-center text-[var(--color-brand-red)] shadow-sm">
-           <User size={20} />
+        <div className="size-10 rounded-full bg-[var(--color-brand-red)] flex items-center justify-center shadow-sm">
+          <User size={18} className="text-white" />
         </div>
-        <h2 className="text-[20px] md:text-[24px] font-[700] text-[var(--color-text-primary)] tracking-tight">Contact Information</h2>
+        <div>
+          <h2 className="text-[20px] font-[700] text-[var(--color-text-primary)] leading-tight">Contact Information</h2>
+          <p className="text-[13px] text-[var(--color-text-secondary)]">We'll use this to keep you updated on your order</p>
+        </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-              Full Name *
-            </Label>
-            <div className="relative group">
-              <Input
-                id="name"
-                type="text"
-                placeholder="Ex. John Doe"
-                value={customerInfo.name}
-                onChange={(e) => {
-                  setCustomerInfo({ ...customerInfo, name: e.target.value });
-                  if (contactErrors.length > 0) setContactErrors([]);
-                }}
-                className={cn(
-                  "h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full",
-                  contactErrors.some(e => e.includes('name') || e.includes('Name')) && "border-[#E01E26] focus:border-[#E01E26] focus:ring-[#E01E26]/10"
-                )}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-              Phone Number *
-            </Label>
-            <div className="relative group">
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+91 XXXXX XXXXX"
-                value={customerInfo.phone}
-                onChange={(e) => {
-                  setCustomerInfo({ ...customerInfo, phone: e.target.value });
-                  if (contactErrors.length > 0) setContactErrors([]);
-                }}
-                className={cn(
-                  "h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full",
-                  contactErrors.some(e => e.includes('phone') || e.includes('Phone')) && "border-[#E01E26] focus:border-[#E01E26] focus:ring-[#E01E26]/10"
-                )}
-                required
-              />
-            </div>
-          </div>
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <Field
+            id="name" label="Full Name *" icon={User} placeholder="John Doe"
+            value={customerInfo.name}
+            onChange={v => { setCustomerInfo({ ...customerInfo, name: v }); setLocalErrors([]); }}
+            hasError={allErrors.some(e => e.toLowerCase().includes('name'))}
+          />
+          <Field
+            id="phone" label="Phone Number *" icon={Phone} type="tel" placeholder="+91 98765 43210"
+            value={customerInfo.phone}
+            onChange={v => { setCustomerInfo({ ...customerInfo, phone: v }); setLocalErrors([]); }}
+            hasError={allErrors.some(e => e.toLowerCase().includes('phone'))}
+          />
         </div>
+        <Field
+          id="email" label="Email Address *" icon={Mail} type="email" placeholder="you@example.com"
+          value={customerInfo.email}
+          onChange={v => { setCustomerInfo({ ...customerInfo, email: v }); setLocalErrors([]); }}
+          hasError={allErrors.some(e => e.toLowerCase().includes('email'))}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="email" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-            Email Address *
-          </Label>
-          <div className="relative group">
-            <Input
-              id="email"
-              type="email"
-              placeholder="name@example.com"
-              value={customerInfo.email}
-              onChange={(e) => {
-                setCustomerInfo({ ...customerInfo, email: e.target.value });
-                if (contactErrors.length > 0) setContactErrors([]);
-              }}
-              className={cn(
-                "h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full",
-                contactErrors.some(e => e.includes('email') || e.includes('Email')) && "border-[#E01E26] focus:border-[#E01E26] focus:ring-[#E01E26]/10"
-              )}
-              required
-            />
-          </div>
-        </div>
-
-        {/* Validation Errors */}
-        {(contactErrors.length > 0 || (errors && errors.length > 0)) && (
-          <div className="bg-[#E01E26]/5 border border-[#E01E26]/20 p-4 rounded-[8px]">
-            <ul className="text-[#E01E26] text-[12px] font-[600] space-y-1">
-              {[...contactErrors, ...(errors || [])].map((error, index) => (
-                <li key={index} className="flex items-center gap-2">
-                   <span className="size-1 bg-[#E01E26] rounded-full"></span>
-                   {error}
-                </li>
-              ))}
+        {allErrors.length > 0 && (
+          <div className="flex items-start gap-3 p-4 bg-[#FEF2F2] border border-[#FECACA] rounded-[10px]">
+            <AlertCircle size={16} className="text-[#E01E26] mt-0.5 shrink-0" />
+            <ul className="space-y-1">
+              {allErrors.map((e, i) => <li key={i} className="text-[13px] text-[#E01E26] font-[500]">{e}</li>)}
             </ul>
           </div>
         )}
 
-        <div className="flex justify-end pt-6">
-          <Button
+        <div className="flex justify-end pt-4 border-t border-[var(--color-border-default)]/50">
+          <button
             onClick={handleNext}
-            className="group bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white font-[600] text-[15px] px-10 h-[52px] rounded-[10px] transition-all duration-300 hover:shadow-[0_8px_20px_rgba(0,113,220,0.24)] hover:-translate-y-[2px] active:scale-[0.98]"
+            className="group flex items-center gap-2 bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white font-[600] text-[14px] px-8 h-12 rounded-[10px] transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98]"
           >
             Continue to Shipping
-            <ChevronRight size={18} className="ml-2 group-hover:translate-x-1.5 transition-transform duration-300" />
-          </Button>
+            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform duration-200" />
+          </button>
         </div>
       </div>
     </div>

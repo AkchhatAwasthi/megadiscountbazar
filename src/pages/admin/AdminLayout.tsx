@@ -34,7 +34,6 @@ const AdminLayout = () => {
     { name: 'Customers', href: '/admin/customers', icon: Users },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Best Sellers', href: '/admin/bestsellers', icon: Star },
-    { name: 'Messages', href: '/admin/messages', icon: MessageCircle },
     { name: 'Instagram Posts', href: '/admin/instagram-posts', icon: Image },
     { name: 'Hero Slides', href: '/admin/hero', icon: Image },
     { name: 'Testimonials', href: '/admin/testimonials', icon: MessageCircle },

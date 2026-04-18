@@ -232,7 +232,7 @@ export const initiateRazorpayPayment = async (
         items_count: orderData.items.length.toString()
       },
       theme: {
-        color: 'var(--color-text-primary)', // Luxury Charcoal
+        color: '#E01E26',
       },
       modal: {
         ondismiss: () => {

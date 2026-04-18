@@ -1,369 +1,275 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { validateAddressDetails } from '@/utils/validation';
 import { formatCurrency } from '@/utils/settingsHelpers';
-import { MapPin, Home, Briefcase, Globe, ChevronLeft, ChevronRight, Check, Rocket } from 'lucide-react';
+import { MapPin, Home, Briefcase, Globe, ChevronLeft, ChevronRight, Check, Truck, AlertCircle, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AddressDetails {
-  plotNumber: string;
-  buildingName: string;
-  street: string;
-  landmark: string;
-  city: string;
-  state: string;
-  pincode: string;
-  addressType: 'home' | 'work' | 'other';
-  saveAs: string;
+  plotNumber: string; buildingName: string; street: string; landmark: string;
+  city: string; state: string; pincode: string;
+  addressType: 'home' | 'work' | 'other'; saveAs: string;
 }
-
 interface SavedAddress {
-  id: string;
-  name: string;
-  address_line_1: string;
-  address_line_2: string;
-  city: string;
-  state: string;
-  pincode: string;
-  landmark: string;
-  type: string;
-  is_default: boolean;
+  id: string; name: string; address_line_1: string; address_line_2: string;
+  city: string; state: string; pincode: string; landmark: string; type: string; is_default: boolean;
+}
+interface Props {
+  addressDetails: AddressDetails; setAddressDetails: (d: AddressDetails) => void;
+  savedAddresses: SavedAddress[]; selectedAddress: SavedAddress | null;
+  setSelectedAddress: (a: SavedAddress | null) => void;
+  useExistingAddress: boolean; setUseExistingAddress: (v: boolean) => void;
+  showAddressForm: boolean; setShowAddressForm: (v: boolean) => void;
+  settings: any; subtotal: number; currentUser: any;
+  onNext: () => void; onPrev: () => void;
+  estimatedDeliveryFee: number | null; setEstimatedDeliveryFee: (v: number | null) => void;
+  estimatedDeliveryTime: string | null; setEstimatedDeliveryTime: (v: string | null) => void;
+  cartItems: any[]; isPincodeServiceable: boolean; setIsPincodeServiceable: (v: boolean) => void;
 }
 
-interface CheckoutAddressDetailsProps {
-  addressDetails: AddressDetails;
-  setAddressDetails: (details: AddressDetails) => void;
-  savedAddresses: SavedAddress[];
-  selectedAddress: SavedAddress | null;
-  setSelectedAddress: (address: SavedAddress | null) => void;
-  useExistingAddress: boolean;
-  setUseExistingAddress: (use: boolean) => void;
-  showAddressForm: boolean;
-  setShowAddressForm: (show: boolean) => void;
-  settings: any;
-  subtotal: number;
-  currentUser: any;
-  onNext: () => void;
-  onPrev: () => void;
-  estimatedDeliveryFee: number | null;
-  setEstimatedDeliveryFee: (fee: number | null) => void;
-  estimatedDeliveryTime: string | null;
-  setEstimatedDeliveryTime: (time: string | null) => void;
-  cartItems: any[];
-  isPincodeServiceable: boolean;
-  setIsPincodeServiceable: (serviceable: boolean) => void;
-}
+const InputField = ({
+  id, label, placeholder, value, onChange, required, maxLength, className,
+}: {
+  id: string; label: string; placeholder: string; value: string;
+  onChange: (v: string) => void; required?: boolean; maxLength?: number; className?: string;
+}) => (
+  <div className={cn('space-y-1.5', className)}>
+    <label htmlFor={id} className="text-[13px] font-[600] text-[var(--color-text-primary)] block">
+      {label}{required && ' *'}
+    </label>
+    <input
+      id={id} type="text" placeholder={placeholder} value={value} maxLength={maxLength}
+      onChange={e => onChange(e.target.value)}
+      className="w-full h-12 px-4 rounded-[10px] border-[1.5px] border-[var(--color-border-default)] text-[14px] text-[var(--color-text-primary)] bg-white outline-none placeholder:text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)] focus:border-[var(--color-brand-red)] focus:ring-2 focus:ring-[var(--color-brand-red)]/10 transition-all duration-200"
+    />
+  </div>
+);
+
+const TypeIcon = ({ type }: { type: string }) =>
+  type === 'home' ? <Home size={14} /> : type === 'work' ? <Briefcase size={14} /> : <Globe size={14} />;
 
 const CheckoutAddressDetails = ({
-  addressDetails,
-  setAddressDetails,
-  savedAddresses,
-  selectedAddress,
-  setSelectedAddress,
-  useExistingAddress,
-  setUseExistingAddress,
-  showAddressForm,
-  setShowAddressForm,
-  settings,
-  onNext,
-  onPrev,
-  estimatedDeliveryFee,
-  estimatedDeliveryTime,
-  currentUser
-}: CheckoutAddressDetailsProps) => {
-  const [addressErrors, setAddressErrors] = useState<string[]>([]);
+  addressDetails, setAddressDetails, savedAddresses, selectedAddress, setSelectedAddress,
+  useExistingAddress, setUseExistingAddress, showAddressForm, setShowAddressForm,
+  settings, onNext, onPrev, estimatedDeliveryFee, estimatedDeliveryTime, currentUser,
+}: Props) => {
+  const [errors, setErrors] = useState<string[]>([]);
 
-  const handleSavedAddressSelect = (address: SavedAddress) => {
-    setSelectedAddress(address);
+  const handleSavedSelect = (addr: SavedAddress) => {
+    setSelectedAddress(addr);
     setUseExistingAddress(true);
-
     setAddressDetails({
-      plotNumber: address.address_line_1.split(',')[0] || '',
+      plotNumber: addr.address_line_1.split(',')[0] || '',
       buildingName: '',
-      street: address.address_line_2 || '',
-      landmark: address.landmark || '',
-      city: address.city || '',
-      state: address.state || '',
-      pincode: address.pincode,
-      addressType: address.type as 'home' | 'work' | 'other',
-      saveAs: address.type === 'other' ? address.name : ''
+      street: addr.address_line_2 || '',
+      landmark: addr.landmark || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      pincode: addr.pincode,
+      addressType: addr.type as 'home' | 'work' | 'other',
+      saveAs: addr.type === 'other' ? addr.name : '',
     });
   };
 
   const handleNext = () => {
-    if (!addressDetails.city || !addressDetails.state || !addressDetails.pincode) return;
-
-    if (!useExistingAddress) {
-      const validation = validateAddressDetails(addressDetails);
-      if (!validation.isValid) {
-        setAddressErrors(validation.errors);
-        return;
-      }
+    if (!addressDetails.city || !addressDetails.state || !addressDetails.pincode) {
+      setErrors(['Please fill in all required location fields.']); return;
     }
-    setAddressErrors([]);
+    if (!useExistingAddress) {
+      const v = validateAddressDetails(addressDetails);
+      if (!v.isValid) { setErrors(v.errors); return; }
+    }
+    setErrors([]);
     onNext();
   };
 
-  const AddressTypeIcon = ({ type }: { type: string }) => {
-    switch (type) {
-      case 'home': return <Home size={16} />;
-      case 'work': return <Briefcase size={16} />;
-      default: return <Globe size={16} />;
-    }
-  };
+  const canProceed = useExistingAddress
+    ? !!selectedAddress
+    : !!(addressDetails.plotNumber && addressDetails.street && addressDetails.city && addressDetails.state && addressDetails.pincode);
 
   return (
-    <div className="animate-in fade-in duration-500">
+    <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+      {/* Step title */}
       <div className="flex items-center gap-3 mb-8">
-        <div className="size-10 bg-[var(--color-brand-red-light)] rounded-full flex items-center justify-center text-[var(--color-brand-red)] shadow-sm">
-           <MapPin size={20} />
+        <div className="size-10 rounded-full bg-[var(--color-brand-red)] flex items-center justify-center shadow-sm">
+          <MapPin size={18} className="text-white" />
         </div>
-        <h2 className="text-[20px] md:text-[24px] font-[700] text-[var(--color-text-primary)] tracking-tight">Shipping Address</h2>
+        <div>
+          <h2 className="text-[20px] font-[700] text-[var(--color-text-primary)] leading-tight">Shipping Address</h2>
+          <p className="text-[13px] text-[var(--color-text-secondary)]">Where should we deliver your order?</p>
+        </div>
       </div>
 
-      <div className="space-y-8">
-        {/* Saved Addresses */}
+      <div className="space-y-6">
+        {/* Saved addresses */}
         {savedAddresses.length > 0 && !showAddressForm && !useExistingAddress && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between px-2">
-              <h4 className="text-[13px] font-[700] text-[var(--color-text-secondary)] uppercase tracking-wider">Your Saved Addresses</h4>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] font-[700] text-[var(--color-text-secondary)] uppercase tracking-wider">Saved Addresses</p>
               <button
                 onClick={() => setShowAddressForm(true)}
-                className="text-[13px] font-[600] text-[var(--color-brand-red)] hover:underline"
+                className="text-[13px] font-[600] text-[var(--color-brand-red)] hover:underline flex items-center gap-1"
               >
-                + Add New Address
+                <Plus size={14} /> New Address
               </button>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {savedAddresses.map((address) => (
-                <div
-                  key={address.id}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {savedAddresses.map(addr => (
+                <button
+                  key={addr.id}
+                  onClick={() => handleSavedSelect(addr)}
                   className={cn(
-                    "p-5 border-[1.5px] rounded-[12px] transition-all duration-300 cursor-pointer relative hover:-translate-y-0.5 hover:shadow-md",
-                    selectedAddress?.id === address.id
-                      ? "border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)]/50 shadow-sm ring-1 ring-[var(--color-brand-red)]"
-                      : "border-[var(--color-border-default)] hover:border-[var(--color-brand-red)]"
+                    'p-4 border-[1.5px] rounded-[12px] text-left transition-all duration-200',
+                    selectedAddress?.id === addr.id
+                      ? 'border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)]/40 shadow-sm'
+                      : 'border-[var(--color-border-default)] hover:border-[var(--color-brand-red)]/50 hover:bg-[var(--color-surface-page)]'
                   )}
-                  onClick={() => handleSavedAddressSelect(address)}
                 >
-                   <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-2">
-                         <div className="size-8 bg-white rounded-full border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-secondary)]">
-                            <AddressTypeIcon type={address.type} />
-                         </div>
-                         <span className="text-[15px] font-[600] text-[var(--color-text-primary)] capitalize">{address.name}</span>
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className={cn(
+                        'size-7 rounded-full flex items-center justify-center border',
+                        selectedAddress?.id === addr.id ? 'bg-[var(--color-brand-red)] text-white border-[var(--color-brand-red)]' : 'border-[var(--color-border-default)] text-[var(--color-text-secondary)]'
+                      )}>
+                        <TypeIcon type={addr.type} />
                       </div>
-                      {selectedAddress?.id === address.id && (
-                         <div className="size-5 bg-[var(--color-brand-red)] rounded-full flex items-center justify-center text-white shadow-sm">
-                            <Check size={12} strokeWidth={3} />
-                         </div>
+                      <span className="text-[14px] font-[600] text-[var(--color-text-primary)] capitalize">{addr.name}</span>
+                      {addr.is_default && (
+                        <span className="text-[10px] font-[700] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)] px-2 py-0.5 rounded-full uppercase">Default</span>
                       )}
-                   </div>
-                   <p className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed">
-                      {address.address_line_1}, {address.address_line_2 && `${address.address_line_2}, `}
-                      {address.city}, {address.state} - <span className="font-[600] text-[var(--color-text-primary)]">{address.pincode}</span>
-                   </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Address Form */}
-        {(savedAddresses.length === 0 || showAddressForm || useExistingAddress) && (
-          <div className="space-y-6">
-            {useExistingAddress && (
-              <div className="flex items-center justify-between p-4 bg-[var(--color-brand-red-light)]/50 border border-[var(--color-brand-red)]/30 rounded-[12px]">
-                 <div className="flex items-center gap-3">
-                    <Check className="text-[var(--color-brand-red)]" size={18} />
-                    <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">
-                       Using Saved Address: {selectedAddress?.name}
-                    </span>
-                 </div>
-                 <button
-                   onClick={() => {
-                     setUseExistingAddress(false);
-                     setSelectedAddress(null);
-                     setShowAddressForm(true);
-                   }}
-                   className="text-[12px] font-[700] text-[var(--color-brand-red)] hover:underline uppercase transition-all"
-                 >
-                   Change
-                 </button>
-              </div>
-            )}
-
-            {!useExistingAddress && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="plotNumber" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-                    House / Plot / Office *
-                  </Label>
-                  <Input
-                    id="plotNumber"
-                    type="text"
-                    placeholder="E.g. 101, A-Wing"
-                    value={addressDetails.plotNumber}
-                    onChange={(e) => setAddressDetails({ ...addressDetails, plotNumber: e.target.value })}
-                    className="h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="buildingName" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-                    Building / Complex
-                  </Label>
-                  <Input
-                    id="buildingName"
-                    type="text"
-                    placeholder="E.g. Sunshine Apartments"
-                    value={addressDetails.buildingName}
-                    onChange={(e) => setAddressDetails({ ...addressDetails, buildingName: e.target.value })}
-                    className="h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full"
-                  />
-                </div>
-              </div>
-            )}
-
-            {!useExistingAddress && (
-              <div className="space-y-2">
-                <Label htmlFor="street" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-                  Street / Area / Locality *
-                </Label>
-                <Input
-                  id="street"
-                  type="text"
-                  placeholder="E.g. MG Road, Near Market"
-                  value={addressDetails.street}
-                  onChange={(e) => setAddressDetails({ ...addressDetails, street: e.target.value })}
-                  className="h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full"
-                  required
-                />
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               <div className="space-y-2">
-                <Label htmlFor="pincode" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-                  Pincode *
-                </Label>
-                <Input
-                  id="pincode"
-                  type="text"
-                  placeholder="6 Digits"
-                  value={addressDetails.pincode}
-                  onChange={(e) => setAddressDetails({ ...addressDetails, pincode: e.target.value })}
-                  className="h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full"
-                  maxLength={6}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="city" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-                  City *
-                </Label>
-                <Input
-                  id="city"
-                   type="text"
-                  placeholder="E.g. Mumbai"
-                  value={addressDetails.city}
-                  onChange={(e) => setAddressDetails({ ...addressDetails, city: e.target.value })}
-                  className="h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="state" className="text-[13px] font-[600] text-[#4A4E54] tracking-wide mb-1 block">
-                  State *
-                </Label>
-                <Input
-                  id="state"
-                  type="text"
-                  placeholder="E.g. Maharashtra"
-                  value={addressDetails.state}
-                  onChange={(e) => setAddressDetails({ ...addressDetails, state: e.target.value })}
-                  className="h-[48px] px-4 border-[1.5px] border-[var(--color-border-default)] rounded-[10px] focus:border-[var(--color-brand-red)] focus:ring-[4px] focus:ring-[var(--color-brand-red)]/10 hover:border-[#CBD5E1] outline-none text-[var(--color-text-primary)] font-medium text-[14px] transition-all duration-300 shadow-sm w-full"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Delivery Estimation */}
-            <div className="p-5 rounded-[12px] bg-[var(--color-surface-page)] border-[1.5px] border-[var(--color-border-default)] flex flex-col md:flex-row justify-between items-center gap-4 transition-all hover:bg-white hover:border-[var(--color-brand-red)]/30 hover:shadow-sm">
-               <div className="flex items-center gap-3">
-                  <div className="size-10 bg-white rounded-full flex items-center justify-center text-[var(--color-brand-red)] border border-[var(--color-border-default)] shadow-sm">
-                     <Rocket size={20} />
+                    </div>
+                    {selectedAddress?.id === addr.id && (
+                      <div className="size-5 bg-[var(--color-brand-red)] rounded-full flex items-center justify-center">
+                        <Check size={11} className="text-white" strokeWidth={3} />
+                      </div>
+                    )}
                   </div>
-                  <div>
-                     <p className="text-[12px] font-[700] text-[var(--color-text-secondary)] uppercase tracking-wider leading-none mb-1">Estimated Arrival</p>
-                     <p className="text-[16px] font-[700] text-[var(--color-text-primary)]">{estimatedDeliveryTime || 'Standard Delivery'}</p>
-                  </div>
-               </div>
-               <div className="text-center md:text-right">
-                  <p className="text-[12px] font-[700] text-[var(--color-text-secondary)] uppercase tracking-wider leading-none mb-1">Shipping Fee</p>
-                  <p className={cn("text-[16px] font-[800]", estimatedDeliveryFee === 0 ? "text-[#008A00]" : "text-[var(--color-brand-red)]")}>
-                     {estimatedDeliveryFee === 0 ? 'FREE' : formatCurrency(estimatedDeliveryFee || 0, settings.currency_symbol)}
+                  <p className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed">
+                    {addr.address_line_1}{addr.address_line_2 ? `, ${addr.address_line_2}` : ''},&nbsp;
+                    {addr.city}, {addr.state} — <span className="font-[600] text-[var(--color-text-primary)]">{addr.pincode}</span>
                   </p>
-               </div>
+                </button>
+              ))}
             </div>
-
-            {/* Save Address */}
-            {currentUser && !useExistingAddress && (
-              <div className="flex items-center gap-3 px-1">
-                <input
-                  type="checkbox"
-                  id="saveAddress"
-                  checked={true}
-                  readOnly
-                  className="size-[18px] rounded-[4px] border-[var(--color-border-default)] text-[var(--color-brand-red)] focus:ring-[var(--color-brand-red)] transition-colors"
-                />
-                <Label htmlFor="saveAddress" className="text-[13px] font-[600] text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text-primary)] transition-colors">
-                  Save this address to my profile
-                </Label>
-              </div>
-            )}
           </div>
         )}
 
-        {addressErrors.length > 0 && (
-          <div className="p-4 bg-[#E01E26]/5 border border-[#E01E26]/20 rounded-[12px]">
-            <ul className="text-[#E01E26] text-[12px] font-[600] space-y-1">
-              {addressErrors.map((error, index) => (
-                <li key={index} className="flex items-center gap-2">
-                   <span className="size-1 bg-[#E01E26] rounded-full"></span>
-                   {error}
-                </li>
-              ))}
+        {/* Using saved address banner */}
+        {useExistingAddress && (
+          <div className="flex items-center justify-between p-4 bg-[var(--color-brand-red-light)]/40 border border-[var(--color-brand-red)]/30 rounded-[12px]">
+            <div className="flex items-center gap-2">
+              <Check size={16} className="text-[var(--color-brand-red)]" />
+              <span className="text-[14px] font-[600] text-[var(--color-text-primary)]">
+                Using: {selectedAddress?.name}
+              </span>
+            </div>
+            <button
+              onClick={() => { setUseExistingAddress(false); setSelectedAddress(null); setShowAddressForm(true); }}
+              className="text-[13px] font-[600] text-[var(--color-brand-red)] hover:underline uppercase tracking-wide"
+            >
+              Change
+            </button>
+          </div>
+        )}
+
+        {/* New address form */}
+        {(savedAddresses.length === 0 || showAddressForm || useExistingAddress) && !useExistingAddress && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InputField id="plot" label="House / Flat / Plot" placeholder="e.g. 101, A-Wing" required
+                value={addressDetails.plotNumber} onChange={v => setAddressDetails({ ...addressDetails, plotNumber: v })} />
+              <InputField id="building" label="Building / Society"  placeholder="e.g. Sunshine Apartments"
+                value={addressDetails.buildingName} onChange={v => setAddressDetails({ ...addressDetails, buildingName: v })} />
+            </div>
+            <InputField id="street" label="Street / Area / Locality" placeholder="e.g. MG Road, Near Market" required
+              value={addressDetails.street} onChange={v => setAddressDetails({ ...addressDetails, street: v })} />
+            <InputField id="landmark" label="Landmark" placeholder="e.g. Opposite Metro Station"
+              value={addressDetails.landmark} onChange={v => setAddressDetails({ ...addressDetails, landmark: v })} />
+            <div className="grid grid-cols-3 gap-4">
+              <InputField id="pincode" label="Pincode" placeholder="6 digits" required maxLength={6}
+                value={addressDetails.pincode} onChange={v => setAddressDetails({ ...addressDetails, pincode: v })} />
+              <InputField id="city" label="City" placeholder="Mumbai" required
+                value={addressDetails.city} onChange={v => setAddressDetails({ ...addressDetails, city: v })} />
+              <InputField id="state" label="State" placeholder="Maharashtra" required
+                value={addressDetails.state} onChange={v => setAddressDetails({ ...addressDetails, state: v })} />
+            </div>
+
+            {/* Address type */}
+            <div className="space-y-2">
+              <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">Address Type</p>
+              <div className="flex gap-3">
+                {(['home', 'work', 'other'] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setAddressDetails({ ...addressDetails, addressType: t })}
+                    className={cn(
+                      'flex items-center gap-1.5 px-4 h-9 rounded-full border-[1.5px] text-[13px] font-[600] capitalize transition-all',
+                      addressDetails.addressType === t
+                        ? 'border-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]'
+                        : 'border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:border-[var(--color-text-muted)]'
+                    )}
+                  >
+                    <TypeIcon type={t} />{t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delivery estimate */}
+        <div className="flex items-center justify-between p-4 rounded-[12px] bg-[var(--color-surface-page)] border border-[var(--color-border-default)]">
+          <div className="flex items-center gap-3">
+            <div className="size-9 bg-white rounded-full border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-brand-red)]">
+              <Truck size={16} />
+            </div>
+            <div>
+              <p className="text-[12px] text-[var(--color-text-secondary)] uppercase tracking-wider font-[600]">Estimated Delivery</p>
+              <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">{estimatedDeliveryTime || 'Standard Delivery'}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[12px] text-[var(--color-text-secondary)] uppercase tracking-wider font-[600]">Shipping</p>
+            <p className={cn('text-[15px] font-[700]', estimatedDeliveryFee === 0 ? 'text-[#008A00]' : 'text-[var(--color-brand-red)]')}>
+              {estimatedDeliveryFee === 0 ? 'FREE' : formatCurrency(estimatedDeliveryFee || 0, settings.currency_symbol)}
+            </p>
+          </div>
+        </div>
+
+        {/* Save to profile */}
+        {currentUser && !useExistingAddress && (
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <input type="checkbox" defaultChecked
+              className="size-4 rounded border-[var(--color-border-default)] text-[var(--color-brand-red)] focus:ring-[var(--color-brand-red)] transition-colors"
+            />
+            <span className="text-[13px] text-[var(--color-text-secondary)] group-hover:text-[var(--color-text-primary)] transition-colors">
+              Save this address to my profile
+            </span>
+          </label>
+        )}
+
+        {/* Errors */}
+        {errors.length > 0 && (
+          <div className="flex items-start gap-3 p-4 bg-[#FEF2F2] border border-[#FECACA] rounded-[10px]">
+            <AlertCircle size={16} className="text-[#E01E26] mt-0.5 shrink-0" />
+            <ul className="space-y-1">
+              {errors.map((e, i) => <li key={i} className="text-[13px] text-[#E01E26] font-[500]">{e}</li>)}
             </ul>
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-8 border-t border-[var(--color-surface-page)] mt-10">
-           <button 
-             onClick={onPrev}
-             className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] text-[14px] font-[600] flex items-center gap-2 transition-colors uppercase tracking-wider"
-           >
-              <ChevronLeft size={18} />
-              Back
-           </button>
-           <Button
-             onClick={handleNext}
-             disabled={
-               useExistingAddress
-                 ? !selectedAddress || !addressDetails.city || !addressDetails.state || !addressDetails.pincode
-                 : !addressDetails.plotNumber || !addressDetails.street || !addressDetails.city || !addressDetails.state || !addressDetails.pincode
-             }
-             className="group bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white font-[600] text-[15px] px-10 h-[52px] rounded-[10px] transition-all duration-300 hover:shadow-[0_8px_20px_rgba(0,113,220,0.24)] hover:-translate-y-[2px] active:scale-[0.98] disabled:opacity-60 disabled:hover:-translate-y-0 disabled:hover:shadow-none"
-           >
-             Continue to Payment
-             <ChevronRight size={18} className="ml-2 group-hover:translate-x-1.5 transition-transform duration-300" />
-           </Button>
+        {/* Nav buttons */}
+        <div className="flex items-center justify-between pt-4 border-t border-[var(--color-border-default)]/50">
+          <button onClick={onPrev} className="flex items-center gap-2 text-[14px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">
+            <ChevronLeft size={16} /> Back
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={!canProceed}
+            className="group flex items-center gap-2 bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] disabled:opacity-50 disabled:cursor-not-allowed text-white font-[600] text-[14px] px-8 h-12 rounded-[10px] transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98]"
+          >
+            Continue to Payment
+            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
       </div>
     </div>

@@ -5,185 +5,189 @@ import { useSettings } from '@/hooks/useSettings';
 import { toNumber, calculatePercentage } from '@/utils/settingsHelpers';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import ProductCard from '@/components/ProductCard';
-import { ShoppingBag, ChevronLeft, Trash2, ShieldCheck, Truck, RefreshCw, Plus, Minus } from 'lucide-react';
+import {
+  ShoppingBag, ChevronLeft, Trash2, ShieldCheck, Truck,
+  RefreshCw, Plus, Minus, ArrowRight, Tag, PackageCheck, HeadphonesIcon
+} from 'lucide-react';
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart } = useStore();
   const { settings, loading: settingsLoading } = useSettings();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [recommendations, setRecommendations] = useState<any[]>([]);
 
-  // Fetch random recommendations
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        const { data } = await supabase
-          .from('products')
-          .select('*')
-          .limit(4);
-
-        if (data) setRecommendations(data);
-      } catch (error) {
-        console.error('Error fetching recommendations:', error);
-      }
-    };
-    fetchRecommendations();
+    supabase.from('products').select('*').limit(4).then(({ data }) => {
+      if (data) setRecommendations(data);
+    });
   }, []);
 
   if (settingsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-brand-red)]"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-surface-page)]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-brand-red)]" />
       </div>
     );
   }
 
-  // Calculations
-  const subtotal = cartItems.reduce((sum, item) => sum + (toNumber(item.price) * toNumber(item.quantity)), 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + toNumber(item.price) * toNumber(item.quantity), 0);
   const tax = calculatePercentage(subtotal, settings.tax_rate);
   const freeDeliveryThreshold = toNumber(settings.free_delivery_threshold);
-
-  const deliveryFee = (freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold)
+  const deliveryFee = freeDeliveryThreshold > 0 && subtotal >= freeDeliveryThreshold
     ? 0
     : toNumber(settings.delivery_charge);
-
   const total = subtotal + tax + deliveryFee;
-
-  // Free Shipping Progress
-  const progress = freeDeliveryThreshold > 0
-    ? Math.min((subtotal / freeDeliveryThreshold) * 100, 100)
-    : 100;
-
+  const progress = freeDeliveryThreshold > 0 ? Math.min((subtotal / freeDeliveryThreshold) * 100, 100) : 100;
   const minOrderAmount = toNumber(settings.min_order_amount);
   const isMinOrderMet = subtotal >= minOrderAmount;
+  const amountToFreeShipping = freeDeliveryThreshold - subtotal;
 
   return (
-    <div className="bg-[var(--color-surface-page)] min-h-screen font-inter selection:bg-[var(--color-brand-red)]/10">
-      
-      <main className="max-w-[1280px] mx-auto px-6 py-12 md:py-16">
-        
-        {/* Navigation Breadcrumb */}
-        <button 
+    <div className="bg-[var(--color-surface-page)] min-h-screen">
+      <main className="max-w-[1280px] mx-auto px-4 sm:px-6 py-10 md:py-14">
+
+        {/* Back nav */}
+        <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-[var(--color-brand-red)] font-[600] text-[14px] mb-8 hover:underline"
+          className="flex items-center gap-1.5 text-[13px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors mb-8"
         >
-          <ChevronLeft size={18} />
+          <ChevronLeft size={16} />
           Continue Shopping
         </button>
 
-        {/* Page Title */}
-        <div className="mb-10">
-           <h1 className="text-[32px] md:text-[42px] font-[600] text-[var(--color-text-primary)] leading-tight">
-             Shopping Cart
-           </h1>
-           <p className="text-[16px] text-[var(--color-text-secondary)] mt-2">
-             You have <span className="font-[600] text-[var(--color-text-primary)]">{cartItems.length} items</span> in your cart
-           </p>
+        {/* Page heading */}
+        <div className="mb-8">
+          <h1 className="text-[28px] md:text-[36px] font-[700] text-[var(--color-text-primary)] leading-tight">
+            Shopping Cart
+          </h1>
+          <p className="text-[14px] text-[var(--color-text-secondary)] mt-1">
+            {cartItems.length === 0
+              ? 'Your cart is empty'
+              : <><span className="font-[700] text-[var(--color-text-primary)]">{cartItems.length}</span> item{cartItems.length !== 1 ? 's' : ''} in your cart</>
+            }
+          </p>
         </div>
 
+        {/* Empty state */}
         {cartItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center p-12 py-24 bg-white rounded-[24px] border border-[var(--color-border-default)] shadow-sm">
-            <div className="size-[120px] bg-[var(--color-surface-page)] rounded-full flex items-center justify-center mb-8">
-               <ShoppingBag className="size-[48px] text-[#BDC1C6]" />
+          <div className="flex flex-col items-center justify-center text-center py-24 bg-white rounded-[20px] border border-[var(--color-border-default)]">
+            <div className="size-[100px] bg-[var(--color-surface-page)] rounded-full flex items-center justify-center mb-6">
+              <ShoppingBag size={40} className="text-[var(--color-text-muted)]" />
             </div>
-            <h2 className="text-[28px] font-[600] text-[var(--color-text-primary)] mb-4">Your cart is empty</h2>
-            <p className="text-[var(--color-text-secondary)] mb-10 max-w-sm text-[16px]">Looks like you haven't added anything to your cart yet. Let's start shopping!</p>
-            <Link to="/products" className="bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white px-10 py-4 rounded-full font-[600] text-[16px] transition-all shadow-md active:scale-[0.98]">
-              Start Shopping
+            <h2 className="text-[22px] font-[700] text-[var(--color-text-primary)] mb-2">Your cart is empty</h2>
+            <p className="text-[14px] text-[var(--color-text-secondary)] mb-8 max-w-xs">
+              Looks like you haven't added anything yet. Start exploring our collection.
+            </p>
+            <Link
+              to="/products"
+              className="flex items-center gap-2 bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white px-8 py-3.5 rounded-[12px] font-[700] text-[14px] transition-all hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98]"
+            >
+              Explore Products <ArrowRight size={16} />
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            {/* Left Col: Cart Items */}
-            <div className="lg:col-span-8 flex flex-col gap-6">
-              
-              {/* Free Shipping Alert */}
+
+            {/* Left: Items */}
+            <div className="lg:col-span-8 space-y-4">
+
+              {/* Free shipping banner */}
               {freeDeliveryThreshold > 0 && (
-                <div className="bg-white p-6 rounded-[16px] border border-[var(--color-border-default)] shadow-sm">
-                  <div className="flex justify-between items-center mb-3">
-                    <p className="text-[14px] font-[600] text-[var(--color-text-primary)]">
-                      {progress < 100 
-                        ? `Add ${formatCurrency(freeDeliveryThreshold - subtotal, settings.currency_symbol)} more for FREE SHIPPING` 
-                        : "You've unlocked FREE SHIPPING!"}
+                <div className="bg-white rounded-[16px] border border-[var(--color-border-default)] p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">
+                      {progress >= 100 ? (
+                        <span className="text-[#008A00]">You've unlocked FREE shipping!</span>
+                      ) : (
+                        <>Add <span className="text-[var(--color-brand-red)]">{formatCurrency(amountToFreeShipping, settings.currency_symbol)}</span> more for free shipping</>
+                      )}
                     </p>
-                    <Truck className={progress >= 100 ? "text-[#008A00]" : "text-[var(--color-text-secondary)]"} size={20} />
+                    <Truck size={17} className={progress >= 100 ? 'text-[#008A00]' : 'text-[var(--color-text-muted)]'} />
                   </div>
-                  <div className="h-2 w-full bg-[var(--color-surface-page)] rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full transition-all duration-700 ease-out ${progress >= 100 ? 'bg-[#008A00]' : 'bg-[var(--color-brand-red)]'}`} 
+                  <div className="h-1.5 w-full bg-[var(--color-surface-page)] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ease-out ${progress >= 100 ? 'bg-[#008A00]' : 'bg-[var(--color-brand-red)]'}`}
                       style={{ width: `${progress}%` }}
-                    ></div>
+                    />
                   </div>
                 </div>
               )}
 
-              {/* Items List */}
-              <div className="bg-white rounded-[24px] border border-[var(--color-border-default)] shadow-sm overflow-hidden">
-                {cartItems.map((item, index) => (
-                  <div 
-                    key={`${item.id}-${item.selectedSize}-${item.selectedWeight}`} 
-                    className={`flex flex-col md:flex-row gap-6 p-6 md:p-8 ${index !== cartItems.length - 1 ? 'border-bottom border-[var(--color-border-default)]' : ''}`}
-                    style={index !== cartItems.length - 1 ? { borderBottom: '1px solid var(--color-border-default)' } : {}}
+              {/* Cart items card */}
+              <div className="bg-white rounded-[20px] border border-[var(--color-border-default)] overflow-hidden divide-y divide-[var(--color-border-default)]/70">
+                {cartItems.map((item) => (
+                  <div
+                    key={`${item.id}-${item.selectedSize}-${item.selectedWeight}`}
+                    className="flex gap-4 sm:gap-5 p-4 sm:p-6 hover:bg-[var(--color-surface-page)]/50 transition-colors group"
                   >
-                    {/* Item Image */}
-                    <div className="size-[120px] md:size-[140px] bg-[var(--color-surface-page)] rounded-[16px] border border-[var(--color-border-default)] shrink-0 overflow-hidden flex items-center justify-center group">
-                      <img 
-                        src={item.image} 
+                    {/* Image */}
+                    <div className="size-[88px] sm:size-[104px] bg-[var(--color-surface-page)] rounded-[12px] border border-[var(--color-border-default)] shrink-0 overflow-hidden flex items-center justify-center p-1.5 group-hover:border-[var(--color-brand-red)]/30 transition-colors">
+                      <img
+                        src={item.image}
                         alt={item.name}
-                        className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
 
-                    {/* Item Details */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                        <div>
-                          <span className="text-[11px] font-[700] tracking-widest text-[var(--color-brand-red)] uppercase">
-                            {item.category || 'Product'}
-                          </span>
-                          <h3 className="text-[18px] md:text-[20px] font-[600] text-[var(--color-text-primary)] mt-1 leading-snug">{item.name}</h3>
-                          <p className="text-[14px] text-[var(--color-text-secondary)] mt-2">
-                             {[item.selectedSize && `Size: ${item.selectedSize}`, item.selectedWeight && `Weight: ${item.selectedWeight}`].filter(Boolean).join(' • ') || 'Standard'}
-                          </p>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between gap-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          {item.category && (
+                            <p className="text-[10px] font-[700] tracking-widest text-[var(--color-brand-red)] uppercase mb-0.5">
+                              {item.category}
+                            </p>
+                          )}
+                          <h3 className="text-[14px] sm:text-[15px] font-[700] text-[var(--color-text-primary)] leading-snug line-clamp-2">
+                            {item.name}
+                          </h3>
+                          {(item.selectedSize || item.selectedWeight) && (
+                            <p className="text-[12px] text-[var(--color-text-secondary)] mt-1">
+                              {[
+                                item.selectedSize && `Size: ${item.selectedSize}`,
+                                item.selectedWeight && `${item.selectedWeight}`
+                              ].filter(Boolean).join(' · ')}
+                            </p>
+                          )}
                         </div>
                         <div className="text-right shrink-0">
-                           <p className="text-[20px] font-[700] text-[var(--color-text-primary)]">
-                             {formatCurrency(item.price * item.quantity, settings.currency_symbol)}
-                           </p>
-                           {item.quantity > 1 && (
-                             <p className="text-[12px] text-[var(--color-text-secondary)] mt-1">
-                               {formatCurrency(item.price, settings.currency_symbol)} / unit
-                             </p>
-                           )}
+                          <p className="text-[16px] sm:text-[18px] font-[700] text-[var(--color-text-primary)]">
+                            {formatCurrency(item.price * item.quantity, settings.currency_symbol)}
+                          </p>
+                          {item.quantity > 1 && (
+                            <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                              {formatCurrency(item.price, settings.currency_symbol)} each
+                            </p>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between mt-6">
-                        <div className="flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-full h-[40px] bg-white overflow-hidden">
-                          <button 
+                      {/* Quantity + Remove */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center h-9 rounded-[10px] border border-[var(--color-border-default)] overflow-hidden bg-[var(--color-surface-page)]">
+                          <button
                             onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1), item.selectedSize, item.selectedWeight)}
-                            className="size-[40px] flex items-center justify-center hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)] transition-colors"
+                            className="size-9 flex items-center justify-center hover:bg-white hover:text-[var(--color-brand-red)] transition-colors text-[var(--color-text-secondary)]"
                           >
-                            <Minus size={14} />
+                            <Minus size={13} />
                           </button>
-                          <span className="w-[40px] text-center text-[15px] font-[600]">{item.quantity}</span>
-                          <button 
+                          <span className="w-9 text-center text-[14px] font-[700] text-[var(--color-text-primary)]">
+                            {item.quantity}
+                          </span>
+                          <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize, item.selectedWeight)}
-                            className="size-[40px] flex items-center justify-center hover:bg-[var(--color-surface-page)] text-[var(--color-text-primary)] transition-colors"
+                            className="size-9 flex items-center justify-center hover:bg-white hover:text-[var(--color-brand-red)] transition-colors text-[var(--color-text-secondary)]"
                           >
-                            <Plus size={14} />
+                            <Plus size={13} />
                           </button>
                         </div>
 
-                        <button 
+                        <button
                           onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedWeight)}
-                          className="flex items-center gap-2 text-[#E01E26] font-[600] text-[13px] hover:underline"
+                          className="flex items-center gap-1.5 text-[12px] font-[600] text-[var(--color-text-muted)] hover:text-[#E01E26] transition-colors"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                           Remove
                         </button>
                       </div>
@@ -192,121 +196,131 @@ const Cart = () => {
                 ))}
               </div>
 
-              {/* Trust Indicators */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 <div className="bg-white p-5 rounded-[16px] border border-[var(--color-border-default)] flex items-center gap-4">
-                    <div className="size-[40px] bg-[var(--color-surface-page)] rounded-full flex items-center justify-center text-[var(--color-brand-red)]">
-                       <ShieldCheck size={20} />
+              {/* Trust badges */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { icon: ShieldCheck, title: 'Secure Checkout', sub: 'SSL encrypted payment' },
+                  { icon: RefreshCw, title: 'Easy Returns', sub: '30-day return policy' },
+                  { icon: PackageCheck, title: 'Quality Promise', sub: '100% genuine products' },
+                ].map(({ icon: Icon, title, sub }) => (
+                  <div key={title} className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-4 flex items-center gap-3">
+                    <div className="size-9 bg-[var(--color-brand-red-light)]/40 rounded-full flex items-center justify-center shrink-0">
+                      <Icon size={16} className="text-[var(--color-brand-red)]" />
                     </div>
                     <div>
-                       <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">Secure Checkout</p>
-                       <p className="text-[11px] text-[var(--color-text-secondary)]">Your data is encrypted</p>
+                      <p className="text-[13px] font-[700] text-[var(--color-text-primary)]">{title}</p>
+                      <p className="text-[11px] text-[var(--color-text-secondary)]">{sub}</p>
                     </div>
-                 </div>
-                 <div className="bg-white p-5 rounded-[16px] border border-[var(--color-border-default)] flex items-center gap-4">
-                    <div className="size-[40px] bg-[var(--color-surface-page)] rounded-full flex items-center justify-center text-[var(--color-brand-red)]">
-                       <RefreshCw size={20} />
-                    </div>
-                    <div>
-                       <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">Easy Returns</p>
-                       <p className="text-[11px] text-[var(--color-text-secondary)]">30-day return policy</p>
-                    </div>
-                 </div>
-                 <div className="bg-white p-5 rounded-[16px] border border-[var(--color-border-default)] flex items-center gap-4">
-                    <div className="size-[40px] bg-[var(--color-surface-page)] rounded-full flex items-center justify-center text-[var(--color-brand-red)]">
-                       <Truck size={20} />
-                    </div>
-                    <div>
-                       <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">Track Order</p>
-                       <p className="text-[11px] text-[var(--color-text-secondary)]">Real-time item tracking</p>
-                    </div>
-                 </div>
+                  </div>
+                ))}
               </div>
-
             </div>
 
-            {/* Right Col: Summary */}
-            <aside className="lg:col-span-4 flex flex-col gap-6 sticky top-28">
-              <div className="bg-white p-8 rounded-[24px] border border-[var(--color-border-default)] shadow-sm">
-                <h2 className="text-[22px] font-[600] text-[var(--color-text-primary)] mb-8">Order Summary</h2>
+            {/* Right: Summary */}
+            <aside className="lg:col-span-4 flex flex-col gap-4 sticky top-28">
+              <div className="bg-white rounded-[20px] border border-[var(--color-border-default)] overflow-hidden">
+                <div className="p-6 space-y-3">
+                  <h2 className="text-[17px] font-[700] text-[var(--color-text-primary)] mb-5 flex items-center gap-2">
+                    <Tag size={16} className="text-[var(--color-brand-red)]" />
+                    Order Summary
+                  </h2>
 
-                <div className="space-y-4 mb-8">
-                  <div className="flex justify-between items-center text-[15px]">
-                    <span className="text-[var(--color-text-secondary)]">Subtotal</span>
-                    <span className="text-[var(--color-text-primary)] font-[600]">{formatCurrency(subtotal, settings.currency_symbol)}</span>
+                  <div className="flex justify-between text-[14px]">
+                    <span className="text-[var(--color-text-secondary)]">
+                      Subtotal ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})
+                    </span>
+                    <span className="font-[600] text-[var(--color-text-primary)]">
+                      {formatCurrency(subtotal, settings.currency_symbol)}
+                    </span>
                   </div>
+
                   {tax > 0 && (
-                    <div className="flex justify-between items-center text-[15px]">
+                    <div className="flex justify-between text-[14px]">
                       <span className="text-[var(--color-text-secondary)]">Tax ({settings.tax_rate}%)</span>
-                      <span className="text-[var(--color-text-primary)] font-[600]">{formatCurrency(tax, settings.currency_symbol)}</span>
+                      <span className="font-[600] text-[var(--color-text-primary)]">
+                        {formatCurrency(tax, settings.currency_symbol)}
+                      </span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center text-[15px]">
+
+                  <div className="flex justify-between text-[14px]">
                     <span className="text-[var(--color-text-secondary)]">Shipping</span>
-                    <span className={`font-[600] ${deliveryFee === 0 ? 'text-[#008A00]' : 'text-[var(--color-text-primary)]'}`}>
+                    <span className={`font-[700] ${deliveryFee === 0 ? 'text-[#008A00]' : 'text-[var(--color-text-primary)]'}`}>
                       {deliveryFee === 0 ? 'FREE' : formatCurrency(deliveryFee, settings.currency_symbol)}
                     </span>
                   </div>
                 </div>
 
-                <div className="h-px bg-[var(--color-border-default)] w-full mb-6"></div>
-
-                <div className="flex justify-between items-center mb-8">
-                   <span className="text-[18px] font-[600] text-[var(--color-text-primary)]">Total</span>
-                   <span className="text-[26px] font-[700] text-[var(--color-brand-red)]">
-                     {formatCurrency(total, settings.currency_symbol)}
-                   </span>
-                </div>
-
-                {/* Minimum Order Warning */}
-                {!isMinOrderMet && (
-                  <div className="p-4 bg-[#E01E26]/5 border border-[#E01E26]/20 rounded-[12px] mb-6">
-                    <p className="text-[12px] text-[#E01E26] font-[600] leading-snug">
-                       Minimum order amount is {formatCurrency(minOrderAmount, settings.currency_symbol)}. Please add more items to proceed.
+                {/* Dark total panel */}
+                <div className="flex items-center justify-between px-6 py-5 bg-[var(--color-text-primary)]">
+                  <div>
+                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-[600]">Total Payable</p>
+                    <p className="text-[28px] font-[800] text-[var(--color-brand-yellow)] leading-tight">
+                      {formatCurrency(total, settings.currency_symbol)}
                     </p>
                   </div>
-                )}
+                  <div className="flex items-center gap-1.5 text-white/30">
+                    <ShieldCheck size={14} />
+                    <span className="text-[11px] font-[600]">Incl. all taxes</span>
+                  </div>
+                </div>
 
-                <button 
-                  disabled={!isMinOrderMet}
-                  onClick={() => navigate('/checkout')}
-                  className="w-full bg-[var(--color-brand-yellow)] hover:bg-[#E5AF1C] text-[var(--color-text-primary)] py-5 rounded-full font-[700] text-[18px] transition-all shadow-md active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
-                >
-                  Checkout
-                </button>
+                <div className="p-6 pt-5 space-y-4">
+                  {!isMinOrderMet && (
+                    <div className="p-3.5 bg-[#FEF2F2] border border-[#FECACA] rounded-[10px]">
+                      <p className="text-[12px] text-[#991B1B] font-[600] leading-snug">
+                        Minimum order is {formatCurrency(minOrderAmount, settings.currency_symbol)}. Add more items to proceed.
+                      </p>
+                    </div>
+                  )}
 
-                <div className="flex flex-col items-center gap-4 mt-8">
-                   <p className="text-[12px] text-[#BDC1C6] font-[600] uppercase tracking-[0.1em]">Payment Secure & Encrypted</p>
-                   <div className="flex justify-center gap-4 opacity-30 grayscale">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4" />
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-6" />
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-5" />
-                   </div>
+                  <button
+                    disabled={!isMinOrderMet}
+                    onClick={() => navigate('/checkout')}
+                    className="w-full h-[52px] rounded-[12px] bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white font-[700] text-[15px] transition-all hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
+                  >
+                    Proceed to Checkout <ArrowRight size={16} />
+                  </button>
+
+                  <Link
+                    to="/products"
+                    className="flex items-center justify-center gap-1.5 w-full h-10 rounded-[10px] border border-[var(--color-border-default)] text-[13px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-text-muted)] transition-all"
+                  >
+                    <ChevronLeft size={14} />
+                    Continue Shopping
+                  </Link>
                 </div>
               </div>
 
-              {/* Help & Support */}
-              <div className="bg-white p-6 rounded-[24px] border border-[var(--color-border-default)] shadow-sm flex flex-col gap-3">
-                 <h3 className="text-[16px] font-[600] text-[var(--color-text-primary)]">Need any help?</h3>
-                 <p className="text-[13px] text-[var(--color-text-secondary)] leading-relaxed">Our support team is available mon-fri, 9am - 6pm. We're here to help with your purchase.</p>
-                 <Link to="/contact" className="text-[var(--color-brand-red)] font-[600] text-[14px] hover:underline mt-2">
-                   Contact Support
-                 </Link>
+              {/* Help */}
+              <div className="bg-white rounded-[16px] border border-[var(--color-border-default)] p-5 flex items-start gap-3">
+                <div className="size-9 bg-[var(--color-surface-page)] rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                  <HeadphonesIcon size={16} className="text-[var(--color-brand-red)]" />
+                </div>
+                <div>
+                  <p className="text-[13px] font-[700] text-[var(--color-text-primary)]">Need help?</p>
+                  <p className="text-[12px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                    Mon–Fri, 9am – 6pm. We're happy to assist.
+                  </p>
+                  <Link to="/contact" className="text-[13px] font-[700] text-[var(--color-brand-red)] hover:underline mt-1.5 inline-block">
+                    Contact Support
+                  </Link>
+                </div>
               </div>
             </aside>
 
           </div>
         )}
 
-        {/* Essential Add-ons */}
+        {/* Recommendations */}
         {recommendations.length > 0 && cartItems.length > 0 && (
-          <section className="mt-24">
-            <h2 className="text-[24px] md:text-[28px] font-[600] text-[var(--color-text-primary)] mb-10">Essential Add-ons</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          <section className="mt-16 sm:mt-20">
+            <h2 className="text-[22px] font-[700] text-[var(--color-text-primary)] mb-6">You may also like</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
               {recommendations.map((product) => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
+                <ProductCard
+                  key={product.id}
+                  product={product}
                   onViewDetail={() => navigate(`/product/${product.slug || product.id}`)}
                 />
               ))}
@@ -315,7 +329,6 @@ const Cart = () => {
         )}
 
       </main>
-
     </div>
   );
 };

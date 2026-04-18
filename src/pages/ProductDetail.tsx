@@ -390,9 +390,21 @@ const ProductDetail = () => {
                </button>
             </div>
 
-            {/* Secondary CTA */}
-            <button className="w-full h-12 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] font-[600] text-[15px] hover:bg-[var(--color-brand-red-light)] transition-all">
-               Buy with Megadiscountstore Pay
+            {/* Buy Now CTA */}
+            <button
+              onClick={() => {
+                if (variants.length > 0 && !selectedVariant) {
+                  toast({ title: "Please select a variant", variant: "destructive" }); return;
+                }
+                if (variants.length === 0 && (product?.available_weights || []).length > 0 && !selectedWeight) {
+                  toast({ title: "Please select a weight option", variant: "destructive" }); return;
+                }
+                handleAddToCart();
+                navigate('/checkout');
+              }}
+              className="w-full h-12 bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white rounded-[8px] font-[600] text-[15px] transition-all active:scale-[0.98] shadow-sm"
+            >
+              Buy Now
             </button>
 
             {/* Delivery / Trust Info */}

@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import {
-  PlusCircle,
-  Trash2,
-  Save,
-  AlertCircle,
-  Star,
-  MessageCircle
+  PlusCircle, Trash2, Save, AlertCircle, Star, MessageSquare,
+  Edit, X, ChevronUp, ChevronDown, Loader2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -30,544 +21,289 @@ interface Testimonial {
   updated_at: string;
 }
 
+const inputCls = "w-full h-10 px-3 bg-white border border-[var(--color-border-default)] rounded-[8px] text-[14px] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-brand-red)] transition-colors";
+const labelCls = "block text-[12px] font-[600] text-[var(--color-text-secondary)] mb-1.5 uppercase tracking-wide";
+
+const StarRating = ({ value, onChange }: { value: number; onChange?: (v: number) => void }) => (
+  <div className="flex gap-0.5">
+    {[1, 2, 3, 4, 5].map(i => (
+      <Star key={i} size={16}
+        className={`${i <= value ? 'fill-[#F59E0B] text-[#F59E0B]' : 'text-[var(--color-border-default)]'} ${onChange ? 'cursor-pointer hover:scale-110 transition-transform' : ''}`}
+        onClick={() => onChange?.(i)}
+      />
+    ))}
+  </div>
+);
+
 const Testimonials = () => {
-  const supabaseClient = supabase;
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [newTestimonial, setNewTestimonial] = useState({
-    name: '',
-    role: '',
-    company: '',
-    image_url: '',
-    text: '',
-    rating: 5,
-    is_active: true,
-    sort_order: 0
-  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Testimonial | null>(null);
+  const [newT, setNewT] = useState({ name: '', role: '', company: '', image_url: '', text: '', rating: 5, is_active: true, sort_order: 0 });
 
-  useEffect(() => {
-    fetchTestimonials();
-  }, []);
+  useEffect(() => { fetch(); }, []);
 
-  const fetchTestimonials = async () => {
+  const fetch = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabaseClient
-        .from('testimonials')
-        .select('*')
-        .order('sort_order', { ascending: true });
-
+      const { data, error } = await supabase.from('testimonials').select('*').order('sort_order', { ascending: true });
       if (error) throw error;
       setTestimonials(data || []);
-    } catch (error) {
-      console.error('Error fetching testimonials:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch testimonials',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
+    } catch { toast({ title: 'Error', description: 'Failed to fetch testimonials', variant: 'destructive' }); }
+    finally { setLoading(false); }
   };
 
-  const handleCreateTestimonial = async () => {
+  const handleCreate = async () => {
+    if (!newT.name || !newT.text) return toast({ title: 'Required', description: 'Name and text are required', variant: 'destructive' });
     try {
       setSaving(true);
-      const { error } = await supabaseClient
-        .from('testimonials')
-        .insert([{
-          name: newTestimonial.name,
-          role: newTestimonial.role,
-          company: newTestimonial.company || null,
-          image_url: newTestimonial.image_url || null,
-          text: newTestimonial.text,
-          rating: newTestimonial.rating,
-          is_active: newTestimonial.is_active,
-          sort_order: newTestimonial.sort_order || testimonials.length + 1
-        }]);
-
+      const { error } = await supabase.from('testimonials').insert([{
+        name: newT.name, role: newT.role, company: newT.company || null,
+        image_url: newT.image_url || null, text: newT.text, rating: newT.rating,
+        is_active: newT.is_active, sort_order: newT.sort_order || testimonials.length + 1,
+      }]);
       if (error) throw error;
-
-      toast({
-        title: 'Success',
-        description: 'Testimonial created successfully'
-      });
-
-      setNewTestimonial({
-        name: '',
-        role: '',
-        company: '',
-        image_url: '',
-        text: '',
-        rating: 5,
-        is_active: true,
-        sort_order: 0
-      });
-
-      fetchTestimonials();
-    } catch (error) {
-      console.error('Error creating testimonial:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to create testimonial',
-        variant: 'destructive'
-      });
-    } finally {
-      setSaving(false);
-    }
+      toast({ title: 'Added', description: 'Testimonial created successfully' });
+      setNewT({ name: '', role: '', company: '', image_url: '', text: '', rating: 5, is_active: true, sort_order: 0 });
+      fetch();
+    } catch { toast({ title: 'Error', description: 'Failed to create testimonial', variant: 'destructive' }); }
+    finally { setSaving(false); }
   };
 
-  const handleUpdateTestimonial = async () => {
+  const handleUpdate = async () => {
     if (!editData) return;
-
     try {
       setSaving(true);
-      const { error } = await supabaseClient
-        .from('testimonials')
-        .update({
-          name: editData.name,
-          role: editData.role,
-          company: editData.company,
-          image_url: editData.image_url,
-          text: editData.text,
-          rating: editData.rating,
-          is_active: editData.is_active,
-          sort_order: editData.sort_order
-        })
-        .eq('id', editData.id);
-
+      const { error } = await supabase.from('testimonials').update({
+        name: editData.name, role: editData.role, company: editData.company,
+        image_url: editData.image_url, text: editData.text, rating: editData.rating,
+        is_active: editData.is_active, sort_order: editData.sort_order,
+      }).eq('id', editData.id);
       if (error) throw error;
-
-      toast({
-        title: 'Success',
-        description: 'Testimonial updated successfully'
-      });
-
-      setEditingId(null);
-      setEditData(null);
-      fetchTestimonials();
-    } catch (error) {
-      console.error('Error updating testimonial:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update testimonial',
-        variant: 'destructive'
-      });
-    } finally {
-      setSaving(false);
-    }
+      toast({ title: 'Updated', description: 'Testimonial updated successfully' });
+      setEditingId(null); setEditData(null);
+      fetch();
+    } catch { toast({ title: 'Error', description: 'Failed to update testimonial', variant: 'destructive' }); }
+    finally { setSaving(false); }
   };
 
-  const handleDeleteTestimonial = async (id: string) => {
-    try {
-      const { error } = await supabaseClient
-        .from('testimonials')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Success',
-        description: 'Testimonial deleted successfully'
-      });
-
-      fetchTestimonials();
-    } catch (error) {
-      console.error('Error deleting testimonial:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete testimonial',
-        variant: 'destructive'
-      });
-    }
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from('testimonials').delete().eq('id', id);
+    if (error) return toast({ title: 'Error', description: 'Failed to delete', variant: 'destructive' });
+    toast({ title: 'Deleted', description: 'Testimonial removed' });
+    fetch();
   };
 
-  const startEditing = (testimonial: Testimonial) => {
-    setEditingId(testimonial.id);
-    setEditData({ ...testimonial });
+  const moveTestimonial = async (id: string, dir: 'up' | 'down') => {
+    const idx = testimonials.findIndex(t => t.id === id);
+    if (idx === -1) return;
+    const newIdx = dir === 'up' ? idx - 1 : idx + 1;
+    if (newIdx < 0 || newIdx >= testimonials.length) return;
+    const updated = [...testimonials];
+    const temp = updated[idx].sort_order;
+    updated[idx].sort_order = updated[newIdx].sort_order;
+    updated[newIdx].sort_order = temp;
+    setTestimonials(updated);
+    await Promise.all([
+      supabase.from('testimonials').update({ sort_order: updated[idx].sort_order }).eq('id', updated[idx].id),
+      supabase.from('testimonials').update({ sort_order: updated[newIdx].sort_order }).eq('id', updated[newIdx].id),
+    ]);
   };
 
-  const cancelEditing = () => {
-    setEditingId(null);
-    setEditData(null);
-  };
-
-  const moveTestimonial = async (id: string, direction: 'up' | 'down') => {
-    const currentIndex = testimonials.findIndex(testimonial => testimonial.id === id);
-    if (currentIndex === -1) return;
-
-    let newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex < 0 || newIndex >= testimonials.length) return;
-
-    const updatedTestimonials = [...testimonials];
-    const temp = updatedTestimonials[currentIndex].sort_order;
-    updatedTestimonials[currentIndex].sort_order = updatedTestimonials[newIndex].sort_order;
-    updatedTestimonials[newIndex].sort_order = temp;
-
-    setTestimonials(updatedTestimonials);
-
-    try {
-      // Update both testimonials in database
-      const { error } = await supabaseClient
-        .from('testimonials')
-        .update({ sort_order: updatedTestimonials[currentIndex].sort_order })
-        .eq('id', updatedTestimonials[currentIndex].id);
-
-      if (error) throw error;
-
-      const { error: error2 } = await supabaseClient
-        .from('testimonials')
-        .update({ sort_order: updatedTestimonials[newIndex].sort_order })
-        .eq('id', updatedTestimonials[newIndex].id);
-
-      if (error2) throw error2;
-    } catch (error) {
-      console.error('Error updating sort order:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update sort order',
-        variant: 'destructive'
-      });
-      fetchTestimonials(); // Revert to original order
-    }
-  };
-
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`w-4 h-4 ${i < rating ? 'fill-[#B38B46] text-[#B38B46]' : 'text-gray-300'}`}
-          />
-        ))}
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B38B46]"></div>
-      </div>
-    );
-  }
-
-  const CardStyle = "border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300";
-  const LabelStyle = "text-[#7E5A34] text-xs uppercase tracking-widest font-medium";
-  const InputStyle = "border-[#D4B6A2]/30 focus:border-[#B38B46] bg-[#F9F9F7] text-[#4A1C1F] rounded-none";
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="size-8 rounded-full border-[3px] border-[var(--color-brand-red-light)] border-t-[var(--color-brand-red)] animate-spin" />
+    </div>
+  );
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center border-b border-[#D4B6A2]/20 pb-6">
+    <div className="space-y-6">
+
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-[#4A1C1F] tracking-tight mb-1">Testimonials</h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">Customer reviews and feedback management</p>
+          <h1 className="text-[22px] font-[700] text-[var(--color-text-primary)]">Testimonials</h1>
+          <p className="text-[13px] text-[var(--color-text-secondary)] mt-0.5">Customer reviews and social proof</p>
         </div>
       </div>
 
-      <Card className={CardStyle}>
-        <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-          <CardTitle className="font-serif text-lg text-[#4A1C1F] flex items-center">
-            <MessageCircle className="h-5 w-5 mr-2 text-[#B38B46]" />
-            Add New Testimonial
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6 pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className={LabelStyle}>Name *</Label>
-              <Input
-                id="name"
-                placeholder="Enter customer name"
-                value={newTestimonial.name}
-                onChange={(e) => setNewTestimonial({ ...newTestimonial, name: e.target.value })}
-                className={InputStyle}
-              />
+      {/* Add Form */}
+      <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] overflow-hidden">
+        <div className="flex items-center gap-2.5 px-5 py-4 border-b border-[var(--color-border-default)]">
+          <div className="size-8 rounded-[8px] bg-[var(--color-brand-red-light)] flex items-center justify-center">
+            <MessageSquare size={15} className="text-[var(--color-brand-red)]" />
+          </div>
+          <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">Add New Testimonial</p>
+        </div>
+        <div className="p-5 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Name *</label>
+              <input className={inputCls} placeholder="Customer name" value={newT.name} onChange={e => setNewT({ ...newT, name: e.target.value })} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="role" className={LabelStyle}>Role *</Label>
-              <Input
-                id="role"
-                placeholder="Enter customer role"
-                value={newTestimonial.role}
-                onChange={(e) => setNewTestimonial({ ...newTestimonial, role: e.target.value })}
-                className={InputStyle}
-              />
+            <div>
+              <label className={labelCls}>Role *</label>
+              <input className={inputCls} placeholder="e.g. Fashion Enthusiast" value={newT.role} onChange={e => setNewT({ ...newT, role: e.target.value })} />
+            </div>
+            <div>
+              <label className={labelCls}>Company</label>
+              <input className={inputCls} placeholder="Optional" value={newT.company} onChange={e => setNewT({ ...newT, company: e.target.value })} />
+            </div>
+            <div>
+              <label className={labelCls}>Image URL</label>
+              <input className={inputCls} placeholder="https://..." value={newT.image_url} onChange={e => setNewT({ ...newT, image_url: e.target.value })} />
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="company" className={LabelStyle}>Company</Label>
-              <Input
-                id="company"
-                placeholder="Enter company name"
-                value={newTestimonial.company}
-                onChange={(e) => setNewTestimonial({ ...newTestimonial, company: e.target.value })}
-                className={InputStyle}
-              />
+          <div>
+            <label className={labelCls}>Review Text *</label>
+            <textarea className={`${inputCls} h-auto py-2.5 resize-none`} rows={3} placeholder="Enter the customer's review..."
+              value={newT.text} onChange={e => setNewT({ ...newT, text: e.target.value })} />
+          </div>
+          <div className="flex flex-wrap items-center gap-6">
+            <div>
+              <label className={labelCls}>Rating</label>
+              <StarRating value={newT.rating} onChange={v => setNewT({ ...newT, rating: v })} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="image_url" className={LabelStyle}>Image URL</Label>
-              <Input
-                id="image_url"
-                placeholder="Enter image URL"
-                value={newTestimonial.image_url}
-                onChange={(e) => setNewTestimonial({ ...newTestimonial, image_url: e.target.value })}
-                className={InputStyle}
-              />
+            <div>
+              <label className={labelCls}>Sort Order</label>
+              <input type="number" min="0" className={`${inputCls} w-24`} value={newT.sort_order || ''} onChange={e => setNewT({ ...newT, sort_order: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div className="flex items-center gap-2.5 pt-4">
+              <Switch checked={newT.is_active} onCheckedChange={v => setNewT({ ...newT, is_active: v })} className="data-[state=checked]:bg-[var(--color-brand-red)]" />
+              <span className="text-[13px] font-[600] text-[var(--color-text-primary)]">Active</span>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="rating" className={LabelStyle}>Rating</Label>
-              <div className="flex items-center space-x-2 bg-[#F9F9F7] p-2 border border-[#D4B6A2]/30">
-                {renderStars(newTestimonial.rating || 0)}
-                <Input
-                  id="rating"
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={newTestimonial.rating}
-                  onChange={(e) => setNewTestimonial({ ...newTestimonial, rating: parseInt(e.target.value) || 0 })}
-                  className="w-20 h-8 border-none bg-transparent focus:ring-0"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="sort_order" className={LabelStyle}>Sort Order</Label>
-              <Input
-                id="sort_order"
-                type="number"
-                min="0"
-                value={newTestimonial.sort_order || ''}
-                onChange={(e) => setNewTestimonial({ ...newTestimonial, sort_order: parseInt(e.target.value) || 0 })}
-                className={`w-32 ${InputStyle}`}
-              />
-            </div>
+          <div className="pt-1">
+            <button onClick={handleCreate} disabled={saving}
+              className="flex items-center gap-1.5 h-9 px-5 rounded-[8px] bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white text-[13px] font-[600] transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
+              {saving ? <Loader2 size={13} className="animate-spin" /> : <PlusCircle size={13} />}
+              {saving ? 'Adding...' : 'Add Testimonial'}
+            </button>
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="text" className={LabelStyle}>Testimonial Text *</Label>
-            <Textarea
-              id="text"
-              placeholder="Enter testimonial text"
-              value={newTestimonial.text}
-              onChange={(e) => setNewTestimonial({ ...newTestimonial, text: e.target.value })}
-              rows={4}
-              className={InputStyle}
-            />
-          </div>
-
-          <div className="flex items-center space-x-2 bg-[#F9F9F7] p-3 rounded border border-[#D4B6A2]/10 w-fit">
-            <Switch
-              id="is_active"
-              checked={newTestimonial.is_active}
-              onCheckedChange={(checked) => setNewTestimonial({ ...newTestimonial, is_active: checked })}
-              className="data-[state=checked]:bg-[#B38B46]"
-            />
-            <Label htmlFor="is_active" className={LabelStyle}>Active</Label>
-          </div>
-
-          <Button onClick={handleCreateTestimonial} disabled={saving} className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white uppercase tracking-widest text-xs rounded-none">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            {saving ? 'Adding...' : 'Add Testimonial'}
-          </Button>
-        </CardContent>
-      </Card>
-
-      <div className="space-y-6">
-        <h2 className="text-2xl font-serif text-[#4A1C1F]">Existing Testimonials</h2>
+      {/* List */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-[15px] font-[700] text-[var(--color-text-primary)]">
+            All Testimonials <span className="text-[var(--color-text-muted)] font-[400] text-[13px]">({testimonials.length})</span>
+          </p>
+        </div>
 
         {testimonials.length === 0 ? (
-          <div className="text-center py-12 text-[#5C4638] bg-[#F9F9F7] border border-[#D4B6A2]/20 rounded">
-            <AlertCircle className="mx-auto h-12 w-12 text-[#B38B46] mb-2" />
-            <p className="font-light">No testimonials found</p>
+          <div className="flex flex-col items-center justify-center py-16 bg-white rounded-[14px] border border-[var(--color-border-default)]">
+            <AlertCircle size={32} className="text-[var(--color-text-muted)] mb-3 opacity-40" />
+            <p className="text-[14px] text-[var(--color-text-muted)]">No testimonials yet</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((testimonial) => (
-              <Card key={testimonial.id} className={`${CardStyle} overflow-hidden`}>
-                <CardContent className="p-4">
-                  {editingId === testimonial.id && editData ? (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label className={LabelStyle}>Name *</Label>
-                        <Input
-                          value={editData.name}
-                          onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                          className={InputStyle}
-                        />
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {testimonials.map((t, idx) => (
+              <div key={t.id} className="bg-white rounded-[14px] border border-[var(--color-border-default)] overflow-hidden hover:shadow-md transition-shadow">
+                {editingId === t.id && editData ? (
+                  /* Edit form */
+                  <div className="p-4 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelCls}>Name *</label>
+                        <input className={inputCls} value={editData.name} onChange={e => setEditData({ ...editData, name: e.target.value })} />
                       </div>
-
-                      <div className="space-y-2">
-                        <Label className={LabelStyle}>Role *</Label>
-                        <Input
-                          value={editData.role}
-                          onChange={(e) => setEditData({ ...editData, role: e.target.value })}
-                          className={InputStyle}
-                        />
+                      <div>
+                        <label className={labelCls}>Role</label>
+                        <input className={inputCls} value={editData.role} onChange={e => setEditData({ ...editData, role: e.target.value })} />
                       </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-2">
-                          <Label className={LabelStyle}>Company</Label>
-                          <Input
-                            value={editData.company || ''}
-                            onChange={(e) => setEditData({ ...editData, company: e.target.value })}
-                            className={InputStyle}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className={LabelStyle}>Rating</Label>
-                          <Input
-                            type="number"
-                            min="1"
-                            max="5"
-                            value={editData.rating || ''}
-                            onChange={(e) => setEditData({ ...editData, rating: parseInt(e.target.value) || 0 })}
-                            className={InputStyle}
-                          />
-                        </div>
+                      <div>
+                        <label className={labelCls}>Company</label>
+                        <input className={inputCls} value={editData.company || ''} onChange={e => setEditData({ ...editData, company: e.target.value })} />
                       </div>
-
-                      <div className="space-y-2">
-                        <Label className={LabelStyle}>Image URL</Label>
-                        <Input
-                          value={editData.image_url || ''}
-                          onChange={(e) => setEditData({ ...editData, image_url: e.target.value })}
-                          className={InputStyle}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className={LabelStyle}>Sort Order</Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={editData.sort_order}
-                          onChange={(e) => setEditData({ ...editData, sort_order: parseInt(e.target.value) || 0 })}
-                          className={InputStyle}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className={LabelStyle}>Testimonial Text *</Label>
-                        <Textarea
-                          value={editData.text}
-                          onChange={(e) => setEditData({ ...editData, text: e.target.value })}
-                          rows={3}
-                          className={InputStyle}
-                        />
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={editData.is_active}
-                          onCheckedChange={(checked) => setEditData({ ...editData, is_active: checked })}
-                          className="data-[state=checked]:bg-[#B38B46]"
-                        />
-                        <Label className={LabelStyle}>Active</Label>
-                      </div>
-
-                      <div className="flex space-x-2 pt-2">
-                        <Button onClick={handleUpdateTestimonial} size="sm" disabled={saving} className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white">
-                          <Save className="mr-2 h-4 w-4" />
-                          {saving ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button variant="outline" onClick={cancelEditing} size="sm" className="border-[#D4B6A2] text-[#5C4638] hover:bg-[#F9F9F7]">
-                          Cancel
-                        </Button>
+                      <div>
+                        <label className={labelCls}>Sort Order</label>
+                        <input type="number" className={inputCls} value={editData.sort_order} onChange={e => setEditData({ ...editData, sort_order: parseInt(e.target.value) || 0 })} />
                       </div>
                     </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3 border-b border-[#D4B6A2]/10 pb-3">
-                        <div className="w-12 h-12 rounded-full overflow-hidden border border-[#D4B6A2]/20">
-                          <img
-                            src={testimonial.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(testimonial.name)}&background=random`}
-                            alt={testimonial.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(testimonial.name)}&background=random`;
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <h3 className="font-serif text-[#4A1C1F] font-medium">{testimonial.name}</h3>
-                          <p className="text-xs text-[#7E5A34] uppercase tracking-wider">{testimonial.role}{testimonial.company ? `, ${testimonial.company}` : ''}</p>
-                        </div>
+                    <div>
+                      <label className={labelCls}>Image URL</label>
+                      <input className={inputCls} value={editData.image_url || ''} onChange={e => setEditData({ ...editData, image_url: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Review Text</label>
+                      <textarea className={`${inputCls} h-auto py-2.5 resize-none`} rows={3} value={editData.text} onChange={e => setEditData({ ...editData, text: e.target.value })} />
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <label className={labelCls}>Rating</label>
+                        <StarRating value={editData.rating || 0} onChange={v => setEditData({ ...editData, rating: v })} />
                       </div>
-
-                      <div className="flex items-center space-x-1">
-                        {renderStars(testimonial.rating || 0)}
-                        <span className="text-xs text-[#5C4638] ml-1">({testimonial.rating}/5)</span>
-                      </div>
-
-                      <p className="text-sm line-clamp-3 text-[#5C4638] italic">"{testimonial.text}"</p>
-
-                      <div className="flex items-center justify-between pt-2 border-t border-[#D4B6A2]/10 mt-2">
-                        <div className="flex items-center space-x-2">
-                          <span className={`inline-flex items-center px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-none ${testimonial.is_active ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                            {testimonial.is_active ? 'Active' : 'Inactive'}
-                          </span>
-                          <span className="text-[10px] text-[#7E5A34] uppercase tracking-wider">
-                            Order: {testimonial.sort_order}
-                          </span>
-                        </div>
-
-                        <div className="flex space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => startEditing(testimonial)}
-                            className="text-[#7E5A34] hover:text-[#4A1C1F] h-8 w-8 p-0"
-                          >
-                            <Save className="h-4 w-4" /> {/* Reusing Save icon as Edit icon is not imported, assuming Eye/Edit existed */}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteTestimonial(testimonial.id)}
-                            className="text-red-400 hover:text-red-600 h-8 w-8 p-0"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="flex space-x-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => moveTestimonial(testimonial.id, 'up')}
-                          disabled={testimonials.findIndex(t => t.id === testimonial.id) === 0}
-                          className="flex-1 border-[#D4B6A2]/30 text-[#5C4638] h-7 text-xs"
-                        >
-                          ↑
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => moveTestimonial(testimonial.id, 'down')}
-                          disabled={testimonials.findIndex(t => t.id === testimonial.id) === testimonials.length - 1}
-                          className="flex-1 border-[#D4B6A2]/30 text-[#5C4638] h-7 text-xs"
-                        >
-                          ↓
-                        </Button>
+                      <div className="flex items-center gap-2 pt-4">
+                        <Switch checked={editData.is_active} onCheckedChange={v => setEditData({ ...editData, is_active: v })} className="data-[state=checked]:bg-[var(--color-brand-red)]" />
+                        <span className="text-[12px] font-[600] text-[var(--color-text-primary)]">Active</span>
                       </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                    <div className="flex gap-2 pt-1">
+                      <button onClick={handleUpdate} disabled={saving}
+                        className="flex-1 h-9 flex items-center justify-center gap-1.5 rounded-[8px] bg-[var(--color-brand-red)] text-white text-[13px] font-[600] hover:bg-[var(--color-brand-red-deep)] transition-all disabled:opacity-60">
+                        {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                        Save
+                      </button>
+                      <button onClick={() => { setEditingId(null); setEditData(null); }}
+                        className="flex-1 h-9 flex items-center justify-center rounded-[8px] border border-[var(--color-border-default)] text-[13px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-all">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Display card */
+                  <div>
+                    {/* Card body */}
+                    <div className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <img
+                          src={t.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=E01E26&color=fff&size=64`}
+                          alt={t.name}
+                          className="size-10 rounded-full object-cover border border-[var(--color-border-default)]"
+                          onError={e => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=E01E26&color=fff&size=64`; }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-[700] text-[var(--color-text-primary)] truncate">{t.name}</p>
+                          <p className="text-[11px] text-[var(--color-text-muted)] truncate">{t.role}{t.company ? `, ${t.company}` : ''}</p>
+                        </div>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-[700] uppercase"
+                          style={{ background: t.is_active ? '#D1FAE5' : '#FEE2E2', color: t.is_active ? '#065F46' : '#991B1B' }}>
+                          {t.is_active ? 'Active' : 'Off'}
+                        </span>
+                      </div>
+                      <StarRating value={t.rating || 0} />
+                      <p className="text-[13px] text-[var(--color-text-secondary)] mt-2.5 line-clamp-3 leading-relaxed italic">"{t.text}"</p>
+                    </div>
+
+                    {/* Card footer */}
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--color-border-default)] bg-[var(--color-surface-page)]">
+                      <div className="flex gap-1">
+                        <button onClick={() => moveTestimonial(t.id, 'up')} disabled={idx === 0}
+                          className="size-7 flex items-center justify-center rounded-[6px] border border-[var(--color-border-default)] bg-white text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-30 transition-all">
+                          <ChevronUp size={12} />
+                        </button>
+                        <button onClick={() => moveTestimonial(t.id, 'down')} disabled={idx === testimonials.length - 1}
+                          className="size-7 flex items-center justify-center rounded-[6px] border border-[var(--color-border-default)] bg-white text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-30 transition-all">
+                          <ChevronDown size={12} />
+                        </button>
+                      </div>
+                      <div className="flex gap-1.5">
+                        <button onClick={() => { setEditingId(t.id); setEditData({ ...t }); }}
+                          className="size-8 rounded-[6px] bg-white border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-[var(--color-brand-red-light)] hover:text-[var(--color-brand-red)] hover:border-[var(--color-brand-red)]/30 transition-all">
+                          <Edit size={13} />
+                        </button>
+                        <button onClick={() => handleDelete(t.id)}
+                          className="size-8 rounded-[6px] bg-white border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all">
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}

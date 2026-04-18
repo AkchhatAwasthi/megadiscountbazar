@@ -544,7 +544,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
   if (loading && isEdit) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B38B46]"></div>
+        <div className="size-8 rounded-full border-[3px] border-[var(--color-brand-red-light)] border-t-[var(--color-brand-red)] animate-spin" />
       </div>
     );
   }
@@ -702,29 +702,29 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between border-b border-[#D4B6A2]/20 pb-6">
+      <div className="flex items-center justify-between border-b border-[var(--color-border-default)] pb-6">
         <div>
-          <Button
-            variant="ghost"
+          <button
+            type="button"
             onClick={() => navigate('/admin/products')}
-            className="text-[#5C4638] hover:text-[#4A1C1F] hover:bg-[#F9F9F7] p-0 mb-2 h-auto"
+            className="flex items-center gap-1.5 text-[12px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] mb-2 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            <span className="uppercase tracking-widest text-xs">Back to Products</span>
-          </Button>
-          <h1 className="text-[28px] font-[500] text-[var(--color-text-primary)] tracking-[-0.02em]">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Products
+          </button>
+          <h1 className="text-[22px] font-[700] text-[var(--color-text-primary)]">
             {isEdit ? 'Edit Product' : 'Add New Product'}
           </h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">
+          <p className="text-[13px] text-[var(--color-text-secondary)] mt-0.5">
             {isEdit ? 'Update existing product details' : 'Create a new product in your catalog'}
           </p>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           {!isEdit && (
-            <Badge variant="outline" className="border-[#B38B46] text-[#B38B46] uppercase tracking-widest">New</Badge>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-[700] uppercase tracking-wide border border-[var(--color-brand-red)] text-[var(--color-brand-red)]">New</span>
           )}
           {isEdit && formData.is_active && (
-            <Badge className="bg-green-50 text-green-700 border-0 uppercase tracking-widest">Active</Badge>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-[700] uppercase tracking-wide bg-[#D1FAE5] text-[#065F46]">Active</span>
           )}
         </div>
       </div>
@@ -756,12 +756,12 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                     value={formData.category_id}
                     onValueChange={(value) => handleInputChange('category_id', value)}
                   >
-                    <SelectTrigger className="border-[#D4B6A2]/30 bg-[#F9F9F7] text-[#4A1C1F] rounded-none">
+                    <SelectTrigger className="h-[40px] border-[1.5px] border-[var(--color-border-default)] bg-[var(--color-surface-card)] text-[var(--color-text-primary)] rounded-[8px] focus:border-[var(--color-brand-red)] focus:outline-none">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-[#D4B6A2]/20">
+                    <SelectContent className="bg-white border-[var(--color-border-default)]">
                       {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id} className="text-[#4A1C1F] focus:bg-[#F9F9F7] focus:text-[#4A1C1F]">
+                        <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>
                       ))}
@@ -780,11 +780,11 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                     placeholder="Product SKU"
                     className={InputStyle}
                   />
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     variant="outline"
                     onClick={generateSKU}
-                    className="border-[#D4B6A2]/50 text-[#5C4638] hover:bg-[#F9F9F7] text-xs uppercase tracking-wider h-10 px-3"
+                    className="h-[40px] border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-light)] rounded-[8px] text-xs font-[600] px-3 transition-all"
                   >
                     Generate
                   </Button>
@@ -941,7 +941,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                     onKeyPress={(e) => e.key === 'Enter' && addNewFeature()}
                     className={InputStyle}
                   />
-                  <Button type="button" onClick={addNewFeature} disabled={!newFeature.trim()} className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white uppercase tracking-widest text-xs rounded-none">
+                  <Button type="button" onClick={addNewFeature} disabled={!newFeature.trim()} className="h-[40px] bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white rounded-[8px] text-xs font-[600] px-4 transition-all">
                     Add
                   </Button>
                 </div>
@@ -950,9 +950,9 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
               {/* Available Features */}
               <div className="space-y-4">
                 <Label className={LabelStyle}>Available Features</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto border border-[#D4B6A2]/20 rounded-none p-4 bg-[#F9F9F7]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto border border-[var(--color-border-default)] rounded-[8px] p-4 bg-[var(--color-surface-page)]">
                   {availableFeatures.map((feature) => (
-                    <div key={feature} className="flex items-center justify-between space-x-2 p-2 hover:bg-white/50 rounded-none transition-colors">
+                    <div key={feature} className="flex items-center justify-between space-x-2 p-2 hover:bg-white rounded-[6px] transition-colors">
                       <div className="flex items-center space-x-2 flex-1">
                         <Checkbox
                           id={feature}
@@ -960,7 +960,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                           onCheckedChange={() => toggleFeature(feature)}
                           className="data-[state=checked]:bg-[var(--color-brand-red)] border-[var(--color-border-default)] rounded-[4px]"
                         />
-                        <Label htmlFor={feature} className="text-sm cursor-pointer flex-1 text-[#5C4638] font-normal normal-case tracking-normal">
+                        <Label htmlFor={feature} className="text-sm cursor-pointer flex-1 text-[var(--color-text-primary)] font-normal normal-case tracking-normal">
                           {feature}
                         </Label>
                       </div>
@@ -984,18 +984,16 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                   <Label className={LabelStyle}>Selected Features ({selectedFeatures.length})</Label>
                   <div className="flex flex-wrap gap-2">
                     {selectedFeatures.map((feature) => (
-                      <Badge key={feature} variant="secondary" className="flex items-center gap-1 rounded-none bg-[#4A1C1F] text-[#F5EFE7] hover:bg-[#5C4638]">
+                      <span key={feature} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-[600] bg-[var(--color-brand-red-light)] text-[var(--color-brand-red)]">
                         {feature}
-                        <Button
+                        <button
                           type="button"
-                          variant="ghost"
-                          size="sm"
                           onClick={() => toggleFeature(feature)}
-                          className="h-4 w-4 p-0 hover:bg-transparent text-[#F5EFE7] hover:text-white"
+                          className="flex items-center justify-center hover:opacity-70 transition-opacity"
                         >
                           <X className="h-3 w-3" />
-                        </Button>
-                      </Badge>
+                        </button>
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -1203,7 +1201,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                   variant="outline"
                   onClick={() => document.getElementById('images')?.click()}
                   disabled={images.length >= 10 || uploadingImage}
-                  className="w-full border-[#D4B6A2]/50 text-[#5C4638] hover:bg-[#F9F9F7] uppercase tracking-widest text-xs rounded-none h-12"
+                  className="w-full border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:border-[var(--color-brand-red)] hover:text-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-light)] rounded-[8px] text-[13px] font-[500] h-11 transition-all"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   {uploadingImage ? 'Uploading...' : `Upload Images (${images.length}/10)`}
@@ -1224,13 +1222,13 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                     type="button"
                     onClick={addImageFromUrl}
                     disabled={!imageUrlInput.trim() || images.length >= 10}
-                    className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white text-xs uppercase tracking-widest rounded-none h-10 px-3 shrink-0"
+                    className="h-[40px] bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white text-xs font-[600] rounded-[8px] px-3 shrink-0 transition-all"
                   >
                     Add
                   </Button>
                 </div>
                 {imageUrlInput && !urlPreviewError && (
-                  <div className="relative mt-1 rounded overflow-hidden border border-[#D4B6A2]/20">
+                  <div className="relative mt-1 rounded-[8px] overflow-hidden border border-[var(--color-border-default)]">
                     <img
                       src={imageUrlInput}
                       alt="URL preview"
@@ -1253,7 +1251,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                     <img
                       src={image}
                       alt={`Product ${index + 1}`}
-                      className="w-full h-24 object-cover border border-[#D4B6A2]/20 rounded-none"
+                      className="w-full h-24 object-cover border border-[var(--color-border-default)] rounded-[8px]"
                     />
                     <div className="absolute inset-0 bg-black/40 transition-opacity flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
                       <Button
@@ -1288,22 +1286,22 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
                       </Button>
                     </div>
                     {index === 0 && (
-                      <Badge className="absolute bottom-1 left-1 text-[10px] bg-[#B38B46] text-white rounded-none border-0">Primary</Badge>
+                      <span className="absolute bottom-1 left-1 text-[10px] font-[700] bg-[var(--color-brand-red)] text-white px-1.5 py-0.5 rounded-[4px]">Primary</span>
                     )}
-                    <Badge className="absolute top-1 left-1 text-[10px] bg-black/50 text-white rounded-none border-0 backdrop-blur-sm">
+                    <span className="absolute top-1 left-1 text-[10px] font-[700] bg-black/50 text-white px-1.5 py-0.5 rounded-[4px] backdrop-blur-sm">
                       {index + 1}
-                    </Badge>
+                    </span>
                   </div>
                 ))}
               </div>
 
               {images.length === 0 && (
-                <div className="border border-dashed border-[#D4B6A2]/40 rounded-none p-8 text-center bg-[#F9F9F7]">
-                  <Upload className="h-8 w-8 mx-auto text-[#D4B6A2] mb-2" />
-                  <p className="text-sm text-[#5C4638]">
+                <div className="border border-dashed border-[var(--color-border-default)] rounded-[8px] p-8 text-center bg-[var(--color-surface-page)]">
+                  <Upload className="h-8 w-8 mx-auto text-[var(--color-text-muted)] mb-2" />
+                  <p className="text-[13px] text-[var(--color-text-secondary)] font-[500]">
                     Upload product images
                   </p>
-                  <p className="text-xs text-[#7E5A34]/70 mt-1">
+                  <p className="text-[11px] text-[var(--color-text-muted)] mt-1">
                     PNG, JPG up to 10MB each
                   </p>
                 </div>
@@ -1417,7 +1415,7 @@ const ProductForm = ({ product: propProduct, isEdit = false }: ProductFormProps)
               </div>
 
               <div className="space-y-4 pt-2">
-                <h3 className="font-medium text-[#4A1C1F] text-sm uppercase tracking-wide border-b border-[#D4B6A2]/20 pb-2">Marketing Information</h3>
+                <h3 className="text-[12px] font-[700] text-[var(--color-text-secondary)] uppercase tracking-widest border-b border-[var(--color-border-default)] pb-2">Marketing Information</h3>
 
                 <div className="space-y-2">
                   <Label htmlFor="marketedBy" className={LabelStyle}>Marketed By</Label>

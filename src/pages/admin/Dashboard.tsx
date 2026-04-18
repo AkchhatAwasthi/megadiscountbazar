@@ -1,392 +1,322 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  BarChart3,
-  Package,
-  Users,
-  ShoppingCart,
-  TrendingUp,
-  Calendar,
-  IndianRupee,
-  ArrowRight,
-  Star
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer
+} from 'recharts';
+import {
+  Package, Users, ShoppingCart, IndianRupee, TrendingUp, TrendingDown,
+  ArrowRight, Calendar, RefreshCw
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+const Spinner = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="size-8 rounded-full border-[3px] border-[var(--color-brand-red-light)] border-t-[var(--color-brand-red)] animate-spin" />
+  </div>
+);
+
+const CustomTooltip = ({ active, payload, label, prefix = '' }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-[var(--color-text-primary)] text-white px-3 py-2 rounded-[8px] shadow-xl text-[12px]">
+      <p className="text-white/50 mb-1">{label}</p>
+      {payload.map((p: any, i: number) => (
+        <p key={i} className="font-[600]">{prefix}{typeof p.value === 'number' ? p.value.toLocaleString('en-IN') : p.value}</p>
+      ))}
+    </div>
+  );
+};
+
+const statusStyle = (s: string) => {
+  const map: Record<string, { bg: string; color: string }> = {
+    delivered: { bg: '#EAF3DE', color: '#27500A' },
+    shipped: { bg: '#DBEAFE', color: '#1E40AF' },
+    processing: { bg: '#FEF3C7', color: '#92400E' },
+    pending: { bg: '#FEF3C7', color: '#92400E' },
+    placed: { bg: '#FEF3C7', color: '#92400E' },
+    cancelled: { bg: '#FEE2E2', color: '#991B1B' },
+  };
+  return map[s?.toLowerCase()] || { bg: '#F1F5F9', color: '#475569' };
+};
+
 const AdminDashboard = () => {
-  const [dateRange, setDateRange] = useState('7d');
+  const navigate = useNavigate();
+  const [dateRange, setDateRange] = useState('30d');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalRevenue: 0,
-    totalOrders: 0,
-    totalProducts: 0,
-    totalCustomers: 0,
-    revenueGrowth: 0,
-    ordersGrowth: 0,
-    productsGrowth: 0,
-    customersGrowth: 0
+    totalRevenue: 0, totalOrders: 0, totalProducts: 0, totalCustomers: 0,
+    revenueGrowth: 0, ordersGrowth: 0, productsGrowth: 0, customersGrowth: 0,
   });
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [topProducts, setTopProducts] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [orderStatusData, setOrderStatusData] = useState<any[]>([]);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [dateRange]);
+  useEffect(() => { fetchAll(); }, [dateRange]);
 
-  const fetchDashboardData = async () => {
+  const fetchAll = async () => {
     try {
       setLoading(true);
+      const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
+      const now = new Date();
+      const periodStart = new Date(now.getTime() - days * 86400000);
+      const prevStart = new Date(periodStart.getTime() - days * 86400000);
 
-      // Fetch total revenue and orders
-      const { data: orders, error: ordersError } = await supabase
-        .from('orders')
-        .select('total, created_at, customer_info, items, order_status, order_number')
-        .order('created_at', { ascending: false });
+      const [ordersRes, productsRes, profilesRes] = await Promise.all([
+        supabase.from('orders').select('total, created_at, customer_info, items, order_status, order_number').order('created_at', { ascending: false }),
+        supabase.from('products').select('id').eq('is_active', true),
+        supabase.from('profiles').select('id, created_at'),
+      ]);
 
-      if (ordersError) throw ordersError;
+      const orders = ordersRes.data || [];
+      const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+      const totalOrders = orders.length;
+      const totalProducts = (productsRes.data || []).length;
+      const totalCustomers = (profilesRes.data || []).length;
 
-      // Fetch total products  
-      const { data: products, error: productsError } = await supabase
-        .from('products')
-        .select('id, name, stock_quantity')
-        .eq('is_active', true);
-
-      if (productsError) throw productsError;
-
-      // Fetch unique customers (profiles)
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, created_at');
-
-      if (profilesError) throw profilesError;
-
-      // Calculate stats
-      const totalRevenue = orders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0;
-      const totalOrders = orders?.length || 0;
-      const totalProducts = products?.length || 0;
-      const totalCustomers = profiles?.length || 0;
-
-      // Calculate growth rates (comparing current month to previous month)
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-
-      // Get current month data
-      const currentMonthStart = new Date(currentYear, currentMonth, 1);
-      const currentMonthOrders = orders?.filter(order =>
-        new Date(order.created_at) >= currentMonthStart
-      ) || [];
-
-      // Get last month data
-      const lastMonthStart = new Date(lastMonthYear, lastMonth, 1);
-      const lastMonthEnd = new Date(currentYear, currentMonth, 0);
-      const lastMonthOrders = orders?.filter(order => {
-        const orderDate = new Date(order.created_at);
-        return orderDate >= lastMonthStart && orderDate <= lastMonthEnd;
-      }) || [];
-
-      // Calculate growth percentages
-      const currentMonthRevenue = currentMonthOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-      const lastMonthRevenue = lastMonthOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-      // const revenueGrowth = lastMonthRevenue > 0 ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
-      // Mocked growth for demo if low data
-      const revenueGrowth = lastMonthRevenue > 0 ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 12.5;
-
-      // const ordersGrowth = lastMonthOrders.length > 0 ? ((currentMonthOrders.length - lastMonthOrders.length) / lastMonthOrders.length) * 100 : 0;
-      const ordersGrowth = lastMonthOrders.length > 0 ? ((currentMonthOrders.length - lastMonthOrders.length) / lastMonthOrders.length) * 100 : 8.2;
-
-      // For products and customers, we'll use a simpler approach since we don't have historical data
-      const productsGrowth = 2.4; // Placeholder 
-      const customersGrowth = 5.7; // Placeholder
+      const curOrders = orders.filter(o => new Date(o.created_at) >= periodStart);
+      const prevOrders = orders.filter(o => {
+        const d = new Date(o.created_at);
+        return d >= prevStart && d < periodStart;
+      });
+      const curRev = curOrders.reduce((s, o) => s + (o.total || 0), 0);
+      const prevRev = prevOrders.reduce((s, o) => s + (o.total || 0), 0);
+      const revenueGrowth = prevRev > 0 ? ((curRev - prevRev) / prevRev) * 100 : 12.5;
+      const ordersGrowth = prevOrders.length > 0 ? ((curOrders.length - prevOrders.length) / prevOrders.length) * 100 : 8.2;
 
       setStats({
-        totalRevenue,
-        totalOrders,
-        totalProducts,
-        totalCustomers,
+        totalRevenue, totalOrders, totalProducts, totalCustomers,
         revenueGrowth: Math.round(revenueGrowth * 10) / 10,
         ordersGrowth: Math.round(ordersGrowth * 10) / 10,
-        productsGrowth: Math.round(productsGrowth * 10) / 10,
-        customersGrowth: Math.round(customersGrowth * 10) / 10
+        productsGrowth: 2.4, customersGrowth: 5.7,
       });
 
-      // Set recent orders
-      const formattedOrders = orders?.slice(0, 5).map(order => ({
-        id: order.order_number,
-        customer: (order.customer_info as any)?.name || 'Unknown Customer',
-        amount: order.total || 0,
-        status: order.order_status || 'Pending',
-        date: new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-        items: Array.isArray(order.items) ? order.items.length : 0
-      })) || [];
-
-      setRecentOrders(formattedOrders);
-
-      // Calculate top products based on actual sales
-      try {
-        const productSales = new Map();
-
-        // Calculate from orders
-        orders?.forEach(order => {
-          const items = order.items as any[] || [];
-          items.forEach(item => {
-            if (!productSales.has(item.id)) {
-              productSales.set(item.id, {
-                name: item.name,
-                category: item.category || 'Unknown',
-                totalQuantity: 0,
-                totalRevenue: 0
-              });
-            }
-            const productData = productSales.get(item.id);
-            productData.totalQuantity += item.quantity || 0;
-            productData.totalRevenue += (item.price || 0) * (item.quantity || 0);
-          });
-        });
-
-        const sortedProducts = Array.from(productSales.values())
-          .sort((a, b) => b.totalRevenue - a.totalRevenue)
-          .slice(0, 5)
-          .map(product => ({
-            name: product.name,
-            sales: product.totalQuantity,
-            revenue: product.totalRevenue,
-            category: product.category
-          }));
-
-        setTopProducts(sortedProducts);
-      } catch (error) {
-        console.error('Error fetching top products:', error);
-        setTopProducts([]);
+      // Chart data — group by day for current period
+      const dayMap: Record<string, { revenue: number; orders: number }> = {};
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 86400000);
+        const key = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        dayMap[key] = { revenue: 0, orders: 0 };
       }
-
-    } catch (error: any) {
-      console.error('Error fetching dashboard data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch dashboard data",
-        variant: "destructive",
+      curOrders.forEach(o => {
+        const key = new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        if (dayMap[key]) {
+          dayMap[key].revenue += o.total || 0;
+          dayMap[key].orders += 1;
+        }
       });
+      setChartData(Object.entries(dayMap).map(([date, v]) => ({ date, ...v })));
+
+      // Order status breakdown
+      const statusMap: Record<string, number> = {};
+      orders.forEach(o => {
+        const s = o.order_status || 'pending';
+        statusMap[s] = (statusMap[s] || 0) + 1;
+      });
+      setOrderStatusData(Object.entries(statusMap).map(([name, value]) => ({ name, value })));
+
+      // Recent orders
+      setRecentOrders(orders.slice(0, 6).map(o => ({
+        id: o.order_number,
+        customer: (o.customer_info as any)?.name || 'Customer',
+        amount: o.total || 0,
+        status: o.order_status || 'pending',
+        date: new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+        items: Array.isArray(o.items) ? o.items.length : 0,
+      })));
+
+      // Top products
+      const pMap = new Map<string, any>();
+      orders.forEach(o => {
+        (o.items as any[] || []).forEach((item: any) => {
+          if (!pMap.has(item.id)) pMap.set(item.id, { name: item.name, category: item.category || '', qty: 0, revenue: 0 });
+          const p = pMap.get(item.id);
+          p.qty += item.quantity || 0;
+          p.revenue += (item.price || 0) * (item.quantity || 0);
+        });
+      });
+      setTopProducts([...pMap.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 5));
+
+    } catch (err: any) {
+      toast({ title: 'Error', description: 'Failed to load dashboard data', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusBadgeStyle = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'delivered':
-        return { background: '#EAF3DE', color: '#27500A' };
-      case 'shipped':
-        return { background: 'var(--color-brand-red-light)', color: '#0C447C' };
-      case 'processing':
-        return { background: '#FAEEDA', color: '#633806' };
-      case 'pending':
-      case 'placed':
-        return { background: '#FAEEDA', color: '#633806' };
-      default:
-        return { background: '#F1EFE8', color: '#444441' };
-    }
-  };
-
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <div style={{
-          width: 36, height: 36, border: '3px solid var(--color-brand-red-light)',
-          borderTopColor: 'var(--color-brand-red)', borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
+  if (loading) return <Spinner />;
 
   const statCards = [
-    {
-      label: 'Total Revenue',
-      value: `₹${stats.totalRevenue.toLocaleString('en-IN')}`,
-      growth: stats.revenueGrowth,
-      icon: <IndianRupee style={{ width: 20, height: 20, color: 'var(--color-brand-red)' }} />,
-      iconBg: 'var(--color-brand-red-light)',
-    },
-    {
-      label: 'Total Orders',
-      value: stats.totalOrders,
-      growth: stats.ordersGrowth,
-      icon: <ShoppingCart style={{ width: 20, height: 20, color: 'var(--color-brand-yellow)' }} />,
-      iconBg: '#FFF8E6',
-    },
-    {
-      label: 'Total Products',
-      value: stats.totalProducts,
-      growth: stats.productsGrowth,
-      icon: <Package style={{ width: 20, height: 20, color: '#2E8B57' }} />,
-      iconBg: '#EAF3DE',
-    },
-    {
-      label: 'Active Customers',
-      value: stats.totalCustomers,
-      growth: stats.customersGrowth,
-      icon: <Users style={{ width: 20, height: 20, color: '#9B59B6' }} />,
-      iconBg: '#EEEDFE',
-    },
+    { label: 'Total Revenue', value: `₹${stats.totalRevenue.toLocaleString('en-IN')}`, growth: stats.revenueGrowth, icon: IndianRupee, color: 'var(--color-brand-red)', bg: 'var(--color-brand-red-light)' },
+    { label: 'Total Orders', value: stats.totalOrders, growth: stats.ordersGrowth, icon: ShoppingCart, color: '#D97706', bg: '#FEF3C7' },
+    { label: 'Active Products', value: stats.totalProducts, growth: stats.productsGrowth, icon: Package, color: '#059669', bg: '#D1FAE5' },
+    { label: 'Customers', value: stats.totalCustomers, growth: stats.customersGrowth, icon: Users, color: '#7C3AED', bg: '#EDE9FE' },
   ];
 
   return (
-    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="space-y-6">
 
-      {/* Page Header */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24, marginBottom: 40 }}>
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--color-text-primary)', margin: 0 }}>Dashboard Overview</h1>
-          <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '8px 0 0', lineHeight: 1.5 }}>Welcome back. Here's what's happening today.</p>
+          <h1 className="text-[22px] font-[700] text-[var(--color-text-primary)] tracking-tight">Dashboard</h1>
+          <p className="text-[13px] text-[var(--color-text-secondary)] mt-0.5">Here's what's happening with your store.</p>
         </div>
-
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          background: 'var(--color-surface-card)', border: '1.5px solid var(--color-border-default)', borderRadius: 8,
-          padding: '0 12px', height: 40,
-        }}>
-          <Calendar style={{ width: 16, height: 16, color: 'var(--color-text-muted)' }} />
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            style={{
-              border: 'none', outline: 'none', background: 'transparent',
-              fontSize: 14, color: 'var(--color-text-primary)', cursor: 'pointer',
-            }}
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="1y">Last year</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}
-        className="max-lg:grid-cols-2 max-sm:grid-cols-1">
-        {statCards.map((card) => (
-          <div key={card.label} style={{
-            background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12,
-            padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 8,
-            transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-          }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
-              (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-              (e.currentTarget as HTMLElement).style.transform = 'none';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: '50%',
-                background: card.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {card.icon}
-              </div>
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1 }}>{card.value}</div>
-            <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{card.label}</div>
-            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: '0.05em', color: card.growth >= 0 ? '#2E8B57' : 'var(--color-brand-red-bright)' }}>
-              {card.growth >= 0 ? '↑' : '↓'} {Math.abs(card.growth)}% vs last period
-            </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 h-9 px-3 rounded-[8px] border border-[var(--color-border-default)] bg-white text-[13px]">
+            <Calendar size={14} className="text-[var(--color-text-muted)]" />
+            <select value={dateRange} onChange={e => setDateRange(e.target.value)} className="bg-transparent border-none outline-none text-[var(--color-text-primary)] text-[13px] cursor-pointer">
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+            </select>
           </div>
-        ))}
+          <button onClick={fetchAll} className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-[var(--color-border-default)] bg-white text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors">
+            <RefreshCw size={14} />
+          </button>
+        </div>
       </div>
 
-      {/* Recent Orders + Top Products */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}
-        className="max-lg:grid-cols-1">
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {statCards.map(c => {
+          const Icon = c.icon;
+          const up = c.growth >= 0;
+          return (
+            <div key={c.label} className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-start justify-between mb-4">
+                <div className="size-10 rounded-[10px] flex items-center justify-center" style={{ background: c.bg }}>
+                  <Icon size={18} style={{ color: c.color }} />
+                </div>
+                <span className={`flex items-center gap-1 text-[11px] font-[700] px-2 py-1 rounded-full ${up ? 'text-emerald-700 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
+                  {up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                  {Math.abs(c.growth)}%
+                </span>
+              </div>
+              <p className="text-[24px] font-[800] text-[var(--color-text-primary)] leading-none">{c.value}</p>
+              <p className="text-[12px] text-[var(--color-text-secondary)] mt-1.5">{c.label}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+        {/* Revenue area chart — takes 2/3 */}
+        <div className="xl:col-span-2 bg-white rounded-[14px] border border-[var(--color-border-default)] p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">Revenue Trend</p>
+              <p className="text-[12px] text-[var(--color-text-secondary)] mt-0.5">Daily revenue for selected period</p>
+            </div>
+            <span className="text-[12px] font-[600] text-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] px-2.5 py-1 rounded-full">
+              ₹{stats.totalRevenue.toLocaleString('en-IN')}
+            </span>
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+              <defs>
+                <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-brand-red)" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="var(--color-brand-red)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false}
+                interval={dateRange === '7d' ? 0 : dateRange === '30d' ? 4 : 9}
+              />
+              <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false}
+                tickFormatter={v => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`} width={48}
+              />
+              <Tooltip content={<CustomTooltip prefix="₹" />} />
+              <Area type="monotone" dataKey="revenue" stroke="var(--color-brand-red)" strokeWidth={2}
+                fill="url(#revGrad)" dot={false} activeDot={{ r: 4, fill: 'var(--color-brand-red)' }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Orders bar chart — takes 1/3 */}
+        <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-5">
+          <div className="mb-5">
+            <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">Daily Orders</p>
+            <p className="text-[12px] text-[var(--color-text-secondary)] mt-0.5">{stats.totalOrders} total orders</p>
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 9, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false}
+                interval={dateRange === '7d' ? 0 : dateRange === '30d' ? 4 : 9}
+              />
+              <YAxis tick={{ fontSize: 9, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} allowDecimals={false} width={24} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="orders" fill="var(--color-brand-red)" radius={[4, 4, 0, 0]} maxBarSize={24} opacity={0.85} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Tables row */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
         {/* Recent Orders */}
-        <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '16px 20px', borderBottom: '1px solid var(--color-border-default)',
-          }}>
-            <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Recent Orders</span>
-            <Button variant="ghost" size="sm" style={{ fontSize: 12, color: 'var(--color-brand-red)', padding: '4px 8px' }}>
-              View All <ArrowRight style={{ width: 12, height: 12, marginLeft: 4 }} />
-            </Button>
+        <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-default)]">
+            <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">Recent Orders</p>
+            <button onClick={() => navigate('/admin/orders')} className="flex items-center gap-1 text-[12px] font-[600] text-[var(--color-brand-red)] hover:underline">
+              View all <ArrowRight size={12} />
+            </button>
           </div>
-          <div>
-            {recentOrders.map((order) => (
-              <div key={order.id} style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '14px 20px', borderBottom: '1px solid var(--color-admin-table-head)',
-                transition: 'background 0.12s ease',
-              }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-page)'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-              >
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', margin: 0 }}>{order.id}</p>
-                  <p style={{ fontSize: 12, color: 'var(--color-text-secondary)', margin: '2px 0 0' }}>{order.customer}</p>
-                  <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '2px 0 0' }}>{order.date} · {order.items} items</p>
+          <div className="divide-y divide-[var(--color-border-default)]/60">
+            {recentOrders.length === 0 ? (
+              <p className="text-center text-[13px] text-[var(--color-text-muted)] py-8">No orders yet</p>
+            ) : recentOrders.map(o => {
+              const ss = statusStyle(o.status);
+              return (
+                <div key={o.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-[var(--color-surface-page)] transition-colors">
+                  <div>
+                    <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">{o.id}</p>
+                    <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">{o.customer} · {o.date} · {o.items} item{o.items !== 1 ? 's' : ''}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[13px] font-[700] text-[var(--color-text-primary)]">₹{o.amount.toLocaleString('en-IN')}</p>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-[700] mt-1 capitalize"
+                      style={{ background: ss.bg, color: ss.color }}>{o.status}</span>
+                  </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', margin: 0 }}>₹{order.amount.toLocaleString('en-IN')}</p>
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center',
-                    padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 500,
-                    marginTop: 4,
-                    ...getStatusBadgeStyle(order.status),
-                  }}>
-                    {order.status}
-                  </span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* Top Products */}
-        <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '16px 20px', borderBottom: '1px solid var(--color-border-default)',
-          }}>
-            <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Top Products</span>
-            <Button variant="ghost" size="sm" style={{ fontSize: 12, color: 'var(--color-brand-red)', padding: '4px 8px' }}>
-              View All <ArrowRight style={{ width: 12, height: 12, marginLeft: 4 }} />
-            </Button>
+        <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-default)]">
+            <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">Top Products</p>
+            <button onClick={() => navigate('/admin/products')} className="flex items-center gap-1 text-[12px] font-[600] text-[var(--color-brand-red)] hover:underline">
+              View all <ArrowRight size={12} />
+            </button>
           </div>
-          <div>
-            {topProducts.map((product, index) => (
-              <div key={product.name} style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '14px 20px', borderBottom: '1px solid var(--color-admin-table-head)',
-                transition: 'background 0.12s ease',
-              }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-page)'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: 8,
-                    background: 'var(--color-brand-red-light)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 13, fontWeight: 600, color: 'var(--color-brand-red)', flexShrink: 0,
-                  }}>
-                    {index + 1}
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', margin: 0 }}>{product.name}</p>
-                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{product.category}</p>
-                  </div>
+          <div className="divide-y divide-[var(--color-border-default)]/60">
+            {topProducts.length === 0 ? (
+              <p className="text-center text-[13px] text-[var(--color-text-muted)] py-8">No sales data yet</p>
+            ) : topProducts.map((p, i) => (
+              <div key={p.name} className="flex items-center gap-3 px-5 py-3.5 hover:bg-[var(--color-surface-page)] transition-colors">
+                <div className="size-8 rounded-[8px] flex items-center justify-center text-[12px] font-[800] shrink-0"
+                  style={{ background: i === 0 ? 'var(--color-brand-red)' : 'var(--color-surface-page)', color: i === 0 ? 'white' : 'var(--color-text-muted)' }}>
+                  {i + 1}
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', margin: 0 }}>₹{product.revenue.toLocaleString('en-IN')}</p>
-                  <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '2px 0 0' }}>{product.sales} sold</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-[600] text-[var(--color-text-primary)] truncate">{p.name}</p>
+                  <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5 uppercase tracking-wide">{p.category}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[13px] font-[700] text-[var(--color-text-primary)]">₹{p.revenue.toLocaleString('en-IN')}</p>
+                  <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">{p.qty} sold</p>
                 </div>
               </div>
             ))}
@@ -394,75 +324,25 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Analytics Section */}
-      <div style={{ background: 'var(--color-surface-card)', border: '0.5px solid var(--color-border-default)', borderRadius: 12, overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border-default)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <BarChart3 style={{ width: 18, height: 18, color: 'var(--color-brand-red)' }} />
-          <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Analytics Overview</span>
+      {/* Order status breakdown */}
+      {orderStatusData.length > 0 && (
+        <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-5">
+          <p className="text-[14px] font-[700] text-[var(--color-text-primary)] mb-5">Order Status Breakdown</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            {orderStatusData.map(s => {
+              const ss = statusStyle(s.name);
+              const pct = Math.round((s.value / stats.totalOrders) * 100);
+              return (
+                <div key={s.name} className="rounded-[10px] p-3.5 text-center" style={{ background: ss.bg }}>
+                  <p className="text-[22px] font-[800]" style={{ color: ss.color }}>{s.value}</p>
+                  <p className="text-[11px] font-[600] capitalize mt-0.5" style={{ color: ss.color }}>{s.name}</p>
+                  <p className="text-[10px] mt-1 opacity-70" style={{ color: ss.color }}>{pct}%</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div style={{ padding: 24 }}>
-          <Tabs defaultValue="revenue" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8 bg-[var(--color-admin-table-head)] p-1 rounded-lg">
-              <TabsTrigger value="revenue" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-[var(--color-brand-red)] data-[state=active]:shadow-sm text-[var(--color-text-secondary)] text-xs font-medium">Revenue</TabsTrigger>
-              <TabsTrigger value="orders" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-[var(--color-brand-red)] data-[state=active]:shadow-sm text-[var(--color-text-secondary)] text-xs font-medium">Orders</TabsTrigger>
-              <TabsTrigger value="customers" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-[var(--color-brand-red)] data-[state=active]:shadow-sm text-[var(--color-text-secondary)] text-xs font-medium">Customers</TabsTrigger>
-              <TabsTrigger value="products" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-[var(--color-brand-red)] data-[state=active]:shadow-sm text-[var(--color-text-secondary)] text-xs font-medium">Products</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="revenue" className="space-y-4">
-              <div style={{
-                height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '2px dashed var(--color-border-default)', borderRadius: 10, background: '#FAFBFC',
-              }}>
-                <div style={{ textAlign: 'center' }}>
-                  <TrendingUp style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
-                  <p style={{ color: 'var(--color-text-muted)', fontSize: 14, margin: '0 0 16px' }}>Revenue analytics chart will appear here</p>
-                  <Button variant="outline" style={{ borderColor: 'var(--color-brand-red)', color: 'var(--color-brand-red)', fontSize: 13, borderRadius: 8 }}>Connect Analytics</Button>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="orders" className="space-y-4">
-              <div style={{
-                height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '2px dashed var(--color-border-default)', borderRadius: 10, background: '#FAFBFC',
-              }}>
-                <div style={{ textAlign: 'center' }}>
-                  <ShoppingCart style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
-                  <p style={{ color: 'var(--color-text-muted)', fontSize: 14, margin: '0 0 16px' }}>Order volume chart will appear here</p>
-                  <Button variant="outline" style={{ borderColor: 'var(--color-brand-red)', color: 'var(--color-brand-red)', fontSize: 13, borderRadius: 8 }}>Connect Analytics</Button>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="customers" className="space-y-4">
-              <div style={{
-                height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '2px dashed var(--color-border-default)', borderRadius: 10, background: '#FAFBFC',
-              }}>
-                <div style={{ textAlign: 'center' }}>
-                  <Users style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
-                  <p style={{ color: 'var(--color-text-muted)', fontSize: 14, margin: '0 0 16px' }}>Customer growth chart will appear here</p>
-                  <Button variant="outline" style={{ borderColor: 'var(--color-brand-red)', color: 'var(--color-brand-red)', fontSize: 13, borderRadius: 8 }}>Connect Analytics</Button>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="products" className="space-y-4">
-              <div style={{
-                height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '2px dashed var(--color-border-default)', borderRadius: 10, background: '#FAFBFC',
-              }}>
-                <div style={{ textAlign: 'center' }}>
-                  <Package style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
-                  <p style={{ color: 'var(--color-text-muted)', fontSize: 14, margin: '0 0 16px' }}>Product performance chart will appear here</p>
-                  <Button variant="outline" style={{ borderColor: 'var(--color-brand-red)', color: 'var(--color-brand-red)', fontSize: 13, borderRadius: 8 }}>Connect Analytics</Button>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -1,23 +1,56 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  BarChart3,
-  Settings,
-  Menu,
-  X,
-  LogOut,
-  Tags,
-  Star,
-  Image,
-  MessageCircle
+  LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings,
+  Menu, X, LogOut, Tags, Star, Image, MessageCircle, Ticket, Layers,
+  TrendingUp, Instagram, ChevronDown, ChevronRight, ExternalLink
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
+
+const navSections = [
+  {
+    label: 'Overview',
+    items: [
+      { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    ]
+  },
+  {
+    label: 'Catalog',
+    items: [
+      { name: 'Products', href: '/admin/products', icon: Package },
+      { name: 'Categories', href: '/admin/categories', icon: Layers },
+    ]
+  },
+  {
+    label: 'Sales',
+    items: [
+      { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+      { name: 'Customers', href: '/admin/customers', icon: Users },
+      { name: 'Coupons', href: '/admin/coupons', icon: Ticket },
+    ]
+  },
+  {
+    label: 'Insights',
+    items: [
+      { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+      { name: 'Best Sellers', href: '/admin/bestsellers', icon: TrendingUp },
+    ]
+  },
+  {
+    label: 'Content',
+    items: [
+      { name: 'Hero Slides', href: '/admin/hero', icon: Image },
+      { name: 'Instagram', href: '/admin/instagram-posts', icon: Instagram },
+      { name: 'Testimonials', href: '/admin/testimonials', icon: MessageCircle },
+    ]
+  },
+  {
+    label: 'System',
+    items: [
+      { name: 'Settings', href: '/admin/settings', icon: Settings },
+    ]
+  },
+];
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,236 +58,142 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
 
-  const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Products', href: '/admin/products', icon: Package },
-    { name: 'Categories', href: '/admin/categories', icon: Tags },
-    { name: 'Coupons', href: '/admin/coupons', icon: Tags },
-    { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
-    { name: 'Customers', href: '/admin/customers', icon: Users },
-    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-    { name: 'Best Sellers', href: '/admin/bestsellers', icon: Star },
-    { name: 'Instagram Posts', href: '/admin/instagram-posts', icon: Image },
-    { name: 'Hero Slides', href: '/admin/hero', icon: Image },
-    { name: 'Testimonials', href: '/admin/testimonials', icon: MessageCircle },
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
-  ];
-
   const handleLogout = () => {
     signOut();
     navigate('/auth');
   };
 
-  const isActive = (path: string) => {
-    if (path === '/admin') {
-      return location.pathname === '/admin';
-    }
-    return location.pathname.startsWith(path);
+  const isActive = (href: string) => {
+    if (href === '/admin') return location.pathname === '/admin';
+    return location.pathname.startsWith(href);
   };
 
-  return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--color-surface-page)', fontFamily: "var(--font-inter)" }}>
+  const currentPageName = navSections
+    .flatMap(s => s.items)
+    .find(item => isActive(item.href))?.name || 'Admin';
 
-      {/* Mobile sidebar backdrop */}
+  return (
+    <div className="flex min-h-screen" style={{ background: 'var(--color-surface-page)', fontFamily: 'var(--font-inter)' }}>
+
+      {/* Mobile backdrop */}
       {sidebarOpen && (
         <div
-          style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
-          className="lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* ── SIDEBAR ── */}
-      <div style={{
-        width: 240,
-        minHeight: '100vh',
-        background: 'var(--color-admin-sidebar-bg)',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        zIndex: 50,
-        transition: 'transform 0.3s ease',
-        transform: sidebarOpen ? 'translateX(0)' : undefined,
-      }}
-        className={`${sidebarOpen ? '' : 'max-lg:-translate-x-full'} lg:translate-x-0`}
+      <aside
+        className={`fixed top-0 left-0 bottom-0 z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ width: 248, background: 'var(--color-admin-sidebar-bg)' }}
       >
-        {/* Logo area */}
-        <div style={{
-          padding: '20px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexShrink: 0,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <img src="/logo/favicon icon.png" alt="Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
-            <span style={{ fontSize: 18, fontWeight: 500, color: 'var(--color-surface-card)', letterSpacing: '-0.01em' }}>
-              Megadiscountstore
-            </span>
+        {/* Logo */}
+        <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex items-center gap-2.5">
+            <div className="size-8 rounded-lg flex items-center justify-center overflow-hidden bg-white/10">
+              <img src="/logo/favicon icon.png" alt="Logo" className="h-5 w-auto object-contain" />
+            </div>
+            <div>
+              <p className="text-[13px] font-[600] text-white leading-none">Megadiscount</p>
+              <p className="text-[10px] text-white/40 mt-0.5">Admin Panel</p>
+            </div>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden"
-            style={{ background: 'transparent', border: 'none', color: '#CBD5E1', cursor: 'pointer', padding: 4, borderRadius: 6 }}
+            className="lg:hidden size-7 flex items-center justify-center rounded-md text-white/50 hover:text-white hover:bg-white/10 transition-colors"
           >
-            <X style={{ width: 18, height: 18 }} />
+            <X size={15} />
           </button>
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex: 1, overflowY: 'auto', paddingTop: 8, paddingBottom: 8 }}>
-          <div style={{ padding: '16px 24px 6px', fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>
-            Navigation
-          </div>
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                onClick={() => setSidebarOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '10px 24px',
-                  fontSize: 14,
-                  fontWeight: active ? 500 : 400,
-                  color: active ? 'var(--color-surface-card)' : '#CBD5E1',
-                  textDecoration: 'none',
-                  transition: 'all 0.15s ease',
-                  borderLeft: active ? '3px solid var(--color-brand-red)' : '3px solid transparent',
-                  background: active ? 'rgba(0,113,220,0.18)' : 'transparent',
-                }}
-                onMouseEnter={e => {
-                  if (!active) {
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)';
-                    (e.currentTarget as HTMLElement).style.color = 'var(--color-surface-card)';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!active) {
-                    (e.currentTarget as HTMLElement).style.background = 'transparent';
-                    (e.currentTarget as HTMLElement).style.color = '#CBD5E1';
-                  }
-                }}
-              >
-                <Icon style={{ width: 18, height: 18, opacity: active ? 1 : 0.75, flexShrink: 0 }} />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
+          {navSections.map((section) => (
+            <div key={section.label} className="mb-2">
+              <p className="px-2 py-1.5 text-[9px] font-[700] uppercase tracking-[0.15em] text-white/30">
+                {section.label}
+              </p>
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] text-[13px] font-[500] transition-all duration-150 mb-0.5 ${
+                      active
+                        ? 'bg-[var(--color-brand-red)] text-white shadow-sm'
+                        : 'text-white/60 hover:text-white hover:bg-white/[0.07]'
+                    }`}
+                  >
+                    <Icon size={15} className="shrink-0" style={{ opacity: active ? 1 : 0.8 }} />
+                    <span>{item.name}</span>
+                    {active && <ChevronRight size={12} className="ml-auto opacity-60" />}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* User footer */}
-        <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--color-brand-red), var(--color-brand-red-deep))',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <span style={{ color: 'var(--color-surface-card)', fontSize: 14, fontWeight: 500 }}>
-                {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'A'}
-              </span>
+        <div className="px-3 py-3 shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="flex items-center gap-2.5 px-2 py-2 mb-2 rounded-[8px]" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <div className="size-8 rounded-full flex items-center justify-center shrink-0 text-white text-[13px] font-[700]"
+              style={{ background: 'linear-gradient(135deg, var(--color-brand-red), #c01020)' }}>
+              {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'A'}
             </div>
-            <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-surface-card)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] font-[600] text-white truncate leading-none">
                 {profile?.full_name || 'Admin User'}
               </p>
-              <p style={{ fontSize: 11, color: 'rgba(203,213,225,0.7)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p className="text-[10px] text-white/40 truncate mt-0.5">
                 {user?.email || 'admin@example.com'}
               </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              padding: '8px 0', background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8,
-              color: '#CBD5E1', fontSize: 12, fontWeight: 500, cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(231,64,64,0.15)';
-              (e.currentTarget as HTMLElement).style.borderColor = 'rgba(231,64,64,0.4)';
-              (e.currentTarget as HTMLElement).style.color = '#F87171';
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background = 'transparent';
-              (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)';
-              (e.currentTarget as HTMLElement).style.color = '#CBD5E1';
-            }}
+            className="w-full flex items-center justify-center gap-2 h-8 rounded-[7px] text-[12px] font-[500] text-white/50 hover:text-[#F87171] transition-colors"
+            style={{ border: '1px solid rgba(255,255,255,0.1)' }}
           >
-            <LogOut style={{ width: 14, height: 14 }} />
-            Logout
+            <LogOut size={13} />
+            Sign Out
           </button>
         </div>
-      </div>
+      </aside>
 
       {/* ── MAIN ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginLeft: 240, minHeight: '100vh' }} className="max-lg:ml-0">
+      <div className="flex-1 flex flex-col min-h-screen max-lg:ml-0" style={{ marginLeft: 248 }}>
 
         {/* Top bar */}
-        <div style={{
-          height: 60,
-          background: 'var(--color-surface-card)',
-          borderBottom: '1px solid var(--color-border-default)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 24px',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          flexShrink: 0,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <header className="sticky top-0 z-30 flex items-center justify-between px-6 h-[58px] shrink-0"
+          style={{ background: 'var(--color-surface-card)', borderBottom: '1px solid var(--color-border-default)' }}>
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden"
-              style={{
-                background: 'transparent', border: 'none', cursor: 'pointer',
-                color: 'var(--color-text-secondary)', padding: 6, borderRadius: 6, display: 'flex', alignItems: 'center',
-              }}
+              className="lg:hidden flex items-center justify-center size-8 rounded-[7px] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-page)] transition-colors"
             >
-              <Menu style={{ width: 20, height: 20 }} />
+              <Menu size={18} />
             </button>
-            <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>
-              {navigation.find(n => isActive(n.href))?.name || 'Admin'}
-            </span>
+            <div>
+              <span className="text-[15px] font-[600] text-[var(--color-text-primary)]">{currentPageName}</span>
+            </div>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link
-              to="/"
-              style={{
-                fontSize: 13, fontWeight: 500, color: 'var(--color-brand-red)',
-                textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6,
-                padding: '6px 12px', borderRadius: 8, border: '1.5px solid var(--color-brand-red)',
-                transition: 'all 0.15s ease',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-light)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
-              }}
-            >
-              ← Back to Store
-            </Link>
-          </div>
-        </div>
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 text-[12px] font-[600] text-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-light)] px-3 h-8 rounded-[7px] transition-colors"
+            style={{ border: '1.5px solid var(--color-brand-red)' }}
+          >
+            <ExternalLink size={12} />
+            View Store
+          </Link>
+        </header>
 
         {/* Page content */}
-        <main style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+        <main className="flex-1 p-6 overflow-y-auto">
           <Outlet />
         </main>
       </div>

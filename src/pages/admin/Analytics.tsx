@@ -1,280 +1,158 @@
 import { useState, useEffect } from 'react';
 import {
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  Users,
-  Package,
-  ShoppingCart,
-  IndianRupee,
-  Calendar,
-  Download
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from 'recharts';
+import {
+  TrendingUp, TrendingDown, Users, Package, ShoppingCart,
+  IndianRupee, Calendar, Download, RefreshCw
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/utils/currency';
 
+const COLORS = ['#E01E26', '#F59E0B', '#10B981', '#6366F1', '#EC4899', '#14B8A6'];
+
+const CustomTooltip = ({ active, payload, label, prefix = '' }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-[var(--color-text-primary)] text-white px-3 py-2 rounded-[8px] shadow-xl text-[12px]">
+      <p className="text-white/50 mb-1">{label}</p>
+      {payload.map((p: any, i: number) => (
+        <p key={i} className="font-[600]">{prefix}{typeof p.value === 'number' ? p.value.toLocaleString('en-IN') : p.value}</p>
+      ))}
+    </div>
+  );
+};
+
+const MetricCard = ({ label, value, growth, trend, icon: Icon, color, bg }: any) => (
+  <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-5 hover:shadow-md transition-shadow">
+    <div className="flex items-start justify-between mb-4">
+      <div className="size-10 rounded-[10px] flex items-center justify-center" style={{ background: bg }}>
+        <Icon size={18} style={{ color }} />
+      </div>
+      <span className={`flex items-center gap-1 text-[11px] font-[700] px-2 py-1 rounded-full ${trend === 'up' ? 'text-emerald-700 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
+        {trend === 'up' ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+        {Math.abs(growth).toFixed(1)}%
+      </span>
+    </div>
+    <p className="text-[22px] font-[800] text-[var(--color-text-primary)] leading-none">{value}</p>
+    <p className="text-[12px] text-[var(--color-text-secondary)] mt-1.5">{label}</p>
+    <p className="text-[11px] text-[var(--color-text-muted)] mt-1">vs previous period</p>
+  </div>
+);
+
 const AdminAnalytics = () => {
-  const [dateRange, setDateRange] = useState('7d');
+  const [dateRange, setDateRange] = useState('30d');
   const [loading, setLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState({
-    revenue: { current: 0, previous: 0, growth: 0, trend: 'up' as 'up' | 'down' },
-    orders: { current: 0, previous: 0, growth: 0, trend: 'up' as 'up' | 'down' },
-    customers: { current: 0, previous: 0, growth: 0, trend: 'up' as 'up' | 'down' },
-    avgOrderValue: { current: 0, previous: 0, growth: 0, trend: 'up' as 'up' | 'down' }
+  const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'customers'>('overview');
+  const [metrics, setMetrics] = useState<any>({
+    revenue: { current: 0, growth: 0, trend: 'up' },
+    orders: { current: 0, growth: 0, trend: 'up' },
+    customers: { current: 0, growth: 0, trend: 'up' },
+    avgOrder: { current: 0, growth: 0, trend: 'up' },
   });
-  const [topCategories, setTopCategories] = useState([]);
-  const [topCustomers, setTopCustomers] = useState([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState<any[]>([]);
+  const [topCustomers, setTopCustomers] = useState<any[]>([]);
+  const [orderStatusData, setOrderStatusData] = useState<any[]>([]);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchAnalyticsData();
-  }, [dateRange]);
+  useEffect(() => { fetchData(); }, [dateRange]);
 
-  const fetchAnalyticsData = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-
-      // Calculate date ranges
+      const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
       const now = new Date();
-      const daysBack = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
-      const currentPeriodStart = new Date(now.getTime() - (daysBack * 24 * 60 * 60 * 1000));
-      const previousPeriodStart = new Date(currentPeriodStart.getTime() - (daysBack * 24 * 60 * 60 * 1000));
+      const periodStart = new Date(now.getTime() - days * 86400000);
+      const prevStart = new Date(periodStart.getTime() - days * 86400000);
 
-      // Fetch all orders
-      const { data: allOrders, error: ordersError } = await supabase
-        .from('orders')
-        .select('total, created_at, customer_info, items, user_id')
-        .order('created_at', { ascending: false });
+      const [ordersRes, profilesRes] = await Promise.all([
+        supabase.from('orders').select('total, created_at, customer_info, items, order_status, user_id').order('created_at', { ascending: false }),
+        supabase.from('profiles').select('id, created_at, full_name, email'),
+      ]);
+      const allOrders = ordersRes.data || [];
+      const profiles = profilesRes.data || [];
 
-      if (ordersError) throw ordersError;
-
-      // Fetch all profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, created_at, full_name, email');
-
-      if (profilesError) throw profilesError;
-
-      // Filter orders by date periods
-      const currentPeriodOrders = allOrders?.filter(order =>
-        new Date(order.created_at) >= currentPeriodStart
-      ) || [];
-
-      const previousPeriodOrders = allOrders?.filter(order =>
-        new Date(order.created_at) >= previousPeriodStart &&
-        new Date(order.created_at) < currentPeriodStart
-      ) || [];
-
-      // Calculate current period metrics
-      const currentRevenue = currentPeriodOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-      const currentOrderCount = currentPeriodOrders.length;
-      const currentCustomers = profiles?.filter(profile =>
-        new Date(profile.created_at) >= currentPeriodStart
-      ).length || 0;
-      const currentAvgOrderValue = currentOrderCount > 0 ? currentRevenue / currentOrderCount : 0;
-
-      // Calculate previous period metrics
-      const previousRevenue = previousPeriodOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-      const previousOrderCount = previousPeriodOrders.length;
-      const previousCustomers = profiles?.filter(profile =>
-        new Date(profile.created_at) >= previousPeriodStart &&
-        new Date(profile.created_at) < currentPeriodStart
-      ).length || 0;
-      const previousAvgOrderValue = previousOrderCount > 0 ? previousRevenue / previousOrderCount : 0;
-
-      // Calculate growth percentages
-      const revenueGrowth = previousRevenue > 0 ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : 0;
-      const ordersGrowth = previousOrderCount > 0 ? ((currentOrderCount - previousOrderCount) / previousOrderCount) * 100 : 0;
-      const customersGrowth = previousCustomers > 0 ? ((currentCustomers - previousCustomers) / previousCustomers) * 100 : 0;
-      const avgOrderValueGrowth = previousAvgOrderValue > 0 ? ((currentAvgOrderValue - previousAvgOrderValue) / previousAvgOrderValue) * 100 : 0;
-
-      setAnalyticsData({
-        revenue: {
-          current: currentRevenue,
-          previous: previousRevenue,
-          growth: revenueGrowth,
-          trend: currentRevenue >= previousRevenue ? 'up' : 'down'
-        },
-        orders: {
-          current: currentOrderCount,
-          previous: previousOrderCount,
-          growth: ordersGrowth,
-          trend: currentOrderCount >= previousOrderCount ? 'up' : 'down'
-        },
-        customers: {
-          current: currentCustomers,
-          previous: previousCustomers,
-          growth: customersGrowth,
-          trend: currentCustomers >= previousCustomers ? 'up' : 'down'
-        },
-        avgOrderValue: {
-          current: currentAvgOrderValue,
-          previous: previousAvgOrderValue,
-          growth: avgOrderValueGrowth,
-          trend: currentAvgOrderValue >= previousAvgOrderValue ? 'up' : 'down'
-        }
+      const cur = allOrders.filter(o => new Date(o.created_at) >= periodStart);
+      const prev = allOrders.filter(o => {
+        const d = new Date(o.created_at);
+        return d >= prevStart && d < periodStart;
       });
 
-      // Calculate real category performance from sales data
-      try {
-        // Try to use product_sales table with product categories
-        const { data: salesWithCategories, error: salesError } = await supabase
-          .from('product_sales')
-          .select(`
-            quantity_sold,
-            total_revenue,
-            sale_date,
-            products (
-              categories (
-                name
-              )
-            )
-          `)
-          .gte('sale_date', currentPeriodStart.toISOString())
-          .order('sale_date', { ascending: false });
+      const curRev = cur.reduce((s, o) => s + (o.total || 0), 0);
+      const prevRev = prev.reduce((s, o) => s + (o.total || 0), 0);
+      const curCust = profiles.filter(p => new Date(p.created_at) >= periodStart).length;
+      const prevCust = profiles.filter(p => {
+        const d = new Date(p.created_at);
+        return d >= prevStart && d < periodStart;
+      }).length;
+      const curAvg = cur.length > 0 ? curRev / cur.length : 0;
+      const prevAvg = prev.length > 0 ? prevRev / prev.length : 0;
 
-        const categoryStats = new Map();
+      const g = (a: number, b: number) => b > 0 ? ((a - b) / b) * 100 : 0;
+      setMetrics({
+        revenue: { current: curRev, growth: g(curRev, prevRev), trend: curRev >= prevRev ? 'up' : 'down' },
+        orders: { current: cur.length, growth: g(cur.length, prev.length), trend: cur.length >= prev.length ? 'up' : 'down' },
+        customers: { current: curCust, growth: g(curCust, prevCust), trend: curCust >= prevCust ? 'up' : 'down' },
+        avgOrder: { current: curAvg, growth: g(curAvg, prevAvg), trend: curAvg >= prevAvg ? 'up' : 'down' },
+      });
 
-        if (salesWithCategories && !salesError) {
-          // Use sales tracking data
-          salesWithCategories.forEach(sale => {
-            const categoryName = (sale.products as any)?.categories?.name || 'General Items';
-
-            if (!categoryStats.has(categoryName)) {
-              categoryStats.set(categoryName, { revenue: 0, orders: 0, items: 0 });
-            }
-            const stats = categoryStats.get(categoryName);
-            stats.revenue += sale.total_revenue || 0;
-            stats.orders += 1;
-            stats.items += sale.quantity_sold || 0;
-          });
-        } else {
-          // Fallback to calculating from orders
-          currentPeriodOrders.forEach(order => {
-            const items = order.items as any[] || [];
-            items.forEach(item => {
-              // Try to get proper category name
-              let category = 'General Items';
-              if (item.category && item.category !== 'bulk' && item.category !== 'meat') {
-                category = item.category;
-              } else {
-                // Map old categories to new ones
-                if (item.category === 'meat' || item.category === 'bulk') {
-                  category = 'Bulk Groceries';
-                } else if (item.category) {
-                  category = item.category;
-                }
-              }
-
-              if (!categoryStats.has(category)) {
-                categoryStats.set(category, { revenue: 0, orders: 0, items: 0 });
-              }
-              const stats = categoryStats.get(category);
-              stats.revenue += (item.price * item.quantity) || 0;
-              stats.orders += 1;
-              stats.items += item.quantity || 0;
-            });
-          });
-        }
-
-        // Calculate growth by comparing with previous period
-        const previousPeriodSales = await supabase
-          .from('product_sales')
-          .select(`
-            total_revenue,
-            products (
-              categories (
-                name
-              )
-            )
-          `)
-          .gte('sale_date', previousPeriodStart.toISOString())
-          .lt('sale_date', currentPeriodStart.toISOString());
-
-        const previousCategoryStats = new Map();
-        if (previousPeriodSales.data) {
-          previousPeriodSales.data.forEach(sale => {
-            const categoryName = (sale.products as any)?.categories?.name || 'General Items';
-            if (!previousCategoryStats.has(categoryName)) {
-              previousCategoryStats.set(categoryName, 0);
-            }
-            previousCategoryStats.set(categoryName,
-              previousCategoryStats.get(categoryName) + (sale.total_revenue || 0)
-            );
-          });
-        }
-
-        const formattedCategories = Array.from(categoryStats.entries())
-          .map(([name, stats]: [string, any]) => {
-            const previousRevenue = previousCategoryStats.get(name) || 0;
-            const growth = previousRevenue > 0 ? ((stats.revenue - previousRevenue) / previousRevenue) * 100 : 0;
-
-            return {
-              name,
-              revenue: stats.revenue,
-              orders: stats.orders,
-              growth: growth
-            };
-          })
-          .sort((a, b) => b.revenue - a.revenue)
-          .slice(0, 5);
-
-        setTopCategories(formattedCategories);
-      } catch (error) {
-        console.error('Error calculating category performance:', error);
-        setTopCategories([]);
+      // Daily chart data
+      const dayMap: Record<string, { revenue: number; orders: number }> = {};
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 86400000);
+        const key = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        dayMap[key] = { revenue: 0, orders: 0 };
       }
-
-      // Calculate real top customers from orders
-      const customerStats = new Map();
-      currentPeriodOrders.forEach(order => {
-        const customerId = order.user_id || (order.customer_info as any)?.email || 'guest';
-
-        // Try to get customer name from multiple sources
-        let customerName = 'Guest Customer';
-        if (order.user_id) {
-          // Try to find in profiles first
-          const profile = profiles?.find(p => p.id === order.user_id);
-          customerName = profile?.full_name || profile?.email || 'Registered User';
-        } else if (order.customer_info) {
-          // Fallback to customer_info
-          const customerInfo = order.customer_info as any;
-          customerName = customerInfo?.name || customerInfo?.full_name || customerInfo?.email || 'Guest Customer';
-        }
-
-        if (!customerStats.has(customerId)) {
-          customerStats.set(customerId, {
-            name: customerName,
-            orders: 0,
-            totalSpent: 0
-          });
-        }
-        const stats = customerStats.get(customerId);
-        stats.orders += 1;
-        stats.totalSpent += order.total || 0;
+      cur.forEach(o => {
+        const key = new Date(o.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        if (dayMap[key]) { dayMap[key].revenue += o.total || 0; dayMap[key].orders += 1; }
       });
+      setChartData(Object.entries(dayMap).map(([date, v]) => ({ date, ...v })));
 
-      const formattedCustomers = Array.from(customerStats.values())
-        .map((customer: any) => ({
-          ...customer,
-          avgOrderValue: customer.orders > 0 ? customer.totalSpent / customer.orders : 0
-        }))
-        .sort((a, b) => b.totalSpent - a.totalSpent)
-        .slice(0, 5);
-
-      setTopCustomers(formattedCustomers);
-
-    } catch (error: any) {
-      console.error('Error fetching analytics:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch analytics data",
-        variant: "destructive",
+      // Category breakdown
+      const catMap: Record<string, { revenue: number; orders: number; qty: number }> = {};
+      cur.forEach(o => {
+        (o.items as any[] || []).forEach((item: any) => {
+          const cat = item.category || 'General';
+          if (!catMap[cat]) catMap[cat] = { revenue: 0, orders: 0, qty: 0 };
+          catMap[cat].revenue += (item.price || 0) * (item.quantity || 0);
+          catMap[cat].orders += 1;
+          catMap[cat].qty += item.quantity || 0;
+        });
       });
+      setCategoryData(Object.entries(catMap).map(([name, v]) => ({ name, ...v })).sort((a, b) => b.revenue - a.revenue).slice(0, 6));
+
+      // Order status
+      const sMap: Record<string, number> = {};
+      allOrders.forEach(o => {
+        const s = o.order_status || 'pending';
+        sMap[s] = (sMap[s] || 0) + 1;
+      });
+      setOrderStatusData(Object.entries(sMap).map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value })));
+
+      // Top customers
+      const custMap = new Map<string, any>();
+      cur.forEach(o => {
+        const id = o.user_id || (o.customer_info as any)?.email || 'guest';
+        let name = 'Guest';
+        if (o.user_id) {
+          const p = profiles.find(p => p.id === o.user_id);
+          name = p?.full_name || p?.email || 'Customer';
+        } else if (o.customer_info) {
+          name = (o.customer_info as any)?.name || 'Guest';
+        }
+        if (!custMap.has(id)) custMap.set(id, { name, orders: 0, spent: 0 });
+        const c = custMap.get(id);
+        c.orders += 1;
+        c.spent += o.total || 0;
+      });
+      setTopCustomers([...custMap.values()].sort((a, b) => b.spent - a.spent).slice(0, 6));
+
+    } catch (err: any) {
+      toast({ title: 'Error', description: 'Failed to load analytics', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -283,197 +161,242 @@ const AdminAnalytics = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B38B46]"></div>
+        <div className="size-8 rounded-full border-[3px] border-[var(--color-brand-red-light)] border-t-[var(--color-brand-red)] animate-spin" />
       </div>
     );
   }
 
-  const CardStyle = "border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group";
+  const tabs = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'categories', label: 'Categories' },
+    { key: 'customers', label: 'Customers' },
+  ] as const;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center border-b border-[#D4B6A2]/20 pb-6">
+    <div className="space-y-6">
+
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-[#4A1C1F] tracking-tight mb-1">Analytics</h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">Insights into your business performance</p>
+          <h1 className="text-[22px] font-[700] text-[var(--color-text-primary)]">Analytics</h1>
+          <p className="text-[13px] text-[var(--color-text-secondary)] mt-0.5">Business performance insights</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-[#D4B6A2]/30 bg-white text-[#4A1C1F] text-xs uppercase tracking-widest rounded-none focus:outline-none focus:border-[#B38B46]"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-          </select>
-          <Button variant="outline" size="sm" className="border-[#D4B6A2] text-[#5C4638] hover:bg-[#F9F9F7] text-xs uppercase tracking-widest rounded-none">
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 h-9 px-3 rounded-[8px] border border-[var(--color-border-default)] bg-white text-[13px]">
+            <Calendar size={14} className="text-[var(--color-text-muted)]" />
+            <select value={dateRange} onChange={e => setDateRange(e.target.value)} className="bg-transparent border-none outline-none text-[var(--color-text-primary)] text-[13px] cursor-pointer">
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+            </select>
+          </div>
+          <button onClick={fetchData} className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-[var(--color-border-default)] bg-white text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors">
+            <RefreshCw size={14} />
+          </button>
+          <button className="h-9 px-3 flex items-center gap-1.5 rounded-[8px] border border-[var(--color-border-default)] bg-white text-[12px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">
+            <Download size={13} /> Export
+          </button>
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className={CardStyle}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Total Revenue</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <IndianRupee className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-serif text-[#4A1C1F] mb-1">{formatPrice(analyticsData.revenue.current)}</div>
-            <div className="flex items-center text-xs">
-              {analyticsData.revenue.trend === 'up' ? (
-                <TrendingUp className="w-3 h-3 text-green-600 mr-1" />
-              ) : (
-                <TrendingDown className="w-3 h-3 text-red-600 mr-1" />
-              )}
-              <span className={analyticsData.revenue.trend === 'up' ? 'text-green-700' : 'text-red-700'}>
-                {analyticsData.revenue.growth.toFixed(1)}%
-              </span>
-              <span className="text-[#5C4638] font-light ml-1">vs prev period</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className={CardStyle}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Total Orders</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <ShoppingCart className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-serif text-[#4A1C1F] mb-1">{analyticsData.orders.current}</div>
-            <div className="flex items-center text-xs">
-              {analyticsData.orders.trend === 'up' ? (
-                <TrendingUp className="w-3 h-3 text-green-600 mr-1" />
-              ) : (
-                <TrendingDown className="w-3 h-3 text-red-600 mr-1" />
-              )}
-              <span className={analyticsData.orders.trend === 'up' ? 'text-green-700' : 'text-red-700'}>
-                {analyticsData.orders.growth.toFixed(1)}%
-              </span>
-              <span className="text-[#5C4638] font-light ml-1">vs prev period</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className={CardStyle}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">New Customers</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <Users className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-serif text-[#4A1C1F] mb-1">{analyticsData.customers.current}</div>
-            <div className="flex items-center text-xs">
-              {analyticsData.customers.trend === 'up' ? (
-                <TrendingUp className="w-3 h-3 text-green-600 mr-1" />
-              ) : (
-                <TrendingDown className="w-3 h-3 text-red-600 mr-1" />
-              )}
-              <span className={analyticsData.customers.trend === 'up' ? 'text-green-700' : 'text-red-700'}>
-                {analyticsData.customers.growth.toFixed(1)}%
-              </span>
-              <span className="text-[#5C4638] font-light ml-1">vs prev period</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className={CardStyle}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Avg. Order Value</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <BarChart3 className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-serif text-[#4A1C1F] mb-1">{formatPrice(analyticsData.avgOrderValue.current)}</div>
-            <div className="flex items-center text-xs">
-              {analyticsData.avgOrderValue.trend === 'up' ? (
-                <TrendingUp className="w-3 h-3 text-green-600 mr-1" />
-              ) : (
-                <TrendingDown className="w-3 h-3 text-red-600 mr-1" />
-              )}
-              <span className={analyticsData.avgOrderValue.trend === 'up' ? 'text-green-700' : 'text-red-700'}>
-                {analyticsData.avgOrderValue.growth.toFixed(1)}%
-              </span>
-              <span className="text-[#5C4638] font-light ml-1">vs prev period</span>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Metric cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <MetricCard label="Revenue" value={formatPrice(metrics.revenue.current)} growth={metrics.revenue.growth} trend={metrics.revenue.trend} icon={IndianRupee} color="var(--color-brand-red)" bg="var(--color-brand-red-light)" />
+        <MetricCard label="Orders" value={metrics.orders.current} growth={metrics.orders.growth} trend={metrics.orders.trend} icon={ShoppingCart} color="#D97706" bg="#FEF3C7" />
+        <MetricCard label="New Customers" value={metrics.customers.current} growth={metrics.customers.growth} trend={metrics.customers.trend} icon={Users} color="#7C3AED" bg="#EDE9FE" />
+        <MetricCard label="Avg. Order Value" value={formatPrice(metrics.avgOrder.current)} growth={metrics.avgOrder.growth} trend={metrics.avgOrder.trend} icon={Package} color="#059669" bg="#D1FAE5" />
       </div>
 
-      {/* Detailed Analytics */}
-      <Tabs defaultValue="categories" className="space-y-6">
-        <TabsList className="bg-[#F5EFE7] p-1 border border-[#D4B6A2]/20 rounded-none w-auto inline-flex">
-          <TabsTrigger value="categories" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all px-6">Top Categories</TabsTrigger>
-          <TabsTrigger value="customers" className="data-[state=active]:bg-[#4A1C1F] data-[state=active]:text-white uppercase tracking-wider text-[10px] rounded-none transition-all px-6">Top Customers</TabsTrigger>
-        </TabsList>
+      {/* Tab bar */}
+      <div className="flex gap-1 bg-[var(--color-surface-page)] p-1 rounded-[10px] w-fit border border-[var(--color-border-default)]">
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setActiveTab(t.key)}
+            className={`px-4 h-8 rounded-[8px] text-[13px] font-[600] transition-all ${activeTab === t.key ? 'bg-white text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value="categories">
-          <Card className={`${CardStyle} rounded-none`}>
-            <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-              <CardTitle className="font-serif text-xl text-[#4A1C1F]">Top Performing Categories</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                {topCategories.map((category: any, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border border-[#D4B6A2]/10 rounded bg-[#F9F9F7] hover:bg-white transition-colors">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-8 h-8 bg-[#4A1C1F] rounded-full flex items-center justify-center text-[#B38B46] text-sm font-bold font-serif">
-                        {index + 1}
+      {/* Overview Tab */}
+      {activeTab === 'overview' && (
+        <div className="space-y-5">
+
+          {/* Revenue + Orders charts */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+            <div className="xl:col-span-2 bg-white rounded-[14px] border border-[var(--color-border-default)] p-5">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">Revenue Over Time</p>
+                  <p className="text-[12px] text-[var(--color-text-secondary)] mt-0.5">Daily revenue breakdown</p>
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={240}>
+                <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+                  <defs>
+                    <linearGradient id="aGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-brand-red)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--color-brand-red)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false}
+                    interval={dateRange === '7d' ? 0 : dateRange === '30d' ? 4 : 9} />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false}
+                    tickFormatter={v => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`} width={48} />
+                  <Tooltip content={<CustomTooltip prefix="₹" />} />
+                  <Area type="monotone" dataKey="revenue" stroke="var(--color-brand-red)" strokeWidth={2}
+                    fill="url(#aGrad)" dot={false} activeDot={{ r: 4, fill: 'var(--color-brand-red)' }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-5">
+              <p className="text-[14px] font-[700] text-[var(--color-text-primary)] mb-1">Order Status</p>
+              <p className="text-[12px] text-[var(--color-text-secondary)] mb-5">All-time breakdown</p>
+              {orderStatusData.length > 0 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <PieChart>
+                      <Pie data={orderStatusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={64} innerRadius={36} strokeWidth={0}>
+                        {orderStatusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip formatter={(v: any) => [v, 'Orders']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="space-y-2 mt-3">
+                    {orderStatusData.map((s, i) => (
+                      <div key={s.name} className="flex items-center justify-between text-[12px]">
+                        <div className="flex items-center gap-2">
+                          <div className="size-2.5 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                          <span className="text-[var(--color-text-secondary)]">{s.name}</span>
+                        </div>
+                        <span className="font-[700] text-[var(--color-text-primary)]">{s.value}</span>
                       </div>
-                      <div>
-                        <p className="font-medium text-[#4A1C1F] font-serif">{category.name}</p>
-                        <p className="text-xs text-[#7E5A34] uppercase tracking-wider">{category.orders} orders</p>
-                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-40 text-[var(--color-text-muted)] text-[13px]">No data yet</div>
+              )}
+            </div>
+          </div>
+
+          {/* Orders bar chart */}
+          <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-5">
+            <p className="text-[14px] font-[700] text-[var(--color-text-primary)] mb-1">Daily Orders</p>
+            <p className="text-[12px] text-[var(--color-text-secondary)] mb-5">Order volume per day</p>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false}
+                  interval={dateRange === '7d' ? 0 : dateRange === '30d' ? 4 : 9} />
+                <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} allowDecimals={false} width={24} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="orders" fill="var(--color-brand-red)" radius={[4, 4, 0, 0]} maxBarSize={32} opacity={0.85} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Categories Tab */}
+      {activeTab === 'categories' && (
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+            {/* Bar chart */}
+            <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-5">
+              <p className="text-[14px] font-[700] text-[var(--color-text-primary)] mb-1">Revenue by Category</p>
+              <p className="text-[12px] text-[var(--color-text-secondary)] mb-5">Current period</p>
+              {categoryData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={categoryData} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-default)" horizontal={false} />
+                    <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false}
+                      tickFormatter={v => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }} axisLine={false} tickLine={false} width={80} />
+                    <Tooltip content={<CustomTooltip prefix="₹" />} />
+                    <Bar dataKey="revenue" fill="var(--color-brand-red)" radius={[0, 4, 4, 0]} maxBarSize={20} opacity={0.85} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-40 text-[var(--color-text-muted)] text-[13px]">No category data yet</div>
+              )}
+            </div>
+
+            {/* Category table */}
+            <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] overflow-hidden">
+              <div className="px-5 py-4 border-b border-[var(--color-border-default)]">
+                <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">Category Performance</p>
+              </div>
+              <div className="divide-y divide-[var(--color-border-default)]/60">
+                {categoryData.length === 0 ? (
+                  <p className="text-center text-[13px] text-[var(--color-text-muted)] py-8">No data yet</p>
+                ) : categoryData.map((cat, i) => (
+                  <div key={cat.name} className="flex items-center gap-3 px-5 py-3.5 hover:bg-[var(--color-surface-page)] transition-colors">
+                    <div className="size-8 rounded-[8px] flex items-center justify-center text-[12px] font-[800] shrink-0"
+                      style={{ background: i === 0 ? 'var(--color-brand-red)' : 'var(--color-surface-page)', color: i === 0 ? 'white' : 'var(--color-text-muted)' }}>
+                      {i + 1}
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium text-[#4A1C1F]">{formatPrice(category.revenue)}</p>
-                      <p className="text-xs text-green-700">+{category.growth.toFixed(1)}%</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-[600] text-[var(--color-text-primary)]">{cat.name}</p>
+                      <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">{cat.orders} items · {cat.qty} units</p>
                     </div>
+                    <p className="text-[13px] font-[700] text-[var(--color-text-primary)] shrink-0">{formatPrice(cat.revenue)}</p>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          </div>
+        </div>
+      )}
 
-        <TabsContent value="customers">
-          <Card className={`${CardStyle} rounded-none`}>
-            <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-              <CardTitle className="font-serif text-xl text-[#4A1C1F]">Top Customers</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                {topCustomers.map((customer: any, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border border-[#D4B6A2]/10 rounded bg-[#F9F9F7] hover:bg-white transition-colors">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-8 h-8 bg-[#F5EFE7] border border-[#D4B6A2]/30 rounded-full flex items-center justify-center text-[#4A1C1F] text-sm font-bold font-serif">
-                        {customer.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-[#4A1C1F] font-serif">{customer.name}</p>
-                        <p className="text-xs text-[#7E5A34] uppercase tracking-wider">{customer.orders} orders</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-[#4A1C1F]">{formatPrice(customer.totalSpent)}</p>
-                      <p className="text-xs text-[#5C4638] font-light">Avg: {formatPrice(customer.avgOrderValue)}</p>
-                    </div>
+      {/* Customers Tab */}
+      {activeTab === 'customers' && (
+        <div className="space-y-5">
+          <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-[var(--color-border-default)]">
+              <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">Top Customers</p>
+              <p className="text-[12px] text-[var(--color-text-secondary)] mt-0.5">By total spend in selected period</p>
+            </div>
+            <div className="divide-y divide-[var(--color-border-default)]/60">
+              {topCustomers.length === 0 ? (
+                <p className="text-center text-[13px] text-[var(--color-text-muted)] py-8">No customer data yet</p>
+              ) : topCustomers.map((c, i) => (
+                <div key={c.name + i} className="flex items-center gap-3 px-5 py-4 hover:bg-[var(--color-surface-page)] transition-colors">
+                  <div className="size-9 rounded-full flex items-center justify-center text-[13px] font-[800] shrink-0 text-white"
+                    style={{ background: i < 3 ? `hsl(${i * 60}, 65%, 45%)` : 'var(--color-surface-page)', color: i < 3 ? 'white' : 'var(--color-text-muted)' }}>
+                    {c.name.charAt(0).toUpperCase()}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-[600] text-[var(--color-text-primary)] truncate">{c.name}</p>
+                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">{c.orders} order{c.orders !== 1 ? 's' : ''} · avg {formatPrice(c.spent / c.orders)}</p>
+                  </div>
+                  <p className="text-[14px] font-[800] text-[var(--color-text-primary)] shrink-0">{formatPrice(c.spent)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Customer acquisition trend */}
+          <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-5">
+            <p className="text-[14px] font-[700] text-[var(--color-text-primary)] mb-1">Customer Summary</p>
+            <p className="text-[12px] text-[var(--color-text-secondary)] mb-5">Period stats</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {[
+                { label: 'New This Period', value: metrics.customers.current, color: '#7C3AED' },
+                { label: 'Total Orders', value: metrics.orders.current, color: 'var(--color-brand-red)' },
+                { label: 'Avg Order Value', value: formatPrice(metrics.avgOrder.current), color: '#059669' },
+                { label: 'Total Revenue', value: formatPrice(metrics.revenue.current), color: '#D97706' },
+              ].map(stat => (
+                <div key={stat.label} className="rounded-[10px] p-4" style={{ background: 'var(--color-surface-page)' }}>
+                  <p className="text-[20px] font-[800] leading-none" style={{ color: stat.color }}>{stat.value}</p>
+                  <p className="text-[11px] text-[var(--color-text-secondary)] mt-1.5 leading-tight">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

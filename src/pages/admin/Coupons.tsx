@@ -1,18 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Tag, Calendar, Users, TrendingUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
+import { Plus, Edit, Trash2, Tag, Calendar, Users, TrendingUp, Search, Ticket } from 'lucide-react';
 import { formatPrice } from '@/utils/currency';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +21,12 @@ interface Coupon {
   status: 'active' | 'inactive' | 'expired';
 }
 
+const statusCfg: Record<string, { bg: string; color: string }> = {
+  active: { bg: '#D1FAE5', color: '#065F46' },
+  inactive: { bg: '#F1F5F9', color: '#475569' },
+  expired: { bg: '#FEE2E2', color: '#991B1B' },
+};
+
 const AdminCoupons = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,46 +34,26 @@ const AdminCoupons = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchCoupons();
-  }, []);
+  useEffect(() => { fetchCoupons(); }, []);
 
   const fetchCoupons = async () => {
     try {
       setLoading(true);
-
-      const { data: couponsData, error } = await supabase
-        .from('coupons')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const { data, error } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
       if (error) throw error;
-
-      const formattedCoupons = couponsData?.map(coupon => ({
-        id: coupon.id,
-        code: coupon.code,
-        description: coupon.description || '',
-        type: coupon.discount_type === 'percentage' ? 'percentage' as const : 'fixed' as const,
-        value: coupon.discount_value,
-        minOrderValue: coupon.min_order_amount || 0,
-        maxDiscountAmount: coupon.max_discount_amount,
-        usageLimit: coupon.usage_limit || 0,
-        usedCount: coupon.used_count || 0,
-        validFrom: coupon.valid_from,
-        validUntil: coupon.valid_until,
-        status: !coupon.is_active ? 'inactive' as const :
-          (coupon.valid_until && new Date(coupon.valid_until) < new Date()) ? 'expired' as const :
-            'active' as const
-      })) || [];
-
-      setCoupons(formattedCoupons);
-    } catch (error: any) {
-      console.error('Error fetching coupons:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch coupons",
-        variant: "destructive",
-      });
+      setCoupons((data || []).map(c => ({
+        id: c.id, code: c.code, description: c.description || '',
+        type: c.discount_type === 'percentage' ? 'percentage' : 'fixed',
+        value: c.discount_value,
+        minOrderValue: c.min_order_amount || 0,
+        maxDiscountAmount: c.max_discount_amount,
+        usageLimit: c.usage_limit || 0,
+        usedCount: c.used_count || 0,
+        validFrom: c.valid_from, validUntil: c.valid_until,
+        status: !c.is_active ? 'inactive' : (c.valid_until && new Date(c.valid_until) < new Date()) ? 'expired' : 'active',
+      })));
+    } catch (err: any) {
+      toast({ title: 'Error', description: 'Failed to fetch coupons', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -87,249 +61,180 @@ const AdminCoupons = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('coupons')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('coupons').delete().eq('id', id);
       if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Coupon deleted successfully",
-      });
-
+      toast({ title: 'Deleted', description: 'Coupon deleted successfully' });
       fetchCoupons();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
-  const filteredCoupons = coupons.filter(coupon =>
-    coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    coupon.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = coupons.filter(c =>
+    c.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-50 text-green-700 border-green-200';
-      case 'inactive':
-        return 'bg-gray-100 text-gray-500 border-gray-200';
-      case 'expired':
-        return 'bg-red-50 text-red-700 border-red-200';
-      default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
-    }
-  };
+  const statCards = [
+    { label: 'Total Coupons', value: coupons.length, icon: Ticket, color: 'var(--color-brand-red)', bg: 'var(--color-brand-red-light)' },
+    { label: 'Active', value: coupons.filter(c => c.status === 'active').length, icon: TrendingUp, color: '#059669', bg: '#D1FAE5' },
+    { label: 'Total Uses', value: coupons.reduce((s, c) => s + c.usedCount, 0), icon: Users, color: '#7C3AED', bg: '#EDE9FE' },
+    { label: 'Expired', value: coupons.filter(c => c.status === 'expired').length, icon: Calendar, color: '#D97706', bg: '#FEF3C7' },
+  ];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B38B46]"></div>
+        <div className="size-8 rounded-full border-[3px] border-[var(--color-brand-red-light)] border-t-[var(--color-brand-red)] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center border-b border-[#D4B6A2]/20 pb-6">
+    <div className="space-y-6">
+
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-[#4A1C1F] tracking-tight mb-1">Coupons</h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">Manage discounts and seasonal offers</p>
+          <h1 className="text-[22px] font-[700] text-[var(--color-text-primary)]">Coupons</h1>
+          <p className="text-[13px] text-[var(--color-text-secondary)] mt-0.5">Manage discounts and promotional codes</p>
         </div>
-        <div className="flex space-x-2">
-          <Button
+        <div className="flex gap-2">
+          <button
             onClick={() => navigate('/admin/coupons/assign')}
-            variant="outline"
-            className="border-[#D4B6A2] text-[#5C4638] hover:bg-[#F9F9F7] text-xs uppercase tracking-widest rounded-none"
+            className="flex items-center gap-1.5 h-9 px-4 rounded-[8px] border border-[var(--color-border-default)] bg-white text-[13px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-text-muted)] transition-all"
           >
-            <Tag className="w-4 h-4 mr-2" />
-            Assign Coupons
-          </Button>
-          <Button
+            <Tag size={14} /> Assign
+          </button>
+          <button
             onClick={() => navigate('/admin/coupons/add')}
-            className="bg-[#4A1C1F] hover:bg-[#5C4638] text-white uppercase tracking-widest text-xs rounded-none transition-all duration-300 shadow-md"
+            className="flex items-center gap-1.5 h-9 px-4 rounded-[8px] bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white text-[13px] font-[600] transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Coupon
-          </Button>
+            <Plus size={14} /> Add Coupon
+          </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Total Coupons</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <Tag className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map(c => {
+          const Icon = c.icon;
+          return (
+            <div key={c.label} className="bg-white rounded-[14px] border border-[var(--color-border-default)] p-4 hover:shadow-sm transition-shadow">
+              <div className="flex items-center justify-between mb-3">
+                <div className="size-9 rounded-[9px] flex items-center justify-center" style={{ background: c.bg }}>
+                  <Icon size={16} style={{ color: c.color }} />
+                </div>
+              </div>
+              <p className="text-[24px] font-[800] text-[var(--color-text-primary)] leading-none">{c.value}</p>
+              <p className="text-[12px] text-[var(--color-text-secondary)] mt-1.5">{c.label}</p>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-serif text-[#4A1C1F]">{coupons.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Active</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <TrendingUp className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-serif text-[#4A1C1F]">
-              {coupons.filter(c => c.status === 'active').length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Total Uses</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <Users className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-serif text-[#4A1C1F]">
-              {coupons.reduce((sum, c) => sum + c.usedCount, 0)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white hover:shadow-md transition-all duration-300 group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7E5A34]">Expired</CardTitle>
-            <div className="p-2 bg-[#F5EFE7] rounded-full group-hover:bg-[#4A1C1F] transition-colors duration-300">
-              <Calendar className="h-4 w-4 text-[#4A1C1F] group-hover:text-[#B38B46] transition-colors" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-serif text-[#4A1C1F]">
-              {coupons.filter(c => c.status === 'expired').length}
-            </div>
-          </CardContent>
-        </Card>
+          );
+        })}
       </div>
 
-      {/* Search */}
-      <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white rounded-none">
-        <CardContent className="p-6">
-          <Input
-            placeholder="Search coupons..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm border-[#D4B6A2]/30 focus:border-[#B38B46] focus:ring-[#B38B46]/20 bg-[#F9F9F7] text-[#4A1C1F] rounded-none"
-          />
-        </CardContent>
-      </Card>
+      {/* Search + Table */}
+      <div className="bg-white rounded-[14px] border border-[var(--color-border-default)] overflow-hidden">
 
-      {/* Coupons Table */}
-      <Card className="border border-[#D4B6A2]/20 shadow-sm bg-white rounded-none">
-        <CardHeader className="border-b border-[#D4B6A2]/10 pb-4">
-          <div className="flex justify-between items-center">
-            <CardTitle className="font-serif text-xl text-[#4A1C1F]">Coupons List</CardTitle>
-            <span className="text-xs text-[#7E5A34] uppercase tracking-widest">{filteredCoupons.length} records</span>
+        {/* Table header with search */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[var(--color-border-default)]">
+          <div>
+            <p className="text-[14px] font-[700] text-[var(--color-text-primary)]">All Coupons</p>
+            <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">{filtered.length} record{filtered.length !== 1 ? 's' : ''}</p>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent border-[#D4B6A2]/20">
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Code</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Description</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Type</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Value</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Usage</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Valid Until</TableHead>
-                <TableHead className="text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Status</TableHead>
-                <TableHead className="text-right text-xs uppercase tracking-widest text-[#7E5A34] font-medium h-12">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCoupons.map((coupon) => (
-                <TableRow key={coupon.id} className="hover:bg-[#F9F9F7] border-[#D4B6A2]/10 transition-colors group">
-                  <TableCell className="py-4">
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="outline" className="font-mono text-xs border-[#D4B6A2]/30 text-[#4A1C1F] bg-[#F5EFE7]">
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
+            <input
+              placeholder="Search coupons..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="h-9 pl-9 pr-3 rounded-[8px] border border-[var(--color-border-default)] text-[13px] text-[var(--color-text-primary)] bg-[var(--color-surface-page)] outline-none focus:border-[var(--color-brand-red)] transition-colors w-56"
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr style={{ background: 'var(--color-surface-page)' }}>
+                {['Code', 'Description', 'Discount', 'Min Order', 'Usage', 'Valid Until', 'Status', 'Actions'].map(h => (
+                  <th key={h} className="px-4 py-3 text-left text-[10px] font-[700] uppercase tracking-widest text-[var(--color-text-secondary)]">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--color-border-default)]/60">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-12 text-[13px] text-[var(--color-text-muted)]">
+                    <Ticket size={28} className="mx-auto mb-2 opacity-30" />
+                    No coupons found
+                  </td>
+                </tr>
+              ) : filtered.map(coupon => {
+                const ss = statusCfg[coupon.status] || statusCfg.inactive;
+                const usagePct = coupon.usageLimit > 0 ? (coupon.usedCount / coupon.usageLimit) * 100 : 0;
+                return (
+                  <tr key={coupon.id} className="hover:bg-[var(--color-surface-page)] transition-colors">
+                    <td className="px-4 py-3.5">
+                      <span className="font-mono text-[12px] font-[700] text-[var(--color-text-primary)] bg-[var(--color-surface-page)] border border-[var(--color-border-default)] px-2 py-0.5 rounded-[6px]">
                         {coupon.code}
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm text-[#5C4638] max-w-xs truncate font-light">
-                      {coupon.description}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className="rounded-none bg-[#F9F9F7] text-[#5C4638] font-normal hover:bg-[#F0F0F0]">
-                      {coupon.type === 'percentage' ? `${coupon.value}%` : `₹${coupon.value}`}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-xs text-[#5C4638]">
-                      <p>Min: {formatPrice(coupon.minOrderValue)}</p>
-                      {coupon.maxDiscountAmount && (
-                        <p className="text-[#B38B46]">Max: {formatPrice(coupon.maxDiscountAmount)}</p>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-xs text-[#5C4638] w-24">
-                      <div className="flex justify-between mb-1">
-                        <span>{coupon.usedCount}</span>
-                        <span>{coupon.usageLimit || '∞'}</span>
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <p className="text-[13px] text-[var(--color-text-secondary)] max-w-[160px] truncate">{coupon.description}</p>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="text-[13px] font-[700] text-[var(--color-text-primary)]">
+                        {coupon.type === 'percentage' ? `${coupon.value}%` : `₹${coupon.value}`}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-[13px] text-[var(--color-text-secondary)]">
+                      {formatPrice(coupon.minOrderValue)}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="w-20">
+                        <div className="flex justify-between text-[11px] text-[var(--color-text-secondary)] mb-1">
+                          <span>{coupon.usedCount}</span>
+                          <span>{coupon.usageLimit || '∞'}</span>
+                        </div>
+                        <div className="h-1 rounded-full bg-[var(--color-surface-page)] border border-[var(--color-border-default)]">
+                          <div className="h-full rounded-full bg-[var(--color-brand-red)]" style={{ width: `${Math.min(usagePct, 100)}%` }} />
+                        </div>
                       </div>
-                      <div className="w-full bg-[#F5EFE7] rounded-full h-1">
-                        <div
-                          className="bg-[#B38B46] h-1 rounded-full"
-                          style={{
-                            width: coupon.usageLimit ? `${(coupon.usedCount / coupon.usageLimit) * 100}%` : '0%'
-                          }}
-                        ></div>
+                    </td>
+                    <td className="px-4 py-3.5 text-[13px] text-[var(--color-text-secondary)]">
+                      {coupon.validUntil ? format(new Date(coupon.validUntil), 'dd MMM yyyy') : 'No expiry'}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-[700] uppercase tracking-wide capitalize"
+                        style={{ background: ss.bg, color: ss.color }}>
+                        {coupon.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => navigate(`/admin/coupons/edit/${coupon.id}`)}
+                          className="size-8 rounded-[6px] bg-[var(--color-surface-page)] border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-[var(--color-brand-red-light)] hover:text-[var(--color-brand-red)] hover:border-[var(--color-brand-red)]/30 transition-all"
+                        >
+                          <Edit size={13} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(coupon.id)}
+                          className="size-8 rounded-[6px] bg-[var(--color-surface-page)] border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-secondary)] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all"
+                        >
+                          <Trash2 size={13} />
+                        </button>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-[#5C4638] font-light">
-                    {coupon.validUntil ? format(new Date(coupon.validUntil), 'MMM dd, yyyy') : 'No expiry'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={`rounded-none px-3 py-1 text-[10px] uppercase tracking-widest font-normal hover:bg-opacity-80 border-0 ${getStatusColor(coupon.status)}`}>
-                      {coupon.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate(`/admin/coupons/edit/${coupon.id}`)}
-                        className="text-[#7E5A34] hover:text-[#4A1C1F] hover:bg-[#F9F9F7]"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(coupon.id)}
-                        className="text-red-400 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };

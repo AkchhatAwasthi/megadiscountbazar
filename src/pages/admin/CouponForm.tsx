@@ -154,20 +154,20 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between border-b border-[#D4B6A2]/20 pb-6">
+      <div className="flex items-center justify-between border-b border-[var(--color-border-default)] pb-6">
         <div>
-          <Button
-            variant="ghost"
+          <button
+            type="button"
             onClick={() => navigate('/admin/coupons')}
-            className="text-[#5C4638] hover:text-[#4A1C1F] hover:bg-[#F9F9F7] p-0 mb-2 h-auto"
+            className="flex items-center gap-1.5 text-[12px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] mb-2 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            <span className="uppercase tracking-widest text-xs">Back to Coupons</span>
-          </Button>
-          <h1 className="text-[28px] font-[500] text-[var(--color-text-primary)] tracking-[-0.02em]">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Coupons
+          </button>
+          <h1 className="text-[22px] font-[700] text-[var(--color-text-primary)]">
             {isEdit ? 'Edit Coupon' : 'Add New Coupon'}
           </h1>
-          <p className="text-[#5C4638] font-light text-sm tracking-wide">
+          <p className="text-[13px] text-[var(--color-text-secondary)] mt-0.5">
             {isEdit ? 'Modify existing coupon details' : 'Create a new discount code'}
           </p>
         </div>
@@ -209,10 +209,10 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
                     value={formData.discount_type}
                     onValueChange={(value) => handleInputChange('discount_type', value)}
                   >
-                    <SelectTrigger className="border-[#D4B6A2]/30 bg-[#F9F9F7] text-[#4A1C1F] rounded-none">
+                    <SelectTrigger className="h-[40px] border-[1.5px] border-[var(--color-border-default)] bg-[var(--color-surface-card)] text-[var(--color-text-primary)] rounded-[8px] focus:border-[var(--color-brand-red)]">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-[#D4B6A2]/20">
+                    <SelectContent className="bg-white border-[var(--color-border-default)]">
                       <SelectItem value="percentage">Percentage (%)</SelectItem>
                       <SelectItem value="fixed">Fixed Amount (₹)</SelectItem>
                     </SelectContent>
@@ -289,11 +289,11 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
                           !formData.valid_from && "text-muted-foreground"
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4 text-[#B38B46]" />
+                        <CalendarIcon className="mr-2 h-4 w-4 text-[var(--color-brand-red)]" />
                         {formData.valid_from ? format(formData.valid_from, "PPP") : "Pick a date"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 border-[#D4B6A2]/20 bg-white">
+                    <PopoverContent className="w-auto p-0 border-[var(--color-border-default)] bg-white">
                       <Calendar
                         mode="single"
                         selected={formData.valid_from}
@@ -316,11 +316,11 @@ const CouponForm = ({ coupon: propCoupon, isEdit = false }: CouponFormProps) => 
                           !formData.valid_until && "text-muted-foreground"
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4 text-[#B38B46]" />
+                        <CalendarIcon className="mr-2 h-4 w-4 text-[var(--color-brand-red)]" />
                         {formData.valid_until ? format(formData.valid_until, "PPP") : "Pick a date"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 border-[#D4B6A2]/20 bg-white">
+                    <PopoverContent className="w-auto p-0 border-[var(--color-border-default)] bg-white">
                       <Calendar
                         mode="single"
                         selected={formData.valid_until}

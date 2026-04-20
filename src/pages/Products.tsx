@@ -16,6 +16,7 @@ interface ProductFilters {
   priceRange: number[];
   inStock: boolean;
   isBestseller: boolean;
+  isNewArrival: boolean;
   sortBy: string;
 }
 
@@ -33,6 +34,7 @@ const Products = () => {
     priceRange: [0, 50000],
     inStock: false,
     isBestseller: false,
+    isNewArrival: false,
     sortBy: 'newest',
   });
 
@@ -75,20 +77,33 @@ const Products = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const categoryParam = queryParams.get('category');
+    const collectionParam = queryParams.get('collection');
     
-    if (categoryParam) {
-      // Decode and trim to prevent issues with trailing spaces
-      const decodedCategory = decodeURIComponent(categoryParam).trim();
+    // Sync Category from URL
+    const decodedCategory = categoryParam ? decodeURIComponent(categoryParam).trim() : 'All';
+    if (decodedCategory !== selectedCategory) {
       setSelectedCategory(decodedCategory);
-    } else {
-      setSelectedCategory('All');
     }
 
+    // Sync Collection filters from URL to state
+    const targetNewArrival = collectionParam === 'new-arrivals';
+    const targetBestseller = collectionParam === 'bestsellers' || queryParams.get('tag') === 'favorites';
+
+    if (filters.isNewArrival !== targetNewArrival || filters.isBestseller !== targetBestseller) {
+      setFilters(prev => ({
+        ...prev,
+        isNewArrival: targetNewArrival,
+        isBestseller: targetBestseller
+      }));
+      // This setFilters will trigger the effect again, so we return here
+      return;
+    }
+    
     setPage(1);
     setHasMore(true);
     setProducts([]);
     fetchProducts(1);
-  }, [location.search, searchTerm, filters]);
+  }, [location.search, searchTerm, filters, selectedCategory]);
 
   const fetchProducts = async (pageNum = 1) => {
     if (pageNum === 1) setLoading(true);
@@ -109,11 +124,15 @@ const Products = () => {
         const { data: catData } = await supabase
           .from('categories')
           .select('id')
-          .ilike('name', selectedCategory)
+          .or(`name.ilike."${selectedCategory}",slug.eq."${selectedCategory}"`)
           .limit(1);
 
         if (catData && catData.length > 0) {
           countQuery = countQuery.eq('category_id', catData[0].id);
+        } else {
+          // If category not found and it's not 'All', we should probably return empty results
+          // instead of everything, to avoid "Teddy Bear in Beauty" issue.
+          countQuery = countQuery.eq('category_id', '00000000-0000-0000-0000-000000000000');
         }
       }
 
@@ -128,6 +147,9 @@ const Products = () => {
       if (searchTerm) countQuery = countQuery.ilike('name', `%${searchTerm}%`);
       if (filters.priceRange[0] > 0) countQuery = countQuery.gte('price', filters.priceRange[0]);
       if (filters.priceRange[1] < 50000) countQuery = countQuery.lte('price', filters.priceRange[1]);
+      if (filters.isNewArrival) countQuery = countQuery.eq('new_arrival', true);
+      if (filters.isBestseller) countQuery = countQuery.eq('is_bestseller', true);
+      if (filters.inStock) countQuery = countQuery.gt('stock_quantity', 0);
 
       const { count } = await countQuery;
       if (count !== null) setTotalProducts(count);
@@ -143,11 +165,13 @@ const Products = () => {
         const { data: catDataForQuery } = await supabase
           .from('categories')
           .select('id')
-          .ilike('name', selectedCategory)
+          .or(`name.ilike."${selectedCategory}",slug.eq."${selectedCategory}"`)
           .limit(1);
 
         if (catDataForQuery && catDataForQuery.length > 0) {
           query = query.eq('category_id', catDataForQuery[0].id);
+        } else {
+          query = query.eq('category_id', '00000000-0000-0000-0000-000000000000');
         }
       }
 
@@ -159,6 +183,9 @@ const Products = () => {
       if (searchTerm) query = query.ilike('name', `%${searchTerm}%`);
       if (filters.priceRange[0] > 0) query = query.gte('price', filters.priceRange[0]);
       if (filters.priceRange[1] < 50000) query = query.lte('price', filters.priceRange[1]);
+      if (filters.isNewArrival) query = query.eq('new_arrival', true);
+      if (filters.isBestseller) query = query.eq('is_bestseller', true);
+      if (filters.inStock) query = query.gt('stock_quantity', 0);
 
       const sortOption = filters.sortBy || sortBy;
       switch (sortOption) {
@@ -374,7 +401,7 @@ const Products = () => {
                   </button>
                   <button 
                     onClick={() => {
-                        setFilters({ categories: [], priceRange: [0, 50000], inStock: false, isBestseller: false, sortBy: 'newest' });
+                        setFilters({ categories: [], priceRange: [0, 50000], inStock: false, isBestseller: false, isNewArrival: false, sortBy: 'newest' });
                         setShowFilters(false);
                     }}
                     className="px-6 border border-[var(--color-border-default)] text-[var(--color-text-secondary)] h-12 rounded-[8px] font-[600] text-[15px] hover:bg-white"

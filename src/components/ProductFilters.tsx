@@ -13,6 +13,7 @@ export interface ProductFilters {
   rating: number;
   inStock: boolean;
   isBestseller: boolean;
+  isNewArrival: boolean;
   sortBy: string;
 }
 
@@ -30,6 +31,7 @@ const ProductFiltersComponent = ({ onFiltersChange, categories, className = "" }
     rating: 0,
     inStock: false,
     isBestseller: false,
+    isNewArrival: false,
     sortBy: 'name',
   });
 
@@ -89,6 +91,7 @@ const ProductFiltersComponent = ({ onFiltersChange, categories, className = "" }
       rating: 0,
       inStock: false,
       isBestseller: false,
+      isNewArrival: false,
       sortBy: 'name',
     };
     setFilters(clearedFilters);
@@ -103,6 +106,7 @@ const ProductFiltersComponent = ({ onFiltersChange, categories, className = "" }
     if (filters.rating > 0) count++;
     if (filters.inStock) count++;
     if (filters.isBestseller) count++;
+    if (filters.isNewArrival) count++;
     return count;
   };
 
@@ -277,6 +281,7 @@ const ProductFiltersComponent = ({ onFiltersChange, categories, className = "" }
       <div className="pt-6 border-t border-[var(--color-border-default)] space-y-3">
         {[
           { id: 'inStock', label: 'In Stock Only', icon: ShoppingBag, checked: filters.inStock },
+          { id: 'isNewArrival', label: 'New Arrivals', icon: Star, checked: filters.isNewArrival },
           { id: 'isBestseller', label: 'Bestsellers', icon: Zap, checked: filters.isBestseller }
         ].map((toggle) => (
           <div 

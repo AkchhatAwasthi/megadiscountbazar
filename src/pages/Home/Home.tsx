@@ -29,18 +29,7 @@ const Home = () => {
            <BestSellers />
         </section>
 
-        {/* 4. Promotional Banner 1 - Electronics/Lifestyle Hook */}
-        <div className="px-6 md:px-10 lg:px-20 mb-20 md:mb-32">
-           <PromotionalBanner
-             image="https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=2000&auto=format&fit=crop"
-             subtitle="Premium Entertainment"
-             title="The Visionary 4K Series"
-             description="Experience cinematic brilliance in your living room. Ultra-high definition displays starting from just ₹49,999. Limited time anniversary offer."
-             ctaText="Explore TV & Audio"
-             link="/products?category=Electronics"
-             align="left"
-           />
-        </div>
+
 
         {/* 5. New Arrivals - Freshness & Curiosity */}
         <section className="pb-20 md:pb-32">

@@ -338,30 +338,50 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                 <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-text-primary)' }}>Category Image</span>
               </div>
               <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>Upload Image</label>
-                <input
-                  id="imageFile"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('imageFile')?.click()}
-                  disabled={uploadingImage}
-                  style={{
-                    width: '100%', height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    border: '1.5px solid var(--color-brand-red)', borderRadius: 8, background: 'transparent',
-                    color: 'var(--color-brand-red)', fontSize: 13, fontWeight: 500, cursor: uploadingImage ? 'not-allowed' : 'pointer',
-                    transition: 'background 0.15s ease', opacity: uploadingImage ? 0.6 : 1,
-                  }}
-                  onMouseEnter={e => { if (!uploadingImage) (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-light)'; }}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-                >
-                  <Upload style={{ width: 16, height: 16 }} />
-                  {uploadingImage ? 'Uploading...' : 'Choose Image'}
-                </button>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>Upload Image</label>
+                  <input
+                    id="imageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('imageFile')?.click()}
+                    disabled={uploadingImage}
+                    style={{
+                      width: '100%', height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      border: '1.5px solid var(--color-brand-red)', borderRadius: 8, background: 'transparent',
+                      color: 'var(--color-brand-red)', fontSize: 13, fontWeight: 500, cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                      transition: 'background 0.15s ease', opacity: uploadingImage ? 0.6 : 1,
+                    }}
+                    onMouseEnter={e => { if (!uploadingImage) (e.currentTarget as HTMLElement).style.background = 'var(--color-brand-red-light)'; }}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                  >
+                    <Upload style={{ width: 16, height: 16 }} />
+                    {uploadingImage ? 'Uploading...' : 'Choose Image'}
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <label htmlFor="image_url" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                    Or Image Link (URL)
+                  </label>
+                  <Input
+                    id="image_url"
+                    value={formData.image_url}
+                    onChange={(e) => handleInputChange('image_url', e.target.value)}
+                    placeholder="Enter image URL"
+                    style={{
+                      height: 40, padding: '0 12px',
+                      border: '1.5px solid var(--color-border-default)', borderRadius: 8,
+                      fontSize: 14, color: 'var(--color-text-primary)', background: 'var(--color-surface-card)', outline: 'none',
+                    }}
+                  />
+                </div>
 
                 {!formData.image_url && (
                   <div style={{
@@ -369,8 +389,8 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                     padding: 32, textAlign: 'center', background: '#FAFBFC',
                   }}>
                     <Upload style={{ width: 32, height: 32, color: '#CBD5E1', margin: '0 auto 8px' }} />
-                    <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>Upload category image</p>
-                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '4px 0 0' }}>PNG, JPG up to 10MB</p>
+                    <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>Upload or paste image URL</p>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '4px 0 0' }}>PNG, JPG or direct link</p>
                   </div>
                 )}
 
@@ -380,6 +400,9 @@ const CategoryForm = ({ category: propCategory, isEdit = false }: CategoryFormPr
                       src={formData.image_url}
                       alt="Category preview"
                       style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 8 }}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = '/placeholder.svg';
+                      }}
                     />
                     <div style={{
                       position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)',

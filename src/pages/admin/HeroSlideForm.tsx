@@ -18,21 +18,33 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [categories, setCategories] = useState<any[]>([]);
     const [formData, setFormData] = useState<HeroSlideInput>({
         title: '',
         subtitle: '',
         description: '',
         cta_text: '',
+        cta_link: '',
         image: '',
         display_order: 0,
         is_active: true
     });
 
     useEffect(() => {
+        fetchCategories();
         if (isEdit && id) {
             fetchSlide();
         }
     }, [isEdit, id]);
+
+    const fetchCategories = async () => {
+        try {
+            const { data } = await supabase.from('categories').select('id, name').eq('is_active', true);
+            setCategories(data || []);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
 
     const fetchSlide = async () => {
         setLoading(true);
@@ -45,6 +57,7 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                     subtitle: slide.subtitle,
                     description: slide.description,
                     cta_text: slide.cta_text,
+                    cta_link: slide.cta_link || '',
                     image: slide.image,
                     display_order: slide.display_order,
                     is_active: slide.is_active
@@ -236,6 +249,33 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                                 />
                             </div>
 
+                            <div className="space-y-2">
+                                <Label htmlFor="cta_link" className={LabelStyle}>CTA Link *</Label>
+                                <Input
+                                    id="cta_link"
+                                    name="cta_link"
+                                    value={formData.cta_link}
+                                    onChange={handleChange}
+                                    className={InputStyle}
+                                    placeholder="e.g. /products?category=Fashion"
+                                />
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                    <span className="text-[10px] text-[var(--color-text-muted)]">Quick Links:</span>
+                                    {categories.slice(0, 5).map(cat => (
+                                        <button
+                                            key={cat.id}
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, cta_link: `/products?category=${cat.name}` }))}
+                                            className="text-[10px] bg-[var(--color-surface-page)] px-2 py-0.5 rounded text-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-light)]"
+                                        >
+                                            {cat.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="display_order" className={LabelStyle}>Display Order</Label>
                                 <Input

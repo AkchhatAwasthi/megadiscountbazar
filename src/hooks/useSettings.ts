@@ -113,8 +113,6 @@ export const useSettings = () => {
           const key = setting.key as keyof AppSettings;
           let value = setting.value;
 
-          console.log(`Raw setting ${key}:`, value, typeof value);
-
           try {
             // Parse database values - they are stored as JSONB
             if (typeof value === 'string') {
@@ -133,7 +131,6 @@ export const useSettings = () => {
             }
             // If it's already a number or boolean, keep it as is
 
-            console.log(`Parsed setting ${key}:`, value, typeof value);
             (settingsMap as any)[key] = value;
           } catch (error) {
             console.error(`Failed to parse setting ${key}:`, value, error);
@@ -144,10 +141,8 @@ export const useSettings = () => {
 
         // Only fill missing keys with defaults, prioritize database values
         const finalSettings = { ...defaultSettings, ...settingsMap } as AppSettings;
-        console.log('Final settings from database:', finalSettings);
         setSettings(finalSettings);
       } else {
-        console.error('No settings found in database!');
         setError('No settings configured in database');
         setSettings(defaultSettings);
       }

@@ -59,3 +59,5 @@ CREATE POLICY "Authenticated Update/Delete"
 ON storage.objects FOR ALL
 TO authenticated
 USING ( bucket_id = 'hero-images' );
+
+ALTER TABLE hero_slides ADD COLUMN IF NOT EXISTS cta_link TEXT;

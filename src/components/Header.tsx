@@ -116,13 +116,13 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
           <nav className="hidden lg:flex items-center gap-6 flex-shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1 text-[14px] font-[500] text-[var(--color-text-primary)] hover:text-[var(--color-brand-red)] transition-colors focus:outline-none py-2">
-                Departments <ChevronDown className="w-4 h-4 opacity-70" />
+                Category <ChevronDown className="w-4 h-4 opacity-70" />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 bg-[var(--color-surface-card)] border border-[var(--color-border-default)] shadow-lg rounded-[8px] p-2 mt-1">
                 {categories.map((cat) => (
                   <DropdownMenuItem
                     key={cat.id}
-                    onClick={() => navigate(`/products?category=${cat.slug || cat.name.toLowerCase()}`)}
+                    onClick={() => navigate(`/products?category=${encodeURIComponent(cat.slug || cat.name.toLowerCase())}`)}
                     className="px-3 py-2 text-[14px] text-[var(--color-text-primary)] hover:bg-[var(--color-brand-red-light)] hover:text-[var(--color-brand-red)] rounded-[6px] cursor-pointer transition-colors"
                   >
                     {cat.name}
@@ -271,11 +271,11 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
 
                 <div className="border-t border-[var(--color-border-default)] my-4"></div>
                 
-                <p className="px-6 py-2 text-[11px] font-[600] text-[var(--color-text-muted)] uppercase tracking-wider">Categories</p>
+                <p className="px-6 py-2 text-[11px] font-[600] text-[var(--color-text-muted)] uppercase tracking-wider">Category</p>
                 {categories.map((cat) => (
                   <button
                     key={cat.id}
-                    onClick={() => { navigate(`/products?category=${cat.slug || cat.name.toLowerCase()}`); setIsMobileMenuOpen(false); }}
+                    onClick={() => { navigate(`/products?category=${encodeURIComponent(cat.slug || cat.name.toLowerCase())}`); setIsMobileMenuOpen(false); }}
                     className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--color-surface-page)] transition-colors text-left"
                   >
                     <span className="text-[15px] font-[400] capitalize">{cat.name}</span>

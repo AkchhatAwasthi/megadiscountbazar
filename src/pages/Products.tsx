@@ -69,43 +69,61 @@ const Products = () => {
 
   useEffect(() => {
     scrollToTopInstant();
-    const queryParams = new URLSearchParams(location.search);
-    const categoryParam = queryParams.get('category');
-    if (categoryParam) {
-       setSelectedCategory(categoryParam);
-    }
-    fetchProducts();
     fetchCategories();
   }, []);
 
   useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const categoryParam = queryParams.get('category');
+    
+    if (categoryParam) {
+      // Decode and trim to prevent issues with trailing spaces
+      const decodedCategory = decodeURIComponent(categoryParam).trim();
+      setSelectedCategory(decodedCategory);
+    } else {
+      setSelectedCategory('All');
+    }
+
     setPage(1);
     setHasMore(true);
     setProducts([]);
     fetchProducts(1);
-  }, [selectedCategory, searchTerm, filters]);
+  }, [location.search, searchTerm, filters]);
 
   const fetchProducts = async (pageNum = 1) => {
     if (pageNum === 1) setLoading(true);
     else setIsLoadingMore(true);
 
     try {
-      let countQuery = supabase
+      const queryParams = new URLSearchParams(location.search);
+      const collection = queryParams.get('collection');
+      const tag = queryParams.get('tag');
+
+      let countQuery: any = supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
         .eq('is_active', true);
 
+      // Apply Category Filter
       if (selectedCategory && selectedCategory !== 'All') {
-        const { data: categoryData } = await supabase
+        const { data: catData } = await supabase
           .from('categories')
           .select('id')
-          .eq('name', selectedCategory)
-          .single();
+          .ilike('name', selectedCategory)
+          .limit(1);
 
-        if (categoryData) {
-          countQuery = countQuery.eq('category_id', categoryData.id);
+        if (catData && catData.length > 0) {
+          countQuery = countQuery.eq('category_id', catData[0].id);
         }
       }
+
+      // Apply Collection/Tag Filters
+      if (collection === 'new-arrivals') countQuery = countQuery.eq('new_arrival', true);
+      if (collection === 'bestsellers') countQuery = countQuery.eq('is_bestseller', true);
+      
+      // Note: tag=favorites would usually involve user-specific favorites, 
+      // but if it's a generic tag filter:
+      if (tag === 'favorites') countQuery = countQuery.eq('is_bestseller', true); // Fallback to bestsellers if no favorites system
 
       if (searchTerm) countQuery = countQuery.ilike('name', `%${searchTerm}%`);
       if (filters.priceRange[0] > 0) countQuery = countQuery.gte('price', filters.priceRange[0]);
@@ -114,21 +132,29 @@ const Products = () => {
       const { count } = await countQuery;
       if (count !== null) setTotalProducts(count);
 
-      let query = supabase
+      let query: any = supabase
         .from('products')
         .select(`*, categories(id, name)`)
         .eq('is_active', true)
         .range((pageNum - 1) * 12, pageNum * 12 - 1);
 
+      // Re-apply Category Filter for Query
       if (selectedCategory && selectedCategory !== 'All') {
-        const { data: categoryData } = await supabase
+        const { data: catDataForQuery } = await supabase
           .from('categories')
           .select('id')
-          .eq('name', selectedCategory)
-          .single();
+          .ilike('name', selectedCategory)
+          .limit(1);
 
-        if (categoryData) query = query.eq('category_id', categoryData.id);
+        if (catDataForQuery && catDataForQuery.length > 0) {
+          query = query.eq('category_id', catDataForQuery[0].id);
+        }
       }
+
+      // Re-apply Collection/Tag Filters for Query
+      if (collection === 'new-arrivals') query = query.eq('new_arrival', true);
+      if (collection === 'bestsellers') query = query.eq('is_bestseller', true);
+      if (tag === 'favorites') query = query.eq('is_bestseller', true);
 
       if (searchTerm) query = query.ilike('name', `%${searchTerm}%`);
       if (filters.priceRange[0] > 0) query = query.gte('price', filters.priceRange[0]);

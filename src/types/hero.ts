@@ -4,6 +4,7 @@ export interface HeroSlide {
     subtitle: string;
     description: string;
     cta_text: string;
+    cta_link?: string;
     image: string;
     display_order: number;
     is_active: boolean;

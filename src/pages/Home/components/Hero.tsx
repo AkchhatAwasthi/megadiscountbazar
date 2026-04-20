@@ -30,7 +30,10 @@ const slideVariants = {
   }),
 };
 
+import { useNavigate } from 'react-router-dom';
+
 const Hero = () => {
+  const navigate = useNavigate();
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [[page, direction], setPage] = useState([0, 0]);
@@ -71,6 +74,14 @@ const Hero = () => {
   const resetMouse = () => {
     mouseX.set(0.5);
     mouseY.set(0.5);
+  };
+
+  const handleCtaClick = (link?: string) => {
+    if (link) {
+      navigate(link);
+    } else {
+      navigate('/products');
+    }
   };
 
   if (loading) {
@@ -172,7 +183,10 @@ const Hero = () => {
                 transition={{ delay: 0.6, duration: 0.4 }}
                 className="pt-4"
               >
-                <button className="group relative px-10 py-4 bg-[var(--color-brand-primary)] text-white font-bold rounded-none overflow-hidden transition-all duration-300 border border-[var(--color-brand-primary)] hover:border-[var(--color-brand-gold)] shadow-lg hover:shadow-[0_0_30px_rgba(204,27,27,0.4)]">
+                <button 
+                  onClick={() => handleCtaClick(current.cta_link)}
+                  className="group relative px-10 py-4 bg-[var(--color-brand-primary)] text-white font-bold rounded-none overflow-hidden transition-all duration-300 border border-[var(--color-brand-primary)] hover:border-[var(--color-brand-gold)] shadow-lg hover:shadow-[0_0_30px_rgba(204,27,27,0.4)]"
+                >
                   {/* Background Slide Layer */}
                   <div className="absolute inset-x-0 bottom-0 h-0 bg-[var(--color-brand-gold)] transition-all duration-300 ease-out group-hover:h-full" />
                   

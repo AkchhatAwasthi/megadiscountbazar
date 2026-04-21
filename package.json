@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  
   "dependencies": {
     "@dotlottie/react-player": "^1.6.19",
     "@googlemaps/js-api-loader": "^1.16.10",

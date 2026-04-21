@@ -92,7 +92,7 @@ const AdminLayout = () => {
         <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <div className="flex items-center gap-2.5">
             <div className="size-8 rounded-lg flex items-center justify-center overflow-hidden bg-white/10">
-              <img src="/logo/favicon icon.png" alt="Logo" className="h-5 w-auto object-contain" />
+              <img src="https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png" alt="Logo" className="h-5 w-auto object-contain" />
             </div>
             <div>
               <p className="text-[13px] font-[600] text-white leading-none">Megadiscount</p>

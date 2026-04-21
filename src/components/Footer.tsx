@@ -6,9 +6,9 @@ const Footer = () => {
   const { settings } = useSettings();
 
   const contactInfo = {
-    phone: settings?.store_phone || '+91 9996616153',
-    email: settings?.store_email || 'support@megadiscountstore.com',
-    address: settings?.store_address || 'Shop number 5, Patel Nagar, Jind, Haryana',
+    phone: '9839511015',
+    email: 'megadiscountbazar18@gmail.com',
+    address: 'Tripathi Katra, Madwa, Lamahi, Varanasi, in front of Gautam Garden Marriage Lawn, PIN Code 221007',
     storeName: settings?.store_name || 'Megadiscountstore'
   };
 

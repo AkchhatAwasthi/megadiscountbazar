@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, X, ChevronDown, Grid, List, Search, Filter } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import ProductFiltersComponent from '../components/ProductFilters';
 import { supabase } from '@/integrations/supabase/client';
 import { scrollToTopInstant } from '@/utils/scrollToTop';
 import { formatCurrency } from '@/utils/currency';
@@ -83,6 +82,7 @@ const Products = () => {
     const decodedCategory = categoryParam ? decodeURIComponent(categoryParam).trim() : 'All';
     if (decodedCategory !== selectedCategory) {
       setSelectedCategory(decodedCategory);
+      return; // Prevents fetching with out-of-sync category state which causes a race condition mixing products
     }
 
     // Sync Collection filters from URL to state
@@ -124,7 +124,7 @@ const Products = () => {
         const { data: catData } = await supabase
           .from('categories')
           .select('id')
-          .or(`name.ilike."${selectedCategory}",slug.eq."${selectedCategory}"`)
+          .ilike('name', selectedCategory)
           .limit(1);
 
         if (catData && catData.length > 0) {
@@ -165,7 +165,7 @@ const Products = () => {
         const { data: catDataForQuery } = await supabase
           .from('categories')
           .select('id')
-          .or(`name.ilike."${selectedCategory}",slug.eq."${selectedCategory}"`)
+          .ilike('name', selectedCategory)
           .limit(1);
 
         if (catDataForQuery && catDataForQuery.length > 0) {
@@ -279,14 +279,6 @@ const Products = () => {
          {/* Grid Tools */}
          <div className="bg-white border border-[var(--color-border-default)] rounded-[12px] p-4 mb-10 flex flex-wrap items-center justify-between gap-4 shadow-sm">
             <div className="flex items-center gap-3">
-               <button 
-                 onClick={() => setShowFilters(true)}
-                 className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-brand-red)] text-white rounded-[8px] text-[14px] font-[500] hover:bg-[var(--color-brand-red-deep)] transition-all shadow-md active:scale-[0.98]"
-               >
-                 <Filter size={18} />
-                 Filters
-               </button>
-               <div className="h-6 w-px bg-[var(--color-border-default)] hidden sm:block"></div>
                <span className="text-[14px] text-[var(--color-text-secondary)] font-[500] hidden sm:block">
                   Showing {products.length} of {totalProducts} items
                </span>
@@ -361,58 +353,6 @@ const Products = () => {
          )}
       </main>
 
-      {/* Filter Sidebar Drawer */}
-      <AnimatePresence>
-         {showFilters && (
-           <>
-             <motion.div
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
-               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
-               onClick={() => setShowFilters(false)}
-             />
-             <motion.div
-               initial={{ x: '100%' }}
-               animate={{ x: 0 }}
-               exit={{ x: '100%' }}
-               transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.8 }}
-               className="fixed top-0 right-0 h-full w-full max-w-[400px] bg-white shadow-[-16px_0_48px_rgba(0,0,0,0.15)] z-[110] flex flex-col overflow-hidden"
-             >
-               <div className="p-8 border-b border-[var(--color-border-default)] flex justify-between items-center">
-                  <h3 className="text-[22px] font-[600] text-[var(--color-text-primary)]">Filter & Sort</h3>
-                  <button onClick={() => setShowFilters(false)} className="size-10 flex items-center justify-center rounded-full hover:bg-[var(--color-surface-page)] text-[var(--color-text-secondary)]">
-                     <X size={24} />
-                  </button>
-               </div>
-               <div className="flex-1 overflow-y-auto px-8 py-10 custom-scrollbar">
-                  <ProductFiltersComponent
-                    onFiltersChange={setFilters}
-                    categories={categories}
-                    className="w-full"
-                  />
-               </div>
-               <div className="p-8 bg-[var(--color-surface-page)] border-t border-[var(--color-border-default)] flex gap-4">
-                  <button 
-                    onClick={() => setShowFilters(false)}
-                    className="flex-1 bg-[var(--color-brand-red)] text-white h-12 rounded-[8px] font-[600] text-[15px] shadow-md active:scale-[0.98]"
-                  >
-                    Apply Changes
-                  </button>
-                  <button 
-                    onClick={() => {
-                        setFilters({ categories: [], priceRange: [0, 50000], inStock: false, isBestseller: false, isNewArrival: false, sortBy: 'newest' });
-                        setShowFilters(false);
-                    }}
-                    className="px-6 border border-[var(--color-border-default)] text-[var(--color-text-secondary)] h-12 rounded-[8px] font-[600] text-[15px] hover:bg-white"
-                  >
-                     Reset
-                  </button>
-               </div>
-             </motion.div>
-           </>
-         )}
-      </AnimatePresence>
 
       {/* Quick View Modal */}
       {isQuickViewOpen && quickViewProduct && (

@@ -71,17 +71,17 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
   const NavLink = ({ to, children, className = "" }: { to: string; children: React.ReactNode; className?: string }) => (
     <Link
       to={to}
-      className={`text-[14px] font-[400] text-[var(--color-text-primary)] hover:text-[var(--color-brand-red)] transition-colors relative group py-2 ${className}`}
+      className={`text-[14px] font-[400] text-white hover:text-white/80 transition-colors relative group py-2 ${className}`}
     >
       {children}
-      <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--color-brand-red)] transition-all duration-200 group-hover:w-full"></span>
+      <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-white transition-all duration-200 group-hover:w-full"></span>
     </Link>
   );
 
   return (
     <>
       {/* Top Banner - Dynamic Marquee */}
-      <div className="bg-[var(--color-brand-red-deep)] text-white text-[12px] py-1.5 overflow-hidden relative font-[500] tracking-[0.02em]">
+      <div className="bg-white text-[var(--color-brand-red-deep)] text-[12px] py-1.5 overflow-hidden relative font-[500] tracking-[0.02em]">
         <div className="whitespace-nowrap animate-marquee inline-block">
           <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountstore'} • Fast delivery in under 60 minutes!</span>
           <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountstore'} • Fast delivery in under 60 minutes!</span>
@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
       </div>
 
       <header
-        className={`sticky top-0 z-40 bg-[var(--color-surface-card)] border-b border-[var(--color-border-default)] transition-transform duration-300 ease-in-out ${
+        className={`sticky top-0 z-40 bg-[var(--color-brand-red)] border-b border-[var(--color-brand-red-deep)] transition-transform duration-300 ease-in-out ${
           isHeaderVisible ? 'translate-y-0' : '-translate-y-full'
         }`}
         style={{ height: '64px' }}
@@ -98,7 +98,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
           
           {/* Mobile Menu Toggle */}
           <button
-            className="lg:hidden p-2 -ml-2 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] rounded-lg transition-colors"
+            className="lg:hidden p-2 -ml-2 text-white hover:bg-white/10 rounded-lg transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="w-6 h-6" />
@@ -106,16 +106,16 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
 
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <img src="/logo/favicon icon.png" alt="Megadiscountstore" className="h-[40px] w-auto object-contain" />
-            <span className="text-[24px] font-[600] text-[var(--color-brand-red)] tracking-tight hidden sm:inline-block">
-              Megadiscount<span className="text-[var(--color-text-primary)]">store</span>
+            <img src="https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png" alt="Megadiscountstore" className="h-[40px] w-auto object-contain" />
+            <span className="text-[24px] font-[600] text-white tracking-tight hidden sm:inline-block">
+              Megadiscount<span className="text-white/90">store</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 flex-shrink-0">
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-[14px] font-[500] text-[var(--color-text-primary)] hover:text-[var(--color-brand-red)] transition-colors focus:outline-none py-2">
+              <DropdownMenuTrigger className="flex items-center gap-1 text-[14px] font-[500] text-white hover:text-white/80 transition-colors focus:outline-none py-2">
                 Category <ChevronDown className="w-4 h-4 opacity-70" />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 bg-[var(--color-surface-card)] border border-[var(--color-border-default)] shadow-lg rounded-[8px] p-2 mt-1">
@@ -132,6 +132,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
             </DropdownMenu>
             <NavLink to="/products?collection=new-arrivals">New Drops</NavLink>
             <NavLink to="/products?collection=bestsellers">Bestsellers</NavLink>
+            <NavLink to="/aqua-soft">Aqua Soft</NavLink>
           </nav>
 
           {/* Search Bar */}
@@ -153,14 +154,14 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
           {/* Right Icons */}
           <div className="flex items-center gap-1 lg:gap-3 ml-auto">
              <button
-              className="md:hidden p-2 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] rounded-lg"
+              className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="w-5 h-5" />
             </button>
 
             <button
-              className="p-2 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] rounded-lg transition-colors hidden sm:flex"
+              className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors hidden sm:flex"
               onClick={() => navigate('/products?tag=favorites')}
               title="Favorites"
             >
@@ -168,7 +169,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
             </button>
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 p-2 text-[var(--color-text-primary)] hover:bg-[var(--color-surface-page)] rounded-lg transition-colors focus:outline-none">
+              <DropdownMenuTrigger className="flex items-center gap-1 p-2 text-white hover:bg-white/10 rounded-lg transition-colors focus:outline-none">
                 <User className="w-5 h-5" />
                 <span className="hidden xl:inline text-[14px] font-[500] ml-1">
                   {user ? 'Account' : 'Sign In'}
@@ -203,7 +204,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
             </DropdownMenu>
 
             <button
-              className="relative p-2 bg-[var(--color-brand-red)] text-white hover:bg-[var(--color-brand-red-deep)] rounded-lg transition-all duration-200 active:scale-95 flex items-center gap-2 px-3 sm:px-4"
+              className="relative p-2 bg-white text-[var(--color-brand-red)] hover:bg-white/90 rounded-lg transition-all duration-200 active:scale-95 flex items-center gap-2 px-3 sm:px-4"
               onClick={toggleCart}
             >
               <ShoppingBag className="w-5 h-5" />
@@ -212,7 +213,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
                 <span className="text-[13px] font-[600]">{formatPrice(cartTotal)}</span>
               </div>
               {cartItemsCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] text-[11px] font-[600] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-[var(--color-surface-card)] shadow-sm">
+                <span className="absolute -top-1.5 -right-1.5 bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] text-[11px] font-[600] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-[var(--color-brand-red)] shadow-sm">
                   {cartItemsCount}
                 </span>
               )}
@@ -241,7 +242,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
             >
               <div className="p-4 flex items-center justify-between border-b border-[var(--color-border-default)]">
                 <div className="flex items-center gap-2">
-                  <img src="/logo/favicon icon.png" alt="Megadiscountstore" className="h-[32px] w-auto object-contain" />
+                  <img src="https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png" alt="Megadiscountstore" className="h-[32px] w-auto object-contain" />
                   <h2 className="text-[18px] font-[600] text-[var(--color-brand-red)]">Megadiscountstore</h2>
                 </div>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-page)] rounded-full">
@@ -267,6 +268,10 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
                 <button onClick={() => { navigate('/products?collection=bestsellers'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[var(--color-surface-page)] transition-colors">
                   <span className="text-[15px] font-[400]">Bestsellers</span>
                   <ChevronRight className="w-4 h-4 opacity-40" />
+                </button>
+                <button onClick={() => { navigate('/aqua-soft'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-between px-6 py-3 hover:bg-[#eef4fb] transition-colors">
+                  <span className="text-[15px] font-[600] text-[#5F86D6]">Aqua Soft</span>
+                  <ChevronRight className="w-4 h-4 opacity-60 text-[#5F86D6]" />
                 </button>
 
                 <div className="border-t border-[var(--color-border-default)] my-4"></div>

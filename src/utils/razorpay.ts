@@ -191,7 +191,7 @@ export const initiateRazorpayPayment = async (
       name: 'Megadiscountstore',
       description: `Premium Order from Megadiscountstore`,
       // Note: No order_id for direct payment integration
-      image: '/logo/favicon icon.png', // Uses the logo from public directory
+      image: 'https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png', // Uses the logo
       handler: async (response: any) => {
         try {
           console.log('Payment successful:', response);

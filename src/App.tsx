@@ -54,6 +54,7 @@ import Contact from '@/pages/Contact';
 import About from '@/pages/About';
 import NotFound from '@/pages/NotFound';
 import UserOrderDetail from '@/pages/OrderDetail';
+import AquaSoft from '@/pages/AquaSoft';
 import AdminLayout from '@/pages/admin/AdminLayout';
 import Dashboard from '@/pages/admin/Dashboard';
 import AdminProducts from '@/pages/admin/Products';
@@ -100,6 +101,7 @@ const AppContent = () => {
   const isAuthPage = location.pathname === '/auth';
   const isProfilePage = location.pathname === '/profile';
   const isOrderDetailPage = location.pathname.startsWith('/order-detail/');
+  const isAquaSoft = location.pathname === '/aqua-soft';
   
   const [preloaderComplete, setPreloaderComplete] = useState(false);
   const skipPreloader = sessionStorage.getItem('preloader_done') === 'true';
@@ -128,6 +130,7 @@ const AppContent = () => {
             <Route path="/cart" element={<Cart />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
+            <Route path="/aqua-soft" element={<AquaSoft />} />
 
             {/* Auth routes */}
             <Route
@@ -192,7 +195,7 @@ const AppContent = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
           {/* Global components */}
-          {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <Footer />}
+          {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && !isAquaSoft && <Footer />}
           {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <CartSidebar />}
           {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <FloatingWhatsApp />}
           <ShinobiToast />

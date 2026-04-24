@@ -111,7 +111,7 @@ export default function AboutUsSection() {
       secondaryIcon: <Star className="w-4 h-4 absolute -top-1 -right-1 text-blue-300" />,
       title: "Trusted Service",
       description:
-        "With years of excellence in retail, Megadiscountstore is the most trusted name for quality hypermarket service.",
+        "With years of excellence in retail, Megadiscountbazar is the most trusted name for quality hypermarket service.",
       position: "right",
     },
   ]
@@ -198,8 +198,7 @@ export default function AboutUsSection() {
 
         {/* Improved responsive font sizing */}
         <motion.p className="text-center max-w-2xl mx-auto mb-16 text-base sm:text-lg text-gray-700" variants={itemVariants}>
-          We are a dedicated team of retail experts and service professionals committed to bringing you the ultimate premium hypermarket experience. 
-          With a focus on speed, quality, and affordability, we ensure every order meets our high standards of excellence.
+          Mega Discount Bazar is your one-stop online shopping destination for unbeatable deals across fashion, skincare, and everyday essentials. We bring you a wide range of quality products at affordable prices, ensuring style, self-care, and savings all in one place.
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">

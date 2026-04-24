@@ -1,5 +1,5 @@
 /**
- * Invoice generation utilities for Megadiscountstore
+ * Invoice generation utilities for Megadiscountbazar
  * Generates beautiful PDF invoices for orders
  */
 

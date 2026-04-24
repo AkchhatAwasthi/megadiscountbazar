@@ -45,7 +45,7 @@ const Testimonials = () => {
             Trusted by Thousands
           </h2>
           <p className="text-[15px] text-[var(--color-text-secondary)] leading-[1.65]">
-            See what our customers have to say about their shopping experience and product quality at Megadiscountstore.
+            See what our customers have to say about their shopping experience and product quality at Megadiscountbazar.
           </p>
         </div>
 

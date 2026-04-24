@@ -51,13 +51,13 @@ export const testimonials = [
     role: "Fashion Enthusiast",
   },
   {
-    text: "The customer service is fantastic. Everything I ordered fits perfectly. Highly recommend Megadiscountstore for all shopping needs.",
+    text: "The customer service is fantastic. Everything I ordered fits perfectly. Highly recommend Megadiscountbazar for all shopping needs.",
     image: "https://images.unsplash.com/photo-1549476464-37392f717541?w=150&h=150&fit=crop&crop=faces",
     name: "Meera Iyer",
     role: "Professional",
   },
   {
-    text: "I've shopped from many places, but Megadiscountstore stands out for its blend of quality and value. A truly premium experience.",
+    text: "I've shopped from many places, but Megadiscountbazar stands out for its blend of quality and value. A truly premium experience.",
     image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=150&h=150&fit=crop&crop=faces",
     name: "Vikram Singh",
     role: "Lifestyle Blogger",

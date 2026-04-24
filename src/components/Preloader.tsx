@@ -45,95 +45,45 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       ease: 'power3.out',
     }, 0.2);
 
-    // Phase 2 — cart draw (using standard stroke-dashoffset)
-    tl.from('.cart-path', {
-      strokeDashoffset: 400,
-      duration: 0.6,
-      ease: 'power2.inOut',
-    }, 0.55);
-    
-    tl.from('.wheel-left', {
-      x: -40, rotation: -360, opacity: 0,
-      duration: 0.3, ease: 'back.out(1.8)',
-    }, 0.9);
-    tl.from('.wheel-right', {
-      x: 40, rotation: 360, opacity: 0,
-      duration: 0.3, ease: 'back.out(1.8)',
-    }, 0.95);
-    tl.from('.price-tag', {
-      rotation: -60, opacity: 0, transformOrigin: 'top right',
-      duration: 0.35, ease: 'elastic.out(1, 0.5)',
-    }, 1.05);
-
-    // Cart landing bounce
-    tl.to('.cart-group', {
-      keyframes: [
-        { scale: 1.12, duration: 0.1 },
-        { scale: 0.94, duration: 0.1 },
-        { scale: 1.0,  duration: 0.15 },
-      ],
-      ease: 'none',
-    }, 1.15);
-
-    // Phase 3 — text
-    tl.from('.letter-mega', {
-      y: -60, opacity: 0, rotateX: -90,
-      duration: 0.5, stagger: 0.05,
-      ease: 'back.out(1.4)',
-    }, 1.1);
-    tl.from('.letter-discount', {
-      x: 40, opacity: 0,
-      duration: 0.4, stagger: 0.025,
-      ease: 'power3.out',
-    }, 1.35);
-    tl.from('.word-bazar', {
-      y: 70, rotation: 4, opacity: 0,
-      duration: 0.45, ease: 'expo.out',
-    }, 1.6);
-    tl.from('.underline-bazar', {
-      scaleX: 0, transformOrigin: 'left center',
-      duration: 0.3, ease: 'power2.out',
-    }, 1.9);
+    // Phase 2 — Logo animate
+    tl.from('.preloader-logo', {
+      y: 40, opacity: 0, scale: 0.9,
+      duration: 0.8,
+      ease: 'back.out(1.5)',
+    }, 0.5);
 
     // Phase 4 — progress bar
     tl.to(barFillRef.current, {
       width: '100%',
       duration: 1.0,
       ease: 'power1.inOut',
-    }, 1.7);
+    }, 1.0);
     tl.to(barCartRef.current, {
       left: 'calc(100% - 20px)',
       duration: 1.0,
       ease: 'power1.inOut',
-    }, 1.7);
-
-    // Phase 5 — tagline
-    tl.from('.tagline-word', {
-      y: 12, opacity: 0,
-      duration: 0.35, stagger: 0.08,
-      ease: 'power2.out',
-    }, 2.2);
+    }, 1.0);
 
     // Phase 6 — EXIT (Split screen wipe)
     tl.to([topPanelRef.current, botPanelRef.current], {
       duration: 0.01, display: 'block', opacity: 1
-    }, 2.45);
+    }, 2.2);
     
-    tl.to('.cart-group, .text-group, .tagline-row, .bar-track', {
-      scale: 2.2, opacity: 0,
+    tl.to('.preloader-logo, .bar-track', {
+      scale: 1.1, opacity: 0,
       duration: 0.25, ease: 'power2.in',
-    }, 2.45);
+    }, 2.2);
 
     tl.to(topPanelRef.current, {
       y: '-100%',
       duration: 0.6,
       ease: 'cubic-bezier(0.76, 0, 0.24, 1)',
-    }, 2.55);
+    }, 2.3);
     tl.to(botPanelRef.current, {
       y: '100%',
       duration: 0.6,
       ease: 'cubic-bezier(0.76, 0, 0.24, 1)',
-    }, 2.55);
+    }, 2.3);
 
     // Hide entire container
     tl.set(containerRef.current, { display: 'none' });
@@ -161,78 +111,12 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
 
       {/* Main content */}
       <div style={styles.center}>
-        {/* Cart SVG */}
-        <div className="cart-group" style={styles.cartGroup}>
-          <svg width="120" height="100" viewBox="0 0 120 100" fill="none"
-               xmlns="http://www.w3.org/2000/svg">
-            <path className="cart-path"
-              d="M10 15 L25 15 L38 62 L90 62 L100 30 L30 30"
-              stroke="#FFD600" strokeWidth="5" strokeLinecap="round"
-              strokeLinejoin="round" fill="none" 
-              strokeDasharray="400" strokeDashoffset="0" />
-            <path className="cart-path"
-              d="M38 62 L90 62 L100 30 L30 30 Z"
-              stroke="#FFD600" strokeWidth="3" strokeLinecap="round"
-              fill="rgba(255,214,0,0.08)"
-              strokeDasharray="400" strokeDashoffset="0" />
-            {/* Vertical lines in basket */}
-            <line className="cart-path" x1="55" y1="30" x2="50" y2="62"
-              stroke="#FFD600" strokeWidth="2" opacity="0.5"
-              strokeDasharray="100" strokeDashoffset="0" />
-            <line className="cart-path" x1="70" y1="30" x2="67" y2="62"
-              stroke="#FFD600" strokeWidth="2" opacity="0.5"
-              strokeDasharray="100" strokeDashoffset="0" />
-            <line className="cart-path" x1="85" y1="30" x2="84" y2="62"
-              stroke="#FFD600" strokeWidth="2" opacity="0.5"
-              strokeDasharray="100" strokeDashoffset="0" />
-            {/* Wheels */}
-            <circle className="wheel-left"  cx="48" cy="78" r="8"
-              stroke="#FFD600" strokeWidth="4" fill="none" />
-            <circle cx="48" cy="78" r="2" fill="#FFD600" className="wheel-left" />
-            <circle className="wheel-right" cx="80" cy="78" r="8"
-              stroke="#FFD600" strokeWidth="4" fill="none" />
-            <circle cx="80" cy="78" r="2" fill="#FFD600" className="wheel-right" />
-            {/* Price tag */}
-            <g className="price-tag">
-              <rect x="88" y="5" width="28" height="22" rx="4"
-                fill="#FFD600" />
-              <text x="102" y="20" textAnchor="middle"
-                fontSize="13" fontWeight="700" fill="#B71C1C">%</text>
-              <circle cx="91" cy="9" r="2.5" fill="#D32F2F" />
-              <line x1="88" y1="9" x2="85" y2="9"
-                stroke="#D32F2F" strokeWidth="1.5" />
-            </g>
-          </svg>
-          <div style={styles.cartGlow} />
-        </div>
-
-        {/* Text group */}
-        <div className="text-group" style={styles.textGroup}>
-          <div style={styles.megaRow}>
-            {'MEGA'.split('').map((l, i) => (
-              <span key={i} className="letter-mega" style={styles.megaLetter}>{l}</span>
-            ))}
-          </div>
-          <div style={styles.discountRow}>
-            {'DiScount'.split('').map((l, i) => (
-              <span key={i} className="letter-discount"
-                style={{ ...styles.discountLetter, color: l === 'S' ? '#FFFFFF' : '#FFD600' }}>
-                {l === 'S' ? '$' : l}
-              </span>
-            ))}
-          </div>
-          <div style={{ position: 'relative', display: 'inline-block' }}>
-            <div className="word-bazar" style={styles.bazarWord}>BAZAR</div>
-            <div className="underline-bazar" style={styles.bazarUnderline} />
-          </div>
-        </div>
-
-        {/* Tagline */}
-        <div className="tagline-row" style={styles.taglineRow}>
-          {'Mega Deals Everyday'.split(' ').map((w, i) => (
-            <span key={i} className="tagline-word" style={styles.taglineWord}>{w}&nbsp;</span>
-          ))}
-        </div>
+        <img 
+          src="https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png" 
+          alt="Megadiscountbazar Logo" 
+          className="preloader-logo" 
+          style={{ height: '80px', width: 'auto', objectFit: 'contain', marginBottom: '20px' }} 
+        />
 
         {/* Progress bar */}
         <div className="bar-track" style={styles.barTrack}>

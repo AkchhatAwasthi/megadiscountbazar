@@ -182,10 +182,10 @@ const UserOrderDetail = () => {
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
         order_date: formatDate(order.orderDate),
         store_info: {
-          store_name: 'Megadiscountstore',
+          store_name: 'Megadiscountbazar',
           store_address: 'Premium Hypermarket Hub',
           store_phone: '+91 9996616153',
-          store_email: 'support@megadiscountstore.com',
+          store_email: 'support@megadiscountbazar.com',
           currency_symbol: '₹'
         },
         customer_info: {

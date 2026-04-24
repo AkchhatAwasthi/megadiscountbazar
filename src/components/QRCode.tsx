@@ -23,7 +23,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   // Get website URL from environment variables and append /products
   const baseUrl = import.meta.env.VITE_APP_URL || 'https://www.daretodiet.fit/';
   const websiteUrl = baseUrl.endsWith('/') ? `${baseUrl}products` : `${baseUrl}/products`;
-  const appName = import.meta.env.VITE_APP_NAME || 'Megadiscountstore';
+  const appName = import.meta.env.VITE_APP_NAME || 'Megadiscountbazar';
 
   const handleCopyUrl = async () => {
     try {

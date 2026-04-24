@@ -50,7 +50,7 @@ const defaultSettings: AppSettings = {
   upi_enabled: false,
   card_enabled: false,
   netbanking_enabled: false,
-  store_name: 'Megadiscountstore',
+  store_name: 'Megadiscountbazar',
   store_phone: '',
   store_email: '',
   store_address: '',
@@ -141,6 +141,13 @@ export const useSettings = () => {
 
         // Only fill missing keys with defaults, prioritize database values
         const finalSettings = { ...defaultSettings, ...settingsMap } as AppSettings;
+        // Override settings if they come from the DB with the old name
+        if (finalSettings.store_name && finalSettings.store_name.toLowerCase() === 'megadiscountstore') {
+          finalSettings.store_name = 'Megadiscountbazar';
+        }
+        if (finalSettings.store_email && finalSettings.store_email.toLowerCase().includes('megadiscountstore')) {
+          finalSettings.store_email = finalSettings.store_email.replace(/megadiscountstore/ig, 'megadiscountbazar');
+        }        
         setSettings(finalSettings);
       } else {
         setError('No settings configured in database');

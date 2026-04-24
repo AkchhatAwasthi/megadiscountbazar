@@ -21,12 +21,12 @@ const Contact = () => {
   const { toast } = useToast();
   const { settings, loading } = useSettings();
 
-  // Dynamic contact information from database
+  // Dynamic contact information (using correct details)
   const contactInfo = {
-    phone: settings?.store_phone || '+91 9996616153',
-    email: settings?.store_email || 'contact@megadiscountstore.com',
-    address: settings?.store_address || 'Shop number 5, Patel Nagar, Hansi road, Patiala chowk, JIND (Haryana) 126102',
-    storeName: settings?.store_name || 'Megadiscountstore',
+    phone: '9839511015',
+    email: 'megadiscountbazar18@gmail.com',
+    address: 'Tripathi Katra, Madwa, Lamahi, Varanasi, in front of Gautam Garden Marriage Lawn, PIN Code 221007',
+    storeName: settings?.store_name || 'Megadiscountbazar',
     businessHoursStart: settings?.business_hours_start || '09:00',
     businessHoursEnd: settings?.business_hours_end || '20:00'
   };
@@ -281,7 +281,7 @@ const Contact = () => {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Megadiscountstore Location"
+                title="Megadiscountbazar Location"
               />
             </div>
           </CardContent>

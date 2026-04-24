@@ -83,8 +83,8 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
       {/* Top Banner - Dynamic Marquee */}
       <div className="bg-white text-[var(--color-brand-red-deep)] text-[12px] py-1.5 overflow-hidden relative font-[500] tracking-[0.02em]">
         <div className="whitespace-nowrap animate-marquee inline-block">
-          <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountstore'} • Fast delivery in under 60 minutes!</span>
-          <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountstore'} • Fast delivery in under 60 minutes!</span>
+          <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountbazar'} • Fast delivery in under 60 minutes!</span>
+          <span className="mx-8">Free shipping on orders over ₹{settings.free_delivery_threshold} • New summer collection is live! • Shop the best deals at {settings.store_name || 'Megadiscountbazar'} • Fast delivery in under 60 minutes!</span>
         </div>
       </div>
 
@@ -106,9 +106,9 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
 
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <img src="https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png" alt="Megadiscountstore" className="h-[40px] w-auto object-contain" />
+            <img src="https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png" alt="Megadiscountbazar" className="h-[40px] w-auto object-contain" />
             <span className="text-[24px] font-[600] text-white tracking-tight hidden sm:inline-block">
-              Megadiscount<span className="text-white/90">store</span>
+              Megadiscount<span className="text-white/90">bazar</span>
             </span>
           </Link>
 
@@ -144,7 +144,7 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
               <Search className="w-4 h-4 text-[var(--color-text-muted)] mr-3" />
               <input
                 type="text"
-                placeholder="Search everything at Megadiscountstore"
+                placeholder="Search everything at Megadiscountbazar"
                 className="bg-transparent border-none outline-none w-full text-[14px] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] cursor-pointer"
                 readOnly
               />
@@ -242,8 +242,8 @@ const Header: React.FC<HeaderProps> = ({ isAdminRoute = false }) => {
             >
               <div className="p-4 flex items-center justify-between border-b border-[var(--color-border-default)]">
                 <div className="flex items-center gap-2">
-                  <img src="https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png" alt="Megadiscountstore" className="h-[32px] w-auto object-contain" />
-                  <h2 className="text-[18px] font-[600] text-[var(--color-brand-red)]">Megadiscountstore</h2>
+                  <img src="https://res.cloudinary.com/dnxdgpe9c/image/upload/q_auto/f_auto/v1776801280/74b1d4a3-9fc2-4844-baae-7d978d626698_ucbosu.png" alt="Megadiscountbazar" className="h-[32px] w-auto object-contain" />
+                  <h2 className="text-[18px] font-[600] text-[var(--color-brand-red)]">Megadiscountbazar</h2>
                 </div>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-page)] rounded-full">
                   <X className="w-6 h-6" />

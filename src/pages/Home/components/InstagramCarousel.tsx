@@ -85,17 +85,17 @@ const InstagramCarousel = () => {
               Stay Connected on Instagram
             </h2>
             <p className="text-[15px] text-[var(--color-text-secondary)] mt-3 max-w-2xl leading-[1.6]">
-              Follow @megadiscountstore for the latest updates, drops, and customer highlights.
+              Follow @megadiscountbazar for the latest updates, drops, and customer highlights.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
              <button
-                onClick={() => window.open('https://instagram.com/megadiscountstore', '_blank')}
+                onClick={() => window.open('https://instagram.com/megadiscountbazar', '_blank')}
                 className="hidden md:flex items-center justify-center px-6 py-2.5 bg-[var(--color-brand-red)] text-white rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--color-brand-red-deep)] hover:-translate-y-[1px]"
              >
                 <Instagram className="size-[16px] mr-2" />
-                Follow @megadiscountstore
+                Follow @megadiscountbazar
              </button>
              <div className="flex gap-2">
                 <button
@@ -144,10 +144,10 @@ const InstagramCarousel = () => {
                     <div className="size-[24px] bg-[var(--color-brand-red-light)] rounded-full flex items-center justify-center text-[var(--color-brand-red)]">
                        <Instagram className="size-[12px]" />
                     </div>
-                    <span className="text-[13px] font-[600] text-[var(--color-text-primary)]">@megadiscountstore</span>
+                    <span className="text-[13px] font-[600] text-[var(--color-text-primary)]">@megadiscountbazar</span>
                   </div>
                   <button 
-                    onClick={() => window.open('https://instagram.com/megadiscountstore', '_blank')}
+                    onClick={() => window.open('https://instagram.com/megadiscountbazar', '_blank')}
                     className="w-full py-2 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] text-[12px] font-[500] transition-all hover:bg-[var(--color-brand-red-light)]"
                   >
                     View Post
@@ -165,7 +165,7 @@ const InstagramCarousel = () => {
         {/* Mobile Call to Action */}
         <div className="md:hidden mt-8">
             <button
-                onClick={() => window.open('https://instagram.com/megadiscountstore', '_blank')}
+                onClick={() => window.open('https://instagram.com/megadiscountbazar', '_blank')}
                 className="w-full py-4 bg-[var(--color-brand-red)] text-white rounded-[8px] text-[14px] font-[600] flex items-center justify-center gap-2"
             >
                 <Instagram className="size-[18px]" />

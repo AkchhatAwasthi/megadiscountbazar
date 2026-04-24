@@ -223,10 +223,10 @@ const AdminOrderDetail = () => {
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
         order_date: formatDate(order.orderDate),
         store_info: {
-          store_name: storeSettings.store_name || 'Megadiscountstore',
+          store_name: storeSettings.store_name || 'Megadiscountbazar',
           store_address: storeSettings.store_address || 'Shop number 5, Patel Nagar, Hansi road, Patiala chowk, JIND (Haryana) 126102',
           store_phone: storeSettings.store_phone || '+91 9996616153',
-          store_email: storeSettings.store_email || 'support@megadiscountstore.com',
+          store_email: storeSettings.store_email || 'support@megadiscountbazar.com',
           currency_symbol: storeSettings.currency_symbol || '₹'
         },
         customer_info: {

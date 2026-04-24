@@ -91,7 +91,7 @@ export default function Auth() {
             <div className="size-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center">
               <Sparkles className="size-4" />
             </div>
-            <span>Megadiscountstore</span>
+            <span>Megadiscountbazar</span>
           </Link>
         </div>
 
@@ -131,7 +131,7 @@ export default function Auth() {
               <div className="size-8 rounded-lg bg-[var(--color-brand-red)]/10 flex items-center justify-center">
                 <Sparkles className="size-4 text-[var(--color-brand-red)]" />
               </div>
-              <span>Megadiscountstore</span>
+              <span>Megadiscountbazar</span>
             </div>
           </div>
 

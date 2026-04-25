@@ -52,6 +52,9 @@ import Auth from '@/pages/Auth';
 import Profile from '@/pages/Profile';
 import Contact from '@/pages/Contact';
 import About from '@/pages/About';
+import Terms from '@/pages/Terms';
+import RefundPolicy from '@/pages/RefundPolicy';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import NotFound from '@/pages/NotFound';
 import UserOrderDetail from '@/pages/OrderDetail';
 import AquaSoft from '@/pages/AquaSoft';
@@ -130,6 +133,9 @@ const AppContent = () => {
             <Route path="/cart" element={<Cart />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/aqua-soft" element={<AquaSoft />} />
 
             {/* Auth routes */}

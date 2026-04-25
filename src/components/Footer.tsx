@@ -136,12 +136,16 @@ const Footer = () => {
           <p className="text-[13px] text-[var(--color-text-muted)] font-[400]">
             © {new Date().getFullYear()} {contactInfo.storeName}. All rights reserved. | 100% Secure Checkout
           </p>
-          <div className="flex items-center gap-8">
-            {['Privacy Policy', 'Terms of Use', 'Returns'].map((item) => (
-              <Link key={item} to="#" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)]">
-                {item}
-              </Link>
-            ))}
+          <div className="flex flex-wrap items-center gap-6">
+            <Link to="/privacy-policy" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
+              Privacy Policy
+            </Link>
+            <Link to="/terms" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
+              Terms of Use
+            </Link>
+            <Link to="/refund-policy" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
+              Returns & Refunds
+            </Link>
           </div>
         </div>
 

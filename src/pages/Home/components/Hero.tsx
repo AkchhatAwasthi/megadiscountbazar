@@ -112,10 +112,15 @@ const Hero = () => {
 
   return (
     <div
-      className="relative w-full h-[56vh] min-h-[340px] overflow-hidden select-none"
+      className="relative w-full h-[56vh] min-h-[340px] overflow-hidden select-none cursor-pointer md:cursor-default"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => { setIsPaused(false); resetMouse(); }}
+      onClick={() => {
+        if (window.innerWidth < 768) {
+          handleCtaClick(current.cta_link);
+        }
+      }}
     >
       <AnimatePresence initial={false} custom={direction} mode="sync">
         <motion.div
@@ -207,7 +212,7 @@ const Hero = () => {
                     className="pt-4"
                   >
                     <button 
-                      onClick={() => handleCtaClick(current.cta_link)}
+                      onClick={(e) => { e.stopPropagation(); handleCtaClick(current.cta_link); }}
                       className="group relative px-10 py-4 bg-[var(--color-brand-primary)] text-white font-bold rounded-none overflow-hidden transition-all duration-300 border border-[var(--color-brand-primary)] hover:border-[var(--color-brand-gold)] shadow-lg hover:shadow-[0_0_30px_rgba(204,27,27,0.4)]"
                     >
                       {/* Background Slide Layer */}
@@ -247,7 +252,7 @@ const Hero = () => {
       <motion.button
         whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.32)' }}
         whileTap={{ scale: 0.88 }}
-        onClick={() => paginate(-1)}
+        onClick={(e) => { e.stopPropagation(); paginate(-1); }}
         className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center text-white shadow-md"
       >
         <ChevronLeft size={18} strokeWidth={2.5} />
@@ -257,7 +262,7 @@ const Hero = () => {
       <motion.button
         whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.32)' }}
         whileTap={{ scale: 0.88 }}
-        onClick={() => paginate(1)}
+        onClick={(e) => { e.stopPropagation(); paginate(1); }}
         className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center text-white shadow-md"
       >
         <ChevronRight size={18} strokeWidth={2.5} />
@@ -268,7 +273,7 @@ const Hero = () => {
         {slides.map((_, i) => (
           <motion.button
             key={i}
-            onClick={() => setPage([i, i > index ? 1 : -1])}
+            onClick={(e) => { e.stopPropagation(); setPage([i, i > index ? 1 : -1]); }}
             animate={{
               width: i === index ? 44 : 16,
               backgroundColor: i === index ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.35)',

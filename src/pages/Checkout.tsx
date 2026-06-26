@@ -3,7 +3,7 @@ import { ChevronLeft, Lock, ShieldCheck, CreditCard, MapPin, BadgeCheck, Shoppin
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/useStore';
 import { formatPrice } from '@/utils/currency';
-import { initiateRazorpayPayment, OrderData } from '@/utils/razorpay';
+import { initiateCashfreePayment, OrderData } from '@/utils/cashfree';
 
 import Stepper from '@/components/Stepper';
 import GuestOrderPopup from '@/components/GuestOrderPopup';
@@ -393,7 +393,7 @@ const Checkout = () => {
         }
         clearCart();
       } else {
-        const razorpayOrderData: OrderData = {
+        const cashfreeOrderData: OrderData = {
           orderId: orderNumber,
           amount: Math.round(total),
           currency: 'INR',
@@ -402,10 +402,10 @@ const Checkout = () => {
           deliveryAddress: { address: completeAddress, lat: 0, lng: 0 }
         };
 
-        await initiateRazorpayPayment(
-          razorpayOrderData,
+        await initiateCashfreePayment(
+          cashfreeOrderData,
           async (response) => {
-            await supabase.from('orders').insert([{ ...orderData, payment_status: 'paid', order_status: 'confirmed', razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id }]);
+            await supabase.from('orders').insert([{ ...orderData, payment_status: 'paid', order_status: 'confirmed', razorpay_order_id: response.cashfree_order_id, razorpay_payment_id: response.cashfree_payment_id }]);
             if (!useExistingAddress && currentUser) await saveAddressToProfile();
             clearCart();
             if (!currentUser) {

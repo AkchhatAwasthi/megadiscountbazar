@@ -228,7 +228,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Stage */}
-            <div className="order-1 md:order-2 flex-1 relative bg-[var(--color-surface-page)] rounded-[16px] overflow-hidden group">
+            <div className="order-1 md:order-2 flex-1 relative bg-white rounded-[16px] overflow-hidden group min-h-[320px] md:min-h-0">
                <AnimatePresence mode="wait">
                   <motion.img
                     key={activeImage}
@@ -236,9 +236,9 @@ const ProductDetail = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    src={activeImage}
+                    src={activeImage || product.images?.[0] || '/placeholder.svg'}
                     alt={product.name}
-                    className="w-full h-full object-contain mix-blend-multiply"
+                    className="w-full h-full object-contain absolute inset-0"
                   />
                </AnimatePresence>
 

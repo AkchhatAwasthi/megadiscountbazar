@@ -87,7 +87,7 @@ const CheckoutSummary = ({
           <p className="text-[13px] text-[var(--color-text-secondary)] mt-1 leading-relaxed">
             {paymentMethod === 'cod'
               ? 'Pay the total amount when your order arrives.'
-              : 'Encrypted Razorpay checkout — Card / UPI / Wallet.'}
+              : 'Encrypted Cashfree checkout — Card / UPI / Wallet.'}
           </p>
         </InfoCard>
       </div>

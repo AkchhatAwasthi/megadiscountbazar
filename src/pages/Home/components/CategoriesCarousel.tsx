@@ -54,12 +54,37 @@ const CategoriesCarousel = () => {
 
   if (categories.length === 0) return null;
 
+  // Category colours & emojis (fallback when no image_url)
+  const categoryColors: Record<string, string> = {
+    'Gifts & Gadgets':     '#1A3C6E',
+    'Kitchen Accessories': '#B22222',
+    'Toys':                '#3A7D3A',
+    'Ladies Wear':         '#C2185B',
+    'Beauty Products':     '#5B2D8E',
+    'Grocery':             '#2E7D32',
+    'Sports':              '#E65100',
+    'Pharmacy':            '#0277BD',
+  };
+  const categoryEmojis: Record<string, string> = {
+    'Gifts & Gadgets':     '🎁',
+    'Kitchen Accessories': '🍳',
+    'Toys':                '🧸',
+    'Ladies Wear':         '👗',
+    'Beauty Products':     '💄',
+    'Grocery':             '🛒',
+    'Sports':              '⚽',
+    'Pharmacy':            '💊',
+  };
+
+  const handleNav = (name: string) =>
+    navigate(`/products?category=${encodeURIComponent(name)}`);
+
   return (
     <section className="pt-[64px] md:pt-[96px] pb-0 bg-[var(--color-surface-card)] overflow-hidden">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        
+
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-10 gap-6">
           <div className="flex flex-col">
             <span className="text-[12px] font-[500] tracking-[0.05em] text-[var(--color-brand-red)] uppercase mb-2">
               Browse Collections
@@ -68,30 +93,65 @@ const CategoriesCarousel = () => {
               Shop by Category
             </h2>
           </div>
+          <button
+            onClick={() => navigate('/products')}
+            className="hidden md:flex items-center justify-center px-5 py-2.5 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--color-brand-red-light)] hover:-translate-y-[1px]"
+          >
+            View all categories
+          </button>
+        </div>
 
-          <div className="flex items-center gap-3">
-             <button
-                onClick={() => navigate('/products')}
-                className="hidden md:flex items-center justify-center px-5 py-2.5 border-[1.5px] border-[var(--color-brand-red)] text-[var(--color-brand-red)] rounded-[8px] text-[14px] font-[500] transition-all hover:bg-[var(--color-brand-red-light)] hover:-translate-y-[1px]"
-             >
-                View all categories
-             </button>
-             {/* Nav Buttons integrated via Carousel component logic or manual */}
+        {/* ── MOBILE: 4-column circle grid ── */}
+        <div className="md:hidden">
+          <div className="grid grid-cols-4 gap-x-3 gap-y-5 pb-8">
+            {categories.map((category) => {
+              const bg = categoryColors[category.name] || 'var(--color-brand-red)';
+              const emoji = categoryEmojis[category.name] || '📦';
+              return (
+                <motion.button
+                  key={category.id}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => handleNav(category.name)}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  {/* Circle */}
+                  <div
+                    className="size-14 rounded-full flex items-center justify-center overflow-hidden transition-transform duration-150 group-active:scale-90"
+                    style={{
+                      background: category.image_url
+                        ? undefined
+                        : `linear-gradient(135deg, ${bg}ee 0%, ${bg} 100%)`,
+                      boxShadow: `0 2px 8px ${bg}44`,
+                    }}
+                  >
+                    {category.image_url ? (
+                      <img
+                        src={category.image_url}
+                        alt={category.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-2xl">{emoji}</span>
+                    )}
+                  </div>
+                  {/* Label */}
+                  <span
+                    className="text-[11px] font-[600] leading-tight text-center w-full line-clamp-2"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    {category.name}
+                  </span>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Carousel */}
-        <div className="relative">
+        {/* ── DESKTOP: Carousel (unchanged) ── */}
+        <div className="relative hidden md:block">
           <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            plugins={[
-              Autoplay({
-                delay: 4000,
-              }) as any,
-            ]}
+            opts={{ align: "start", loop: true }}
+            plugins={[Autoplay({ delay: 4000 }) as any]}
             className="w-full"
           >
             <CarouselContent className="-ml-4">
@@ -100,7 +160,7 @@ const CategoriesCarousel = () => {
                   <motion.div
                     whileHover={{ y: -2 }}
                     className="flex flex-col items-center group cursor-pointer"
-                    onClick={() => navigate(`/products?category=${category.name.toLowerCase()}`)}
+                    onClick={() => handleNav(category.name)}
                   >
                     <div className="w-full aspect-square rounded-full bg-[var(--color-surface-page)] flex items-center justify-center overflow-hidden mb-4 transition-colors group-hover:bg-[var(--color-brand-red-light)] border border-[var(--color-border-default)]">
                       {category.image_url ? (
@@ -120,17 +180,17 @@ const CategoriesCarousel = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            
-            <div className="flex justify-center mt-8 gap-3 md:hidden">
-                <CarouselPrevious className="static translate-y-0 size-[40px] border-[var(--color-border-default)]" />
-                <CarouselNext className="static translate-y-0 size-[40px] border-[var(--color-border-default)]" />
+
+            <div className="flex justify-center mt-8 gap-3">
+              <CarouselPrevious className="static translate-y-0 size-[40px] border-[var(--color-border-default)]" />
+              <CarouselNext className="static translate-y-0 size-[40px] border-[var(--color-border-default)]" />
             </div>
           </Carousel>
         </div>
+
       </div>
     </section>
   );
 };
 
 export default CategoriesCarousel;
-

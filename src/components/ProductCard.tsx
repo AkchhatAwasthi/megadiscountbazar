@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { formatPrice } from '../utils/currency';
-import { ShoppingCart, Heart, Eye } from 'lucide-react';
+import { ShoppingCart, Heart, Eye, Zap } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -33,6 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   index = 0,
 }) => {
   const addToCart = useStore((state) => state.addToCart);
+  const navigate = useNavigate();
 
   const primaryImage = product.images?.[0] || product.image || '/placeholder.svg';
 
@@ -50,6 +52,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       category: categoryString,
       image: primaryImage,
     } as any, defaultSize, defaultWeight);
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleAddToCart(e);
+    navigate('/checkout');
   };
 
   const handleQuickView = (e: React.MouseEvent) => {
@@ -161,20 +169,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
         </div>
 
-        {/* Action Button */}
-        <div className="mt-auto">
+        {/* Action Buttons */}
+        <div className="mt-auto flex gap-2">
             {isOutOfStock ? (
                 <button disabled className="w-full py-[10px] bg-[var(--color-surface-page)] text-[var(--color-text-muted)] rounded-[8px] text-[14px] font-[500] cursor-not-allowed">
                     Out of Stock
                 </button>
             ) : (
-                <button
-                    onClick={handleAddToCart}
-                    className="w-full py-[10px] bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] rounded-[8px] text-[14px] font-[500] transition-all duration-200 hover:bg-[var(--color-brand-yellow-hover)] hover:shadow-[0_4px_12px_rgba(255,194,32,0.4)] hover:-translate-y-[1px] flex items-center justify-center gap-2"
-                >
-                    <ShoppingCart className="size-[16px]" />
-                    Add to Cart
-                </button>
+                <>
+                    <button
+                        onClick={handleAddToCart}
+                        className="flex-1 py-[10px] bg-[var(--color-brand-yellow)] text-[var(--color-text-primary)] rounded-[8px] text-[13px] font-[600] transition-all duration-200 hover:bg-[var(--color-brand-yellow-hover)] hover:shadow-[0_4px_12px_rgba(255,194,32,0.4)] hover:-translate-y-[1px] flex items-center justify-center gap-1.5"
+                    >
+                        <ShoppingCart className="size-[14px]" />
+                        <span className="hidden sm:inline">Add to Cart</span>
+                        <span className="sm:hidden">Cart</span>
+                    </button>
+                    <button
+                        onClick={handleBuyNow}
+                        className="flex-1 py-[10px] bg-[var(--color-brand-red)] text-white rounded-[8px] text-[13px] font-[600] transition-all duration-200 hover:bg-[var(--color-brand-red-deep)] hover:shadow-[0_4px_12px_rgba(204,27,27,0.35)] hover:-translate-y-[1px] flex items-center justify-center gap-1.5"
+                    >
+                        <Zap className="size-[14px]" />
+                        <span className="hidden sm:inline">Buy Now</span>
+                        <span className="sm:hidden">Buy</span>
+                    </button>
+                </>
             )}
         </div>
       </div>

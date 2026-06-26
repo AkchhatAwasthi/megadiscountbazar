@@ -36,7 +36,7 @@ const CheckoutPayment = ({ paymentMethod, setPaymentMethod, settings, total, onN
 
       <div className="space-y-4">
         {/* Online payment */}
-        {settings.razorpay_enabled && (
+        {settings.cashfree_enabled && (
           <button
             onClick={() => setPaymentMethod('online')}
             className={cn(
@@ -126,7 +126,7 @@ const CheckoutPayment = ({ paymentMethod, setPaymentMethod, settings, total, onN
           {[
             { label: 'SSL Secure', sub: 'End-to-end encrypted' },
             { label: 'PCI DSS', sub: 'Payment compliant' },
-            { label: 'Razorpay', sub: 'Powered by' },
+            { label: 'Cashfree', sub: 'Powered by' },
           ].map(b => (
             <div key={b.label} className="flex flex-col items-center p-3 rounded-[10px] bg-[var(--color-surface-page)] border border-[var(--color-border-default)] text-center">
               <span className="text-[12px] font-[700] text-[var(--color-text-primary)]">{b.label}</span>

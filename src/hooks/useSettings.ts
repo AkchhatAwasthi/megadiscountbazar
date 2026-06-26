@@ -18,7 +18,7 @@ export interface AppSettings {
 
   // Feature Flags
   cod_enabled: boolean;
-  razorpay_enabled: boolean;
+  cashfree_enabled: boolean;
   upi_enabled: boolean;
   card_enabled: boolean;
   netbanking_enabled: boolean;
@@ -46,7 +46,7 @@ const defaultSettings: AppSettings = {
   bulk_discount_percentage: 0,
   currency_symbol: '₹',
   cod_enabled: false,
-  razorpay_enabled: false,
+  cashfree_enabled: false,
   upi_enabled: false,
   card_enabled: false,
   netbanking_enabled: false,
@@ -90,7 +90,7 @@ export const useSettings = () => {
             'min_order_amount',
             'currency_symbol',
             'cod_enabled',
-            'razorpay_enabled',
+            'cashfree_enabled',
             'store_name',
             'store_phone',
             'store_email',

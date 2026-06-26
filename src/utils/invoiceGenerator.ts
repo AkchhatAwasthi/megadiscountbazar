@@ -42,7 +42,7 @@ interface InvoiceData {
     payment_info: {
         method: string;
         status: string;
-        razorpay_payment_id?: string;
+        cashfree_payment_id?: string;
     };
     order_status: string;
     coupon_code?: string;
@@ -537,7 +537,7 @@ export function generateInvoiceHTML(data: InvoiceData): string {
                     <h3>Payment Information</h3>
                     <p><strong>Payment Method:</strong> ${payment_info.method.toUpperCase()}</p>
                     <p><strong>Payment Status:</strong> <span class="status-badge status-${payment_info.status}">${payment_info.status}</span></p>
-                    ${payment_info.razorpay_payment_id ? `<p><strong>Transaction ID:</strong> ${payment_info.razorpay_payment_id}</p>` : ''}
+                    ${payment_info.cashfree_payment_id ? `<p><strong>Transaction ID:</strong> ${payment_info.cashfree_payment_id}</p>` : ''}
                 </div>
                 
                 <div class="info-section">

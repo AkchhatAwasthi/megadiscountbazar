@@ -68,8 +68,8 @@ interface OrderDetail {
   trackingNumber?: string;
   notes?: string;
   couponCode?: string;
-  razorpayPaymentId?: string;
-  razorpayOrderId?: string;
+  cashfreePaymentId?: string;
+  cashfreeOrderId?: string;
   estimatedDeliveryTime?: string;
   selectedSize?: string;
 }
@@ -149,8 +149,8 @@ const UserOrderDetail = () => {
           trackingNumber: data.tracking_url,
           notes: data.special_instructions,
           couponCode: data.coupon_code,
-          razorpayPaymentId: data.razorpay_payment_id,
-          razorpayOrderId: data.razorpay_order_id,
+          cashfreePaymentId: data.cashfree_payment_id,
+          cashfreeOrderId: data.cashfree_order_id,
           selectedSize: (data as any).selected_size,
         };
         setOrder(orderDetail);
@@ -210,7 +210,7 @@ const UserOrderDetail = () => {
         payment_info: {
           method: order.paymentMethod,
           status: order.paymentStatus,
-          razorpay_payment_id: order.razorpayPaymentId
+          cashfree_payment_id: order.cashfreePaymentId
         },
         order_status: order.status,
         coupon_code: order.couponCode,

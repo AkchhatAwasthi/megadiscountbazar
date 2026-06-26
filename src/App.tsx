@@ -40,6 +40,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import FloatingProductCard from '@/components/FloatingProductCard';
 import Preloader from '@/components/Preloader';
 import LottieOverlay from '@/components/LottieOverlay';
@@ -116,7 +117,7 @@ const AppContent = () => {
           <Preloader onComplete={() => setPreloaderComplete(true)} />
         )}
         <div 
-          className="min-h-screen bg-background"
+          className="min-h-screen bg-background pb-20 md:pb-0"
           style={{
             opacity: (preloaderComplete || skipPreloader) ? 1 : 0,
             transition: 'opacity 0.5s ease-in-out',
@@ -204,6 +205,7 @@ const AppContent = () => {
           {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && !isAquaSoft && <Footer />}
           {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <CartSidebar />}
           {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <FloatingWhatsApp />}
+          {!isAuthPage && !isProfilePage && !isOrderDetailPage && !isAdminRoute && <MobileBottomNav />}
           <ShinobiToast />
           <LottieOverlay />
           <FloatingProductCard />

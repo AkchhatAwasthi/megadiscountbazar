@@ -206,7 +206,7 @@ export function validatePaymentMethod(
     }
   }
 
-  if (paymentMethod === 'online' && !settings.razorpay_enabled) {
+  if (paymentMethod === 'online' && !settings.cashfree_enabled) {
     errors.push('Online payment is not available');
   }
 

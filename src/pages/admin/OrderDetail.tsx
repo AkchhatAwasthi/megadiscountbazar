@@ -36,8 +36,8 @@ interface OrderDetail {
   paymentStatus: 'pending' | 'paid' | 'failed';
   paymentMethod: string;
   couponCode?: string;
-  razorpayPaymentId?: string;
-  razorpayOrderId?: string;
+  cashfreePaymentId?: string;
+  cashfreeOrderId?: string;
   shippingAddress: {
     street: string;
     city: string;
@@ -102,8 +102,8 @@ const AdminOrderDetail = () => {
           paymentStatus: data.payment_status as any,
           paymentMethod: data.payment_method,
           couponCode: data.coupon_code,
-          razorpayPaymentId: data.razorpay_payment_id,
-          razorpayOrderId: data.razorpay_order_id,
+          cashfreePaymentId: data.razorpay_payment_id,
+          cashfreeOrderId: data.razorpay_order_id,
           shippingAddress: {
             street: addressDetails?.complete_address || addressDetails?.address_line_1 || '',
             city: deliveryLocation?.address || addressDetails?.city || '',
@@ -250,7 +250,7 @@ const AdminOrderDetail = () => {
         payment_info: {
           method: order.paymentMethod,
           status: order.paymentStatus,
-          razorpay_payment_id: order.razorpayPaymentId
+          cashfree_payment_id: order.cashfreePaymentId
         },
         order_status: order.status,
         coupon_code: order.couponCode,
@@ -447,17 +447,21 @@ const AdminOrderDetail = () => {
                       </Badge>
                     </div>
 
-                    {order.razorpayPaymentId && (
+                    {(order.cashfreePaymentId || order.cashfreeOrderId) && (
                       <div className="pt-4 border-t border-[var(--color-brand-red)]/20">
                         <div className="space-y-3">
-                          <div className="flex justify-between text-[13px] items-center">
-                            <span className="text-[var(--color-text-secondary)]">Payment ID</span>
-                            <span className="font-mono text-[var(--color-text-primary)] font-[600] bg-white px-2.5 py-1 border border-[var(--color-border-default)] rounded-[4px]">{order.razorpayPaymentId}</span>
-                          </div>
-                          {order.razorpayOrderId && (
-                            <div className="flex justify-between text-[13px] items-center">
-                              <span className="text-[var(--color-text-secondary)]">Order ID</span>
-                              <span className="font-mono text-[var(--color-text-primary)] font-[600] bg-white px-2.5 py-1 border border-[var(--color-border-default)] rounded-[4px]">{order.razorpayOrderId}</span>
+                          {order.cashfreePaymentId && (
+                            <div className="flex justify-between items-center bg-[var(--color-surface-page)] p-3 rounded-[8px]">
+                              <span className="text-[14px] text-[var(--color-text-secondary)]">Payment ID</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-[var(--color-text-primary)] font-[600] bg-white px-2.5 py-1 border border-[var(--color-border-default)] rounded-[4px]">{order.cashfreePaymentId}</span>
+                              </div>
+                            </div>
+                          )}
+                          {order.cashfreeOrderId && (
+                            <div className="flex justify-between items-center bg-[var(--color-surface-page)] p-3 rounded-[8px]">
+                              <span className="text-[14px] text-[var(--color-text-secondary)]">Order ID</span>
+                              <span className="font-mono text-[var(--color-text-primary)] font-[600] bg-white px-2.5 py-1 border border-[var(--color-border-default)] rounded-[4px]">{order.cashfreeOrderId}</span>
                             </div>
                           )}
                         </div>

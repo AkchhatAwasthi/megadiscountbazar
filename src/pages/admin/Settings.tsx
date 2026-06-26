@@ -301,7 +301,7 @@ const AdminSettings = () => {
             <p className="text-[13px] text-[var(--color-text-secondary)] mb-4 pb-4 border-b border-[var(--color-border-default)]/60">
               Enable or disable payment options. Changes reflect immediately in checkout after saving.
             </p>
-            <ToggleRow label="Razorpay Online Payment" hint="Card, UPI, NetBanking, Wallets via Razorpay gateway" checked={bool('razorpay_enabled')} onChange={v => set('razorpay_enabled', v)} badge="Razorpay" />
+            <ToggleRow label="Cashfree Online Payment" hint="Card, UPI, NetBanking, Wallets via Cashfree gateway" checked={bool('cashfree_enabled')} onChange={v => set('cashfree_enabled', v)} badge="Cashfree" />
             <ToggleRow label="Cash on Delivery (COD)" hint="Allow customers to pay cash at delivery" checked={bool('cod_enabled')} onChange={v => set('cod_enabled', v)} badge="COD" />
             <ToggleRow label="UPI Payments" hint="UPI-based direct payments" checked={bool('upi_enabled')} onChange={v => set('upi_enabled', v)} />
             <ToggleRow label="Credit / Debit Card" hint="Enable card-based payments" checked={bool('card_enabled')} onChange={v => set('card_enabled', v)} />
@@ -314,17 +314,17 @@ const AdminSettings = () => {
               Checkout Preview
             </p>
             <div className="flex flex-wrap gap-2">
-              {bool('razorpay_enabled') && (
-                <span className="px-3 py-1.5 rounded-full bg-white border border-[var(--color-brand-red)]/30 text-[12px] font-[600] text-[var(--color-brand-red)]">
-                  ✓ Online Payment (Razorpay) shown
-                </span>
+              {bool('cashfree_enabled') && (
+                <div className="flex items-center gap-2 text-[13px] text-[#008A00] bg-[#008A00]/5 px-3 py-2 rounded-[8px]">
+                  ✓ Online Payment (Cashfree) shown
+                </div>
               )}
               {bool('cod_enabled') && (
                 <span className="px-3 py-1.5 rounded-full bg-white border border-[#008A00]/30 text-[12px] font-[600] text-[#008A00]">
                   ✓ Cash on Delivery shown
                 </span>
               )}
-              {!bool('razorpay_enabled') && !bool('cod_enabled') && (
+              {!bool('cashfree_enabled') && !bool('cod_enabled') && (
                 <span className="px-3 py-1.5 rounded-full bg-[#FEF2F2] border border-[#FECACA] text-[12px] font-[600] text-[#E01E26]">
                   ⚠ No payment method enabled — customers cannot checkout!
                 </span>

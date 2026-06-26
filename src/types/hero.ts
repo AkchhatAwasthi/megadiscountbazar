@@ -1,11 +1,12 @@
 export interface HeroSlide {
     id: string;
-    title: string;
-    subtitle: string;
-    description: string;
-    cta_text: string;
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    cta_text?: string;
     cta_link?: string;
     image: string;
+    mobile_image?: string;
     display_order: number;
     is_active: boolean;
     created_at?: string;

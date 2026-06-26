@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Carousel,
@@ -17,6 +16,28 @@ interface Category {
   name: string;
   image_url: string;
 }
+
+// Fallback colours & emojis when a category has no image
+const categoryColors: Record<string, string> = {
+  'Gifts & Gadgets':     '#1A3C6E',
+  'Kitchen Accessories': '#B22222',
+  'Toys':                '#3A7D3A',
+  'Ladies Wear':         '#C2185B',
+  'Beauty Products':     '#5B2D8E',
+  'Grocery':             '#2E7D32',
+  'Sports':              '#E65100',
+  'Pharmacy':            '#0277BD',
+};
+const categoryEmojis: Record<string, string> = {
+  'Gifts & Gadgets':     '🎁',
+  'Kitchen Accessories': '🍳',
+  'Toys':                '🧸',
+  'Ladies Wear':         '👗',
+  'Beauty Products':     '💄',
+  'Grocery':             '🛒',
+  'Sports':              '⚽',
+  'Pharmacy':            '💊',
+};
 
 const CategoriesCarousel = () => {
   const navigate = useNavigate();
@@ -34,7 +55,6 @@ const CategoriesCarousel = () => {
         .select('*')
         .eq('is_active', true)
         .order('name');
-
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
@@ -44,40 +64,18 @@ const CategoriesCarousel = () => {
     }
   };
 
+  const handleNav = (name: string) =>
+    navigate(`/products?category=${encodeURIComponent(name)}`);
+
   if (loading) {
     return (
       <section className="py-[64px] bg-[var(--color-surface-card)] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--color-brand-red)] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-[var(--color-brand-red)] border-t-transparent rounded-full animate-spin" />
       </section>
     );
   }
 
   if (categories.length === 0) return null;
-
-  // Category colours & emojis (fallback when no image_url)
-  const categoryColors: Record<string, string> = {
-    'Gifts & Gadgets':     '#1A3C6E',
-    'Kitchen Accessories': '#B22222',
-    'Toys':                '#3A7D3A',
-    'Ladies Wear':         '#C2185B',
-    'Beauty Products':     '#5B2D8E',
-    'Grocery':             '#2E7D32',
-    'Sports':              '#E65100',
-    'Pharmacy':            '#0277BD',
-  };
-  const categoryEmojis: Record<string, string> = {
-    'Gifts & Gadgets':     '🎁',
-    'Kitchen Accessories': '🍳',
-    'Toys':                '🧸',
-    'Ladies Wear':         '👗',
-    'Beauty Products':     '💄',
-    'Grocery':             '🛒',
-    'Sports':              '⚽',
-    'Pharmacy':            '💊',
-  };
-
-  const handleNav = (name: string) =>
-    navigate(`/products?category=${encodeURIComponent(name)}`);
 
   return (
     <section className="pt-[64px] md:pt-[96px] pb-0 bg-[var(--color-surface-card)] overflow-hidden">
@@ -101,11 +99,11 @@ const CategoriesCarousel = () => {
           </button>
         </div>
 
-        {/* ── MOBILE: 4-column circle grid ── */}
+        {/* ── MOBILE: 4-column premium circle grid ── */}
         <div className="md:hidden">
-          <div className="grid grid-cols-4 gap-x-3 gap-y-5 pb-8">
+          <div className="grid grid-cols-4 gap-x-3 gap-y-6 pb-8">
             {categories.map((category) => {
-              const bg = categoryColors[category.name] || 'var(--color-brand-red)';
+              const bg = categoryColors[category.name] || '#CC1B1B';
               const emoji = categoryEmojis[category.name] || '📦';
               return (
                 <motion.button
@@ -114,14 +112,14 @@ const CategoriesCarousel = () => {
                   onClick={() => handleNav(category.name)}
                   className="flex flex-col items-center gap-2 group"
                 >
-                  {/* Circle */}
+                  {/* Circle — size-[72px] = 72px */}
                   <div
-                    className="size-14 rounded-full flex items-center justify-center overflow-hidden transition-transform duration-150 group-active:scale-90"
+                    className="size-[72px] rounded-full flex items-center justify-center overflow-hidden transition-transform duration-150 group-active:scale-90"
                     style={{
                       background: category.image_url
                         ? undefined
                         : `linear-gradient(135deg, ${bg}ee 0%, ${bg} 100%)`,
-                      boxShadow: `0 2px 8px ${bg}44`,
+                      boxShadow: `0 3px 10px ${bg}44`,
                     }}
                   >
                     {category.image_url ? (
@@ -150,13 +148,16 @@ const CategoriesCarousel = () => {
         {/* ── DESKTOP: Carousel (unchanged) ── */}
         <div className="relative hidden md:block">
           <Carousel
-            opts={{ align: "start", loop: true }}
+            opts={{ align: 'start', loop: true }}
             plugins={[Autoplay({ delay: 4000 }) as any]}
             className="w-full"
           >
             <CarouselContent className="-ml-4">
               {categories.map((category) => (
-                <CarouselItem key={category.id} className="pl-4 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/6">
+                <CarouselItem
+                  key={category.id}
+                  className="pl-4 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/6"
+                >
                   <motion.div
                     whileHover={{ y: -2 }}
                     className="flex flex-col items-center group cursor-pointer"

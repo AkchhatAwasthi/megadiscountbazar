@@ -250,7 +250,7 @@ const MobileBottomNav: React.FC = () => {
                       className="flex flex-col items-center gap-2 group"
                     >
                       <div
-                        className="size-14 rounded-full flex items-center justify-center text-2xl shadow-sm transition-transform duration-150 group-active:scale-90"
+                        className="size-[72px] rounded-full flex items-center justify-center text-2xl shadow-sm transition-transform duration-150 group-active:scale-90"
                         style={{
                           background: 'linear-gradient(135deg, #CC1B1B 0%, #8B0000 100%)',
                           boxShadow: '0 2px 8px rgba(204,27,27,0.30)',
@@ -278,7 +278,7 @@ const MobileBottomNav: React.FC = () => {
                         >
                           {/* Small premium circle */}
                           <div
-                            className="size-14 rounded-full flex items-center justify-center text-2xl transition-transform duration-150 group-active:scale-90"
+                            className="size-[72px] rounded-full flex items-center justify-center text-2xl transition-transform duration-150 group-active:scale-90"
                             style={{
                               background: `linear-gradient(135deg, ${bg}ee 0%, ${bg} 100%)`,
                               boxShadow: `0 2px 8px ${bg}44`,

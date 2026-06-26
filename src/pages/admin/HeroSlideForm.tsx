@@ -18,6 +18,7 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [uploadingMobile, setUploadingMobile] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
     const [formData, setFormData] = useState<HeroSlideInput>({
         title: '',
@@ -26,6 +27,7 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         cta_text: '',
         cta_link: '',
         image: '',
+        mobile_image: '',
         display_order: 0,
         is_active: true
     });
@@ -59,6 +61,7 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                     cta_text: slide.cta_text,
                     cta_link: slide.cta_link || '',
                     image: slide.image,
+                    mobile_image: slide.mobile_image || '',
                     display_order: slide.display_order,
                     is_active: slide.is_active
                 });
@@ -84,14 +87,19 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         setFormData(prev => ({ ...prev, is_active: checked }));
     };
 
-    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'image' | 'mobile_image') => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        setUploading(true);
+        if (fieldName === 'image') {
+            setUploading(true);
+        } else {
+            setUploadingMobile(true);
+        }
+
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`;
+            const fileName = `${fieldName}_${Date.now()}.${fileExt}`;
             const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage
@@ -99,8 +107,6 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                 .upload(filePath, file);
 
             if (uploadError) {
-                // Fallback: try product-images if hero-images doesn't exist?
-                // Or just throw
                 throw uploadError;
             }
 
@@ -108,10 +114,10 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                 .from('hero-images')
                 .getPublicUrl(filePath);
 
-            setFormData(prev => ({ ...prev, image: data.publicUrl }));
+            setFormData(prev => ({ ...prev, [fieldName]: data.publicUrl }));
             toast({
                 title: "Success",
-                description: "Image uploaded successfully",
+                description: `${fieldName === 'image' ? 'Desktop' : 'Mobile'} image uploaded successfully`,
             });
         } catch (error: any) {
             console.error('Error uploading image:', error);
@@ -121,7 +127,11 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                 variant: "destructive",
             });
         } finally {
-            setUploading(false);
+            if (fieldName === 'image') {
+                setUploading(false);
+            } else {
+                setUploadingMobile(false);
+            }
         }
     };
 
@@ -195,26 +205,24 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="title" className={LabelStyle}>Title *</Label>
+                                <Label htmlFor="title" className={LabelStyle}>Title (Optional)</Label>
                                 <Input
                                     id="title"
                                     name="title"
                                     value={formData.title}
                                     onChange={handleChange}
-                                    required
                                     className={InputStyle}
                                     placeholder="e.g. Unapologetic Elegance"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="subtitle" className={LabelStyle}>Subtitle *</Label>
+                                <Label htmlFor="subtitle" className={LabelStyle}>Subtitle (Optional)</Label>
                                 <Input
                                     id="subtitle"
                                     name="subtitle"
                                     value={formData.subtitle}
                                     onChange={handleChange}
-                                    required
                                     className={InputStyle}
                                     placeholder="e.g. The Signature Collection"
                                 />
@@ -222,13 +230,12 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="description" className={LabelStyle}>Description *</Label>
+                            <Label htmlFor="description" className={LabelStyle}>Description (Optional)</Label>
                             <Textarea
                                 id="description"
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                required
                                 className={InputStyle}
                                 placeholder="Slide description text..."
                                 rows={3}
@@ -237,20 +244,19 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="cta_text" className={LabelStyle}>CTA Text *</Label>
+                                <Label htmlFor="cta_text" className={LabelStyle}>CTA Text (Optional)</Label>
                                 <Input
                                     id="cta_text"
                                     name="cta_text"
                                     value={formData.cta_text}
                                     onChange={handleChange}
-                                    required
                                     className={InputStyle}
                                     placeholder="e.g. Discover"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="cta_link" className={LabelStyle}>CTA Link *</Label>
+                                <Label htmlFor="cta_link" className={LabelStyle}>CTA Link (Optional)</Label>
                                 <Input
                                     id="cta_link"
                                     name="cta_link"
@@ -312,23 +318,23 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                                             </Button>
                                         </div>
                                     ) : (
-                                            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-[var(--color-border-default)] hover:border-[var(--color-brand-red)] bg-[var(--color-surface-page)] rounded-[8px] cursor-pointer hover:bg-[var(--color-brand-red-light)] transition-colors">
-                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    {uploading ? (
-                                                        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand-red)]" />
-                                                    ) : (
-                                                        <>
-                                                            <Upload className="w-8 h-8 mb-3 text-[var(--color-brand-red)]" />
-                                                            <p className="text-sm text-[var(--color-text-primary)] font-medium tracking-wide">Click to upload image</p>
-                                                            <p className="text-xs text-[var(--color-text-secondary)] mt-1">SVG, PNG, JPG or WEBP</p>
-                                                        </>
-                                                    )}
-                                                </div>
+                                        <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-[var(--color-border-default)] hover:border-[var(--color-brand-red)] bg-[var(--color-surface-page)] rounded-[8px] cursor-pointer hover:bg-[var(--color-brand-red-light)] transition-colors">
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                {uploading ? (
+                                                    <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand-red)]" />
+                                                ) : (
+                                                    <>
+                                                        <Upload className="w-8 h-8 mb-3 text-[var(--color-brand-red)]" />
+                                                        <p className="text-sm text-[var(--color-text-primary)] font-medium tracking-wide">Click to upload image</p>
+                                                        <p className="text-xs text-[var(--color-text-secondary)] mt-1">SVG, PNG, JPG or WEBP</p>
+                                                    </>
+                                                )}
+                                            </div>
                                             <input
                                                 type="file"
                                                 className="hidden"
                                                 accept="image/*"
-                                                onChange={handleUpload}
+                                                onChange={(e) => handleUpload(e, 'image')}
                                                 disabled={uploading}
                                             />
                                         </label>
@@ -347,6 +353,69 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                                     />
                                     <p className="text-xs text-[#7E5A34]">
                                         Upload an image or paste a URL directly.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <Label className={LabelStyle}>Slide Image (Mobile) - Optional</Label>
+
+                            <div className="flex flex-col md:flex-row gap-4 items-start">
+                                <div className="flex-1 w-full relative">
+                                    {formData.mobile_image ? (
+                                        <div className="relative w-full h-48 bg-gray-100 overflow-hidden border border-[#D4B6A2]/20">
+                                            <img
+                                                src={formData.mobile_image}
+                                                alt="Mobile Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="icon"
+                                                className="absolute top-2 right-2 h-6 w-6 rounded-none"
+                                                onClick={() => setFormData(prev => ({ ...prev, mobile_image: '' }))}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-[var(--color-border-default)] hover:border-[var(--color-brand-red)] bg-[var(--color-surface-page)] rounded-[8px] cursor-pointer hover:bg-[var(--color-brand-red-light)] transition-colors">
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                {uploadingMobile ? (
+                                                    <Loader2 className="h-8 w-8 animate-spin text-[var(--color-brand-red)]" />
+                                                ) : (
+                                                    <>
+                                                        <Upload className="w-8 h-8 mb-3 text-[var(--color-brand-red)]" />
+                                                        <p className="text-sm text-[var(--color-text-primary)] font-medium tracking-wide">Click to upload mobile image</p>
+                                                        <p className="text-xs text-[var(--color-text-secondary)] mt-1">SVG, PNG, JPG or WEBP</p>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => handleUpload(e, 'mobile_image')}
+                                                disabled={uploadingMobile}
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+
+                                <div className="w-full md:w-1/3 space-y-2">
+                                    <Label htmlFor="mobile_image_url" className={LabelStyle}>Or Mobile Image URL</Label>
+                                    <Input
+                                        id="mobile_image_url"
+                                        name="mobile_image"
+                                        value={formData.mobile_image || ''}
+                                        onChange={handleChange}
+                                        placeholder="https://..."
+                                        className={InputStyle}
+                                    />
+                                    <p className="text-xs text-[#7E5A34]">
+                                        Upload a mobile image or paste a URL directly.
                                     </p>
                                 </div>
                             </div>
@@ -376,7 +445,7 @@ const HeroSlideForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                     </Button>
                     <Button
                         type="submit"
-                        disabled={loading || uploading}
+                        disabled={loading || uploading || uploadingMobile}
                         className="h-[40px] px-8 bg-[var(--color-brand-red)] hover:bg-[var(--color-brand-red-deep)] text-white rounded-[8px] font-[500] text-[14px] transition-all duration-200 hover:-translate-y-[1px] min-w-[120px]"
                     >
                         {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : (isEdit ? 'Update Slide' : 'Create Slide')}

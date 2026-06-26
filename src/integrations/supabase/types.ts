@@ -156,38 +156,41 @@ export type Database = {
       }
       hero_slides: {
         Row: {
-          cta_text: string
-          description: string
+          cta_text: string | null
+          description: string | null
           display_order: number | null
           id: string
           image: string
+          mobile_image: string | null
           is_active: boolean | null
-          subtitle: string
-          title: string
+          subtitle: string | null
+          title: string | null
           created_at: string | null
           updated_at: string | null
         }
         Insert: {
-          cta_text: string
-          description: string
+          cta_text?: string | null
+          description?: string | null
           display_order?: number | null
           id?: string
           image: string
+          mobile_image?: string | null
           is_active?: boolean | null
-          subtitle: string
-          title: string
+          subtitle?: string | null
+          title?: string | null
           created_at?: string | null
           updated_at?: string | null
         }
         Update: {
-          cta_text?: string
-          description?: string
+          cta_text?: string | null
+          description?: string | null
           display_order?: number | null
           id?: string
           image?: string
+          mobile_image?: string | null
           is_active?: boolean | null
-          subtitle?: string
-          title?: string
+          subtitle?: string | null
+          title?: string | null
           created_at?: string | null
           updated_at?: string | null
         }

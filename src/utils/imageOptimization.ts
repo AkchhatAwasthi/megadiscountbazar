@@ -1,3 +1,7 @@
+// DEPRECATED: This file used browser canvas APIs for image optimization.
+// In Next.js, use the next/image component which handles WebP conversion,
+// lazy loading, and CLS prevention natively. Do not import this file in new components.
+
 /**
  * Image optimization utilities for supersweets
  * Provides lazy loading, WebP support, and responsive images

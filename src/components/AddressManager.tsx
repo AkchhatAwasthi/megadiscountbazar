@@ -75,7 +75,16 @@ const AddressManager = ({ onAddressSelect, selectedAddressId, showSelector = fal
         .order('is_default', { ascending: false });
 
       if (error) throw error;
-      setAddresses((data || []).map(addr => ({ ...addr, type: addr.type as 'home' | 'work' | 'other' })));
+      setAddresses((data || []).map(addr => ({
+        ...addr,
+        address_line_2: addr.address_line_2 || undefined,
+        landmark: addr.landmark || undefined,
+        phone: addr.phone || undefined,
+        latitude: addr.latitude || undefined,
+        longitude: addr.longitude || undefined,
+        is_default: !!addr.is_default,
+        type: (addr.type as 'home' | 'work' | 'other') || 'home'
+      })));
     } catch (error) {
       console.error('Error fetching addresses:', error);
       toast({

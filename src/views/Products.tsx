@@ -1,0 +1,375 @@
+"use client";
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SlidersHorizontal, X, ChevronDown, Grid, List, Search, Filter } from 'lucide-react';
+import { useStore } from '../store/useStore';
+import Link from 'next/link';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { supabase } from '@/integrations/supabase/client';
+import { scrollToTopInstant } from '@/utils/scrollToTop';
+import { formatCurrency } from '@/utils/currency';
+import { useSettings } from '@/hooks/useSettings';
+import ProductCard from '../components/ProductCard';
+import QuickViewModal from '../components/QuickViewModal';
+
+interface ProductFilters {
+  categories: string[];
+  priceRange: number[];
+  inStock: boolean;
+  isBestseller: boolean;
+  isNewArrival: boolean;
+  sortBy: string;
+}
+
+const Products = ({ initialProducts, initialCategories }: { initialProducts?: any[]; initialCategories?: string[] }) => {
+  const { selectedCategory, setSelectedCategory } = useStore();
+  const [sortBy, setSortBy] = useState('newest');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState<any[]>(initialProducts || []);
+  const [categories, setCategories] = useState(initialCategories || ['All']);
+  const [loading, setLoading] = useState(!initialProducts);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<ProductFilters>({
+    categories: [],
+    priceRange: [0, 50000],
+    inStock: false,
+    isBestseller: false,
+    isNewArrival: false,
+    sortBy: 'newest',
+  });
+
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const { settings } = useSettings();
+  const router = useRouter();
+  const pathname = usePathname() || '';
+  const searchParams = useSearchParams();
+
+  const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+  const handleQuickView = (product: any) => {
+    setQuickViewProduct({
+      ...product,
+      image: product.images?.[0] || product.image || '/placeholder.svg',
+      slug: product.id
+    });
+    setIsQuickViewOpen(true);
+  };
+
+  const handleViewDetail = (product: any) => {
+    const slug = product.sku || product.id;
+    router.push(`/product/${slug}`);
+  };
+
+  const closeQuickView = () => {
+    setIsQuickViewOpen(false);
+    setQuickViewProduct(null);
+  };
+
+  useEffect(() => {
+    scrollToTopInstant();
+    if (!initialCategories) {
+      fetchCategories();
+    }
+  }, [initialCategories]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(searchParams?.toString() || '');
+    const categoryParam = queryParams.get('category');
+    const collectionParam = queryParams.get('collection');
+    
+    // Sync Category from URL
+    const decodedCategory = categoryParam ? decodeURIComponent(categoryParam).trim() : 'All';
+    if (decodedCategory !== selectedCategory) {
+      setSelectedCategory(decodedCategory);
+      return; // Prevents fetching with out-of-sync category state which causes a race condition mixing products
+    }
+
+    // Sync Collection filters from URL to state
+    const targetNewArrival = collectionParam === 'new-arrivals';
+    const targetBestseller = collectionParam === 'bestsellers' || queryParams.get('tag') === 'favorites';
+
+    if (filters.isNewArrival !== targetNewArrival || filters.isBestseller !== targetBestseller) {
+      setFilters(prev => ({
+        ...prev,
+        isNewArrival: targetNewArrival,
+        isBestseller: targetBestseller
+      }));
+      // This setFilters will trigger the effect again, so we return here
+      return;
+    }
+    
+    setPage(1);
+    setHasMore(true);
+    setProducts([]);
+    fetchProducts(1);
+  }, [searchParams, searchTerm, filters, selectedCategory]);
+
+  const fetchProducts = async (pageNum = 1) => {
+    if (pageNum === 1) setLoading(true);
+    else setIsLoadingMore(true);
+
+    try {
+      const queryParams = new URLSearchParams(searchParams?.toString() || '');
+      const collection = queryParams.get('collection');
+      const tag = queryParams.get('tag');
+
+      let countQuery: any = supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      // Apply Category Filter
+      if (selectedCategory && selectedCategory !== 'All') {
+        const { data: catData } = await supabase
+          .from('categories')
+          .select('id')
+          .ilike('name', selectedCategory)
+          .limit(1);
+
+        if (catData && catData.length > 0) {
+          countQuery = countQuery.eq('category_id', catData[0].id);
+        } else {
+          // If category not found and it's not 'All', we should probably return empty results
+          // instead of everything, to avoid "Teddy Bear in Beauty" issue.
+          countQuery = countQuery.eq('category_id', '00000000-0000-0000-0000-000000000000');
+        }
+      }
+
+      // Apply Collection/Tag Filters
+      if (collection === 'new-arrivals') countQuery = countQuery.eq('new_arrival', true);
+      if (collection === 'bestsellers') countQuery = countQuery.eq('is_bestseller', true);
+      
+      // Note: tag=favorites would usually involve user-specific favorites, 
+      // but if it's a generic tag filter:
+      if (tag === 'favorites') countQuery = countQuery.eq('is_bestseller', true); // Fallback to bestsellers if no favorites system
+
+      if (searchTerm) countQuery = countQuery.ilike('name', `%${searchTerm}%`);
+      if (filters.priceRange[0] > 0) countQuery = countQuery.gte('price', filters.priceRange[0]);
+      if (filters.priceRange[1] < 50000) countQuery = countQuery.lte('price', filters.priceRange[1]);
+      if (filters.isNewArrival) countQuery = countQuery.eq('new_arrival', true);
+      if (filters.isBestseller) countQuery = countQuery.eq('is_bestseller', true);
+      if (filters.inStock) countQuery = countQuery.gt('stock_quantity', 0);
+
+      const { count } = await countQuery;
+      if (count !== null) setTotalProducts(count);
+
+      let query: any = supabase
+        .from('products')
+        .select(`*, categories(id, name)`)
+        .eq('is_active', true)
+        .range((pageNum - 1) * 12, pageNum * 12 - 1);
+
+      // Re-apply Category Filter for Query
+      if (selectedCategory && selectedCategory !== 'All') {
+        const { data: catDataForQuery } = await supabase
+          .from('categories')
+          .select('id')
+          .ilike('name', selectedCategory)
+          .limit(1);
+
+        if (catDataForQuery && catDataForQuery.length > 0) {
+          query = query.eq('category_id', catDataForQuery[0].id);
+        } else {
+          query = query.eq('category_id', '00000000-0000-0000-0000-000000000000');
+        }
+      }
+
+      // Re-apply Collection/Tag Filters for Query
+      if (collection === 'new-arrivals') query = query.eq('new_arrival', true);
+      if (collection === 'bestsellers') query = query.eq('is_bestseller', true);
+      if (tag === 'favorites') query = query.eq('is_bestseller', true);
+
+      if (searchTerm) query = query.ilike('name', `%${searchTerm}%`);
+      if (filters.priceRange[0] > 0) query = query.gte('price', filters.priceRange[0]);
+      if (filters.priceRange[1] < 50000) query = query.lte('price', filters.priceRange[1]);
+      if (filters.isNewArrival) query = query.eq('new_arrival', true);
+      if (filters.isBestseller) query = query.eq('is_bestseller', true);
+      if (filters.inStock) query = query.gt('stock_quantity', 0);
+
+      const sortOption = filters.sortBy || sortBy;
+      switch (sortOption) {
+        case 'price-low': query = query.order('price', { ascending: true }); break;
+        case 'price-high': query = query.order('price', { ascending: false }); break;
+        case 'newest': query = query.order('created_at', { ascending: false }); break;
+        default: query = query.order('name', { ascending: true });
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      if (pageNum === 1) setProducts(data || []);
+      else setProducts(prev => [...prev, ...(data || [])]);
+      setHasMore(data?.length === 12);
+
+    } catch (error) {
+      console.error('Error products:', error);
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data } = await supabase.from('categories').select('name').eq('is_active', true);
+      const categoryNames = data?.map(cat => cat.name) || [];
+      setCategories(['All', ...categoryNames]);
+    } catch (error) {
+      console.error('Error categories:', error);
+    }
+  };
+
+  const loadMore = useCallback(() => {
+    if (hasMore && !isLoadingMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchProducts(nextPage);
+    }
+  }, [page, hasMore, isLoadingMore]);
+
+  const lastProductElementRef = useCallback((node: HTMLDivElement) => {
+    if (loading || isLoadingMore) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMore();
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, isLoadingMore, hasMore, loadMore]);
+
+  return (
+    <div className="bg-[var(--color-surface-page)] min-h-screen font-inter selection:bg-[var(--color-brand-red)]/10">
+      
+      {/* Search & Breadcrumb Bar */}
+      <div className="bg-white border-b border-[var(--color-border-default)] py-4 px-6 md:px-10 lg:px-20">
+         <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-[13px] text-[var(--color-text-secondary)]">
+               <Link href="/" className="hover:text-[var(--color-brand-red)] hover:underline">Home</Link>
+               <ChevronDown size={14} className="-rotate-90" />
+               <span className="text-[var(--color-text-primary)] font-[600]">Shop All</span>
+            </div>
+            
+            <div className="relative flex-1 max-w-md">
+               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" size={18} />
+               <input 
+                 type="text" 
+                 placeholder="Search products..."
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+                 className="w-full bg-[var(--color-surface-page)] border border-[var(--color-border-default)] rounded-[8px] h-11 pl-12 pr-4 text-[14px] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand-red)] focus:border-[var(--color-brand-red)] transition-all"
+               />
+            </div>
+         </div>
+      </div>
+
+      <main className="max-w-[1440px] mx-auto px-6 md:px-10 lg:px-20 py-10">
+         
+         {/* Page Header */}
+         <div className="mb-10 text-center md:text-left">
+            <h1 className="text-[32px] md:text-[44px] font-[600] text-[var(--color-text-primary)] leading-tight tracking-tight">
+               {selectedCategory !== 'All' ? selectedCategory : 'Collection Archive'}
+            </h1>
+            <p className="text-[17px] text-[var(--color-text-secondary)] mt-2">
+               Discover our range of premium hypermarket products.
+            </p>
+         </div>
+
+         {/* Grid Tools */}
+         <div className="bg-white border border-[var(--color-border-default)] rounded-[12px] p-4 mb-10 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3">
+               <span className="text-[14px] text-[var(--color-text-secondary)] font-[500] hidden sm:block">
+                  Showing {products.length} of {totalProducts} items
+               </span>
+            </div>
+
+            <div className="flex items-center gap-6">
+               <div className="flex items-center gap-2">
+                  <span className="text-[14px] text-[var(--color-text-secondary)] font-[500] hidden sm:block">Sort by:</span>
+                  <select 
+                    value={filters.sortBy}
+                    onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+                    className="bg-[var(--color-surface-page)] border border-[var(--color-border-default)] rounded-[8px] h-10 px-3 text-[14px] font-[500] focus:outline-none"
+                  >
+                     <option value="newest">Newest Arrivals</option>
+                     <option value="price-low">Price: Low to High</option>
+                     <option value="price-high">Price: High to Low</option>
+                     <option value="name">Alphabetical</option>
+                  </select>
+               </div>
+               
+               <div className="flex items-center border border-[var(--color-border-default)] rounded-[8px] overflow-hidden">
+                  <button className="p-2.5 text-[var(--color-brand-red)] bg-[var(--color-brand-red-light)] transition-colors"><Grid size={20} /></button>
+                  <button className="p-2.5 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-page)] transition-colors border-l border-[var(--color-border-default)]"><List size={20} /></button>
+               </div>
+            </div>
+         </div>
+
+         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10">
+            {loading ? (
+               Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="animate-pulse flex flex-col gap-4">
+                     <div className="bg-white border border-[var(--color-border-default)] aspect-[4/5] rounded-[12px]"></div>
+                     <div className="space-y-2 px-2">
+                        <div className="h-4 bg-[var(--color-border-default)] w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-[var(--color-border-default)] w-1/2 animate-pulse"></div>
+                     </div>
+                  </div>
+               ))
+            ) : products.map((product, index) => (
+               <motion.div
+                 key={product.id}
+                 initial={{ opacity: 0, y: 12 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.4, delay: index * 0.05 }}
+                 ref={index === products.length - 1 ? lastProductElementRef : null}
+               >
+                  <ProductCard
+                    product={{
+                      ...product,
+                      image: product.images?.[0] || product.image || '/placeholder.svg',
+                      slug: product.sku || product.id
+                    }}
+                    onQuickView={() => handleQuickView(product)}
+                    onViewDetail={() => handleViewDetail(product)}
+                  />
+               </motion.div>
+            ))}
+         </div>
+
+         {isLoadingMore && (
+           <div className="flex flex-col items-center py-16 gap-3">
+              <div className="size-8 border-[2.5px] border-[var(--color-brand-red)] border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-[13px] font-[600] text-[var(--color-brand-red)] uppercase tracking-wide">Loading more items</span>
+           </div>
+         )}
+         
+         {!hasMore && products.length > 0 && (
+            <div className="text-center py-20">
+               <div className="h-px bg-gradient-to-r from-transparent via-[var(--color-border-default)] to-transparent max-w-sm mx-auto mb-8"></div>
+               <p className="text-[15px] text-[var(--color-text-muted)] italic">You've reached the end of the collection.</p>
+            </div>
+         )}
+      </main>
+
+
+      {/* Quick View Modal */}
+      {isQuickViewOpen && quickViewProduct && (
+        <QuickViewModal
+          product={quickViewProduct}
+          isOpen={isQuickViewOpen}
+          onClose={closeQuickView}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Products;

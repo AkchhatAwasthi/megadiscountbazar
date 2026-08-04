@@ -1,8 +1,10 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { formatPrice } from '../utils/currency';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { X, ShoppingCart, Heart, Plus, Minus, Check, Star, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,7 +39,7 @@ interface QuickViewModalProps {
 
 const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClose }) => {
   const addToCart = useStore((state) => state.addToCart);
-  const navigate = useNavigate();
+  const router = useRouter();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedWeight, setSelectedWeight] = useState<string>('');
@@ -108,7 +110,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
   const handleBuyNow = () => {
     handleAddToCart();
     onClose();
-    navigate('/checkout');
+    router.push('/checkout');
   };
 
   return (
@@ -339,7 +341,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClos
                   Buy Now
                 </button>
                 <button
-                  onClick={() => { onClose(); navigate(`/product/${product.sku || product.id}`); }}
+                  onClick={() => { onClose(); router.push(`/product/${product.sku || product.id}`); }}
                   className="w-full text-center text-[13px] font-[600] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] flex items-center justify-center gap-1.5 transition-colors py-1"
                 >
                   View full details <ArrowRight size={14} />

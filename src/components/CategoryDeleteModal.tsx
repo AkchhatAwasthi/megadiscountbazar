@@ -32,7 +32,13 @@ const CategoryDeleteModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, cate
         .select('id, name, price, stock_quantity, images')
         .eq('category_id', categoryId);
       if (error) throw error;
-      setLinkedProducts(data || []);
+      setLinkedProducts((data || []).map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        stock_quantity: p.stock_quantity || 0,
+        images: p.images || []
+      })));
     } catch (e) {
       toast({ title: 'Error', description: 'Failed to fetch linked products', variant: 'destructive' });
     } finally {

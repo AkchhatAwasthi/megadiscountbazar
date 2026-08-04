@@ -51,7 +51,14 @@ const CategoryProductManager: React.FC<CategoryProductManagerProps> = ({
         .order('name');
 
       if (error) throw error;
-      setProducts(data || []);
+      setProducts((data || []).map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        stock_quantity: p.stock_quantity || 0,
+        images: p.images || [],
+        is_active: !!p.is_active
+      })));
     } catch (error) {
       console.error('Error fetching category products:', error);
       toast({

@@ -37,7 +37,7 @@ export const heroService = {
     async createSlide(slide: HeroSlideInput) {
         const { data, error } = await supabase
             .from('hero_slides')
-            .insert([slide])
+            .insert([slide as any])
             .select()
             .single();
 
@@ -48,7 +48,7 @@ export const heroService = {
     async updateSlide(id: string, slide: Partial<HeroSlideInput>) {
         const { data, error } = await supabase
             .from('hero_slides')
-            .update(slide)
+            .update(slide as any)
             .eq('id', id)
             .select()
             .single();

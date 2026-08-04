@@ -1,7 +1,9 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Grid2X2, ShoppingCart, User, X } from 'lucide-react';
+import { Home, Grid2X2, ShoppingCart, User, X, Heart, LayoutGrid } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,9 +36,10 @@ const categoryEmojis: Record<string, string> = {
 };
 
 const MobileBottomNav: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname() || '';
   const cartItems = useStore((s) => s.cartItems);
+  const toggleCart = useStore((s) => s.toggleCart);
   const { user } = useAuth();
 
   const [categorySheetOpen, setCategorySheetOpen] = useState(false);
@@ -44,7 +47,7 @@ const MobileBottomNav: React.FC = () => {
   const [loadingCats, setLoadingCats] = useState(false);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const currentPath = location.pathname;
+  const currentPath = pathname;
 
   const isActive = (path: string) => {
     if (path === '/') return currentPath === '/';
@@ -68,26 +71,36 @@ const MobileBottomNav: React.FC = () => {
 
   const handleCategorySelect = (name: string) => {
     setCategorySheetOpen(false);
-    navigate(`/products?category=${encodeURIComponent(name)}`);
+    router.push(`/products?category=${encodeURIComponent(name)}`);
   };
 
   const handleProductsTab = () => {
     setCategorySheetOpen(true);
   };
 
-  const tabs = [
+  interface TabItem {
+    id: string;
+    label: string;
+    icon: any;
+    active: boolean;
+    onClick: () => void;
+    isFab?: boolean;
+    badge?: number;
+  }
+
+  const tabs: TabItem[] = [
     {
       id: 'home',
       label: 'Home',
       icon: Home,
       active: isActive('/') && !isActive('/products') && !isActive('/cart') && !isActive('/profile') && !isActive('/auth'),
-      onClick: () => navigate('/'),
+      onClick: () => router.push('/'),
     },
     {
-      id: 'products',
-      label: 'Products',
+      id: 'categories',
+      label: 'Categories',
       icon: Grid2X2,
-      active: isActive('/products'),
+      active: categorySheetOpen,
       onClick: handleProductsTab,
     },
     {
@@ -95,15 +108,22 @@ const MobileBottomNav: React.FC = () => {
       label: 'Cart',
       icon: ShoppingCart,
       active: isActive('/cart'),
-      onClick: () => navigate('/cart'),
-      badge: cartCount,
+      onClick: () => toggleCart(),
+      badge: cartCount > 0 ? cartCount : undefined,
+    },
+    {
+      id: 'wishlist',
+      label: 'Wishlist',
+      icon: Heart,
+      active: isActive('/products') && currentPath.includes('favorites'),
+      onClick: () => router.push('/products?tag=favorites'),
     },
     {
       id: 'account',
       label: 'Account',
       icon: User,
       active: isActive('/profile') || isActive('/auth'),
-      onClick: () => navigate(user ? '/profile' : '/auth'),
+      onClick: () => router.push(user ? '/profile' : '/auth'),
     },
   ];
 
@@ -113,58 +133,55 @@ const MobileBottomNav: React.FC = () => {
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
         style={{
-          background: 'rgba(255,255,255,0.97)',
+          background: 'rgba(255,255,255,0.98)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           borderTop: '1px solid var(--color-border-default)',
-          boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
+          boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
-        <div className="flex items-center justify-around h-16 px-2">
+        <div className="flex items-center justify-around h-16 px-1 relative">
           {tabs.map((tab) => {
             const Icon = tab.icon;
+
             return (
-              <button
+              <motion.button
                 key={tab.id}
+                whileTap={{ scale: 0.88 }}
                 onClick={tab.onClick}
-                className="flex flex-col items-center justify-center gap-1 flex-1 h-full relative transition-all duration-200 active:scale-95"
+                className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full relative transition-all duration-200"
                 id={`mobile-nav-${tab.id}`}
               >
-                {/* Active pill background */}
-                {tab.active && (
-                  <motion.div
-                    layoutId="active-tab-pill"
-                    className="absolute inset-x-2 inset-y-2 rounded-[12px]"
-                    style={{ background: 'var(--color-brand-red-light)' }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-
                 <span className="relative flex items-center justify-center">
-                  <Icon
-                    size={22}
-                    strokeWidth={tab.active ? 2.5 : 1.8}
-                    style={{ color: tab.active ? 'var(--color-brand-red)' : 'var(--color-text-muted)' }}
-                  />
-                  {/* Cart badge */}
+                  <motion.span
+                    animate={{ scale: tab.active ? [1, 1.18, 1] : 1 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <Icon
+                      size={20}
+                      strokeWidth={tab.active ? 2.5 : 1.8}
+                      style={{ color: tab.active ? 'var(--color-brand-red)' : '#6B7280' }}
+                    />
+                  </motion.span>
                   {tab.badge ? (
-                    <span
-                      className="absolute -top-1.5 -right-2 min-w-[16px] h-4 rounded-full text-[10px] font-[700] text-white flex items-center justify-center px-1"
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1.5 -right-2 min-w-[16px] h-4 rounded-full text-[10px] font-[700] text-white flex items-center justify-center px-1 shadow-2xs"
                       style={{ background: 'var(--color-brand-red)' }}
                     >
                       {tab.badge > 99 ? '99+' : tab.badge}
-                    </span>
+                    </motion.span>
                   ) : null}
                 </span>
 
                 <span
-                  className="relative text-[10px] font-[600] tracking-tight leading-none"
-                  style={{ color: tab.active ? 'var(--color-brand-red)' : 'var(--color-text-muted)' }}
+                  className={`relative text-[10px] leading-none mt-0.5 ${tab.active ? 'font-[700] text-[var(--color-brand-red)]' : 'font-[500] text-gray-500'}`}
                 >
                   {tab.label}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>

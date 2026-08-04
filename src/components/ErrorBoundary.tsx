@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({ error, errorInfo });
     
     // Log error to console in development
-    if (import.meta.env.DEV) {
+    if (process.env.NODE_ENV !== 'production') {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
 
@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
     this.props.onError?.(error, errorInfo);
 
     // In production, you might want to send this to an error reporting service
-    if (import.meta.env.PROD) {
+    if (process.env.NODE_ENV === 'production') {
       // Example: Send to error reporting service
       // errorReportingService.captureException(error, { extra: errorInfo });
     }
@@ -73,7 +73,7 @@ export class ErrorBoundary extends Component<Props, State> {
               We're sorry, but something unexpected happened. Please try refreshing the page or go back to the homepage.
             </p>
 
-            {import.meta.env.DEV && this.state.error && (
+            {process.env.NODE_ENV !== 'production' && this.state.error && (
               <details className="mb-6 text-left">
                 <summary className="cursor-pointer text-sm text-gray-500 mb-2">
                   Error Details (Development Only)

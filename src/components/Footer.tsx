@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { useSettings } from '@/hooks/useSettings';
 import { supabase } from '@/integrations/supabase/client';
@@ -63,18 +63,18 @@ const Footer = () => {
             <ul className="flex flex-col gap-3">
               {categories.map((cat) => (
                 <li key={cat.id}>
-                  <Link to={`/products?category=${encodeURIComponent(cat.slug || cat.name.toLowerCase())}`} className="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors capitalize">
+                  <Link href={`/products?category=${encodeURIComponent(cat.slug || cat.name.toLowerCase())}`} className="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors capitalize">
                     {cat.name}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link to="/about" className="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors">
+                <Link href="/about" className="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors">
+                <Link href="/contact" className="text-[14px] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] transition-colors">
                   Contact Us
                 </Link>
               </li>
@@ -137,13 +137,13 @@ const Footer = () => {
             © {new Date().getFullYear()} {contactInfo.storeName}. All rights reserved. | 100% Secure Checkout
           </p>
           <div className="flex flex-wrap items-center gap-6">
-            <Link to="/privacy-policy" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
+            <Link href="/privacy-policy" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
               Privacy Policy
             </Link>
-            <Link to="/terms" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
+            <Link href="/terms" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
               Terms of Use
             </Link>
-            <Link to="/refund-policy" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
+            <Link href="/refund-policy" className="text-[13px] font-[500] text-[var(--color-text-secondary)] hover:text-[var(--color-brand-red)] whitespace-nowrap">
               Returns & Refunds
             </Link>
           </div>

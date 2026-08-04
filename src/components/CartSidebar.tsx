@@ -1,7 +1,9 @@
+"use client";
+
 import { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useSettings } from '../hooks/useSettings';
 import { toNumber, formatCurrency, calculatePercentage } from '../utils/settingsHelpers';
 import { X, ShoppingBag, Trash2, Plus, Minus, Truck, ShieldCheck, ArrowRight } from 'lucide-react';
@@ -21,7 +23,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isAdminRoute = false }) => {
     removeFromCart
   } = useStore();
 
-  const navigate = useNavigate();
+  const router = useRouter();
   const { settings, loading: settingsLoading } = useSettings();
 
   // Close sidebar on outside click
@@ -66,7 +68,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isAdminRoute = false }) => {
 
   const handleCheckout = () => {
     toggleCart();
-    navigate('/cart');
+    router.push('/cart');
   };
 
   return (

@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import QuickViewModal from './QuickViewModal';
@@ -24,7 +26,7 @@ interface Product {
 }
 
 const FloatingProductCard = () => {
-    const location = useLocation();
+    const pathname = usePathname() || '';
     const [products, setProducts] = useState<Product[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
@@ -39,7 +41,7 @@ const FloatingProductCard = () => {
 
     // Show only on specific pages
     const shouldShow = () => {
-        const path = location.pathname;
+        const path = pathname;
         return path === '/' || path === '/products' || path.startsWith('/product/');
     };
 
@@ -47,7 +49,7 @@ const FloatingProductCard = () => {
         if (shouldShow()) {
             fetchProducts();
         }
-    }, [location.pathname]);
+    }, [pathname]);
 
     const fetchProducts = async () => {
         try {
@@ -101,7 +103,7 @@ const FloatingProductCard = () => {
         }, UPDATE_INTERVAL);
 
         return () => clearInterval(interval);
-    }, [products.length, isHovered, isQuickViewOpen, location.pathname]);
+    }, [products.length, isHovered, isQuickViewOpen, pathname]);
 
     const currentProduct = products[currentIndex];
 

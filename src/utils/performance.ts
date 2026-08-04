@@ -12,7 +12,7 @@ interface PerformanceMetric {
 
 class PerformanceMonitor {
   private metrics: PerformanceMetric[] = [];
-  private isProduction = import.meta.env.PROD;
+  private isProduction = process.env.NODE_ENV === 'production';
 
   // Track page load performance
   trackPageLoad(pageName: string) {
@@ -103,7 +103,7 @@ export function measureSync<T>(name: string, operation: () => T): T {
 
 // Web Vitals tracking (Core Web Vitals)
 export function trackWebVitals() {
-  if (typeof window === 'undefined' || !import.meta.env.PROD) return;
+  if (typeof window === 'undefined' || process.env.NODE_ENV !== 'production') return;
 
   // Track Largest Contentful Paint (LCP)
   new PerformanceObserver((list) => {

@@ -1,7 +1,9 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, ChevronRight, History, PackageSearch, ShoppingCart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/utils/currency';
 import { useStore } from '@/store/useStore';
@@ -12,7 +14,7 @@ interface SearchSidebarProps {
 }
 
 const SearchSidebar: React.FC<SearchSidebarProps> = ({ isOpen, onClose }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const addToCart = useStore((state) => state.addToCart);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -83,7 +85,7 @@ const SearchSidebar: React.FC<SearchSidebarProps> = ({ isOpen, onClose }) => {
     };
 
     const handleProductClick = (product: any) => {
-        navigate(`/product/${product.sku || product.id}`);
+        router.push(`/product/${product.sku || product.id}`);
         onClose();
     };
 
@@ -236,7 +238,7 @@ const SearchSidebar: React.FC<SearchSidebarProps> = ({ isOpen, onClose }) => {
                         {/* Footer */}
                         <div className="p-6 border-t border-[var(--color-border-default)]">
                             <button
-                                onClick={() => { navigate('/products'); onClose(); }}
+                                onClick={() => { router.push('/products'); onClose(); }}
                                 className="w-full py-3.5 bg-[var(--color-brand-red)] text-white rounded-[var(--radius-button)] text-[14px] font-[500] hover:bg-[var(--color-brand-red-deep)] transition-all flex items-center justify-center gap-2"
                             >
                                 View all products

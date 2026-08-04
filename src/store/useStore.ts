@@ -67,6 +67,7 @@ interface Store {
   user: null | { name: string; email: string };
   login: (user: { name: string; email: string }) => void;
   logout: () => void;
+  _hasHydrated?: boolean;
 }
 
 // Load cart items from localStorage on initial load
@@ -192,6 +193,7 @@ export const useStore = create<Store>()(
         set({ isAuthenticated: false, user: null });
         get().triggerAnimation('bye-bye');
       },
+      _hasHydrated: false,
     }),
     {
       name: 'sweetsshop-storage',
@@ -200,6 +202,24 @@ export const useStore = create<Store>()(
         cartItems: state.cartItems,
         // We only persist cart items, not the entire state
       }),
+      skipHydration: true,
+      onRehydrateStorage: () => (state) => {
+        if (state) state._hasHydrated = true;
+      },
     }
   )
 );
+
+import { useState, useEffect } from 'react';
+
+export const useHydration = () => {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    // Trigger rehydration on mount
+    useStore.persist.rehydrate();
+    setHydrated(true);
+  }, []);
+
+  return hydrated;
+};
